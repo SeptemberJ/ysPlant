@@ -1,0 +1,155 @@
+<template>
+  <div class="Safe">
+    <el-form class="SafeForm" :model="formSafe" :rules="SafeRules" ref="formSafe" label-width="120px">
+      <el-form-item
+        class="TextAlignR"
+        prop="phone"
+        label="手机号"
+      >
+        <el-input v-model="formSafe.phone" :disabled="true" placeholder="请输入注册的手机号" clearable></el-input>
+      </el-form-item>
+      <el-form-item
+        class="TextAlignR"
+        prop="code"
+        label="验证码"
+      >
+        <el-row class="TextAlignR">
+          <el-col :span="14" class="TextAlignR">
+            <el-input v-model="formSafe.code" placeholder="请输入验证码" clearable></el-input>
+          </el-col>
+          <el-col :span="10" class="TextAlignC CursorPointer">
+            <span @click="toGetCode" class="ColorYellow">{{haGetCode?CountDown + 's 后重新获取':'获取验证码'}}</span>
+          </el-col>
+        </el-row>
+      </el-form-item>
+      <el-form-item
+        class="TextAlignR"
+        prop="password"
+        label="新密码"
+      >
+        <el-input type="password" v-model="formSafe.password" placeholder="请输入新密码" clearable></el-input>
+      </el-form-item>
+      <el-form-item
+        class="TextAlignR"
+        prop="passwordAgain"
+        label="确认新密码"
+      >
+        <el-input type="password" v-model="formSafe.passwordAgain" placeholder="请再次输入新密码" clearable></el-input>
+      </el-form-item>
+      <el-form-item class="TextAlignR">
+        <el-button type="primary" @click="onSubmit('formSafe')">保存修改</el-button>
+      </el-form-item>
+   </el-form>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'Safe',
+  data () {
+    var validateAccountPhone = (rule, value, callback) => {
+      if (value.trim() === '') {
+        callback(new Error('请输入手机号！'))
+      } else if (!(/^1[34578]\d{9}$/.test(value))) {
+        callback(new Error('手机号格式不正确!'))
+      } else {
+        callback()
+      }
+    }
+    var validateConfirmPass = (rule, value, callback) => {
+      if (value.trim() === '') {
+        callback(new Error('请再次输入密码'))
+      } else if (value !== this.formSafe.password) {
+        callback(new Error('两次输入密码不一致!'))
+      } else {
+        callback()
+      }
+    }
+    return {
+      formSafe: {
+        phone: '18234567890',
+        code: '',
+        password: '',
+        passwordAgain: ''
+      },
+      haGetCode: false,
+      code_R: '',
+      code: '',
+      CountDown: 60,
+      SafeRules: {
+        phone: [
+          { required: true, validator: validateAccountPhone, trigger: 'blur' }
+        ],
+        code: [
+          { required: true, message: '请输入验证码！', trigger: 'blur' }
+        ],
+        password: [
+          { required: true, message: '请输入密码！', trigger: 'blur' },
+          { min: 6, max: 11, message: '长度在 6 到 11 个字符', trigger: 'blur' }
+        ],
+        passwordAgain: [
+          { required: true, validator: validateConfirmPass }
+        ]
+      }
+    }
+  },
+  methods: {
+    toGetCode () {
+      if (this.formSafe.phone.trim() === '') {
+        this.$message({
+          message: '请输入手机号！',
+          type: 'warning'
+        })
+        return false
+      }
+      if (!(/^1[34578]\d{9}$/.test(this.formSafe.phone))) {
+        this.$message({
+          message: '手机号格式不正确！',
+          type: 'warning'
+        })
+        return false
+      }
+      if (!this.haGetCode) {
+        this.CountDownFN()
+        // this.getCode()
+      }
+    },
+    CountDownFN () {
+      let Timer = setTimeout(() => {
+        this.CountDownFN()
+      }, 1000)
+      let num = this.CountDown
+      if (num === 1) {
+        clearTimeout(Timer)
+        this.CountDown = 60
+        this.haGetCode = false
+        return false
+      } else {
+        this.CountDown -= 1
+        this.haGetCode = true
+      }
+    },
+    onSubmit (formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+        } else {
+          this.$message({
+            message: '请将信息填写完整！',
+            type: 'warning'
+          })
+          return false
+        }
+      })
+    }
+  }
+}
+</script>
+
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+<style lanf="less" scoped>
+.Safe{
+  background: #fff;
+  margin: 20px;
+  padding: 20px;
+}
+</style>

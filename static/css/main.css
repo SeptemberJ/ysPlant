@@ -1,0 +1,93 @@
+html body{
+	overflow-x: hidden;
+	min-width: 320px;
+	padding: 0 !important;
+	margin: 0 !important;
+}
+/*@media only screen and (min-width: 320px){html {font-size: 62.5%!important;}}
+@media only screen and (min-width: 360px){html {font-size: 72.5%!important;}}
+@media only screen and (min-width: 400px){html {font-size: 82.5%!important;}}
+@media only screen and (min-width: 480px){html {font-size: 94%!important;}}
+@media only screen and (min-width: 481px){
+    html {
+        font-size: 94%!important; 
+    }
+}
+@media only screen and (min-width: 561px){
+    html {
+        font-size: 109%!important;
+    }
+}
+@media only screen and (min-width: 641px){
+    html {
+        font-size: 125%!important;
+    }
+}
+@media only screen and (min-width: 1600px){
+    html {
+        font-size: 225% !important;
+    }
+}*/
+.ColorYellow{
+	color: #e0b32b !important;
+}
+.CursorPointer{
+	cursor: pointer;
+}
+.BgWhite{
+	background: #fff !important;
+}
+.FontSize_12{
+	font-size: 12px !important;
+}
+.MarginTB_20{
+	margin: 20px 0;
+}
+.MarginTB_40{
+	margin: 40px 0;
+}
+.MarginTB_10{
+	margin: 10px 0;
+}
+.TextAlignC{
+	text-align: center !important;
+}
+.TextAlignL{
+	text-align: left !important;
+}
+.TextAlignR{
+	text-align: right !important;
+}
+/**/
+/*.Sign .el-input__inner{
+  width: 300px !important;
+}*/
+/*.Sign .el-input{
+  text-align: left !important;
+}*/
+.avatar-uploader .el-upload {
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.avatar-uploader .el-upload:hover {
+  border-color: #409EFF;
+}
+.avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 178px;
+  height: 178px;
+  line-height: 178px;
+  text-align: center;
+}
+.avatar {
+  width: 178px;
+  height: 178px;
+  display: block;
+}
+.el-menu{
+	border-right: 0px !important;
+}
