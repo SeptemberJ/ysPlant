@@ -1,13 +1,24 @@
 <template>
   <div class="Safe">
-    <el-form class="SafeForm" :model="formSafe" :rules="SafeRules" ref="formSafe" label-width="120px">
+    <el-form class="SafeForm MarginT_40" :model="formSafe" :rules="SafeRules" ref="formSafe" label-width="120px" label-position="right">
       <el-form-item
         class="TextAlignR"
-        prop="phone"
         label="手机号"
       >
-        <el-input v-model="formSafe.phone" :disabled="true" placeholder="请输入注册的手机号" clearable></el-input>
+        <el-input v-model="userAccount" :disabled="true" placeholder="请输入注册的手机号" clearable></el-input>
       </el-form-item>
+      <!-- <el-form-item
+        class="TextAlignR"
+        prop="code"
+        label="验证码"
+      >
+        <el-col :span="10">
+          <el-input v-model="formSafe.code" placeholder="请输入注册的手机号" clearable></el-input>
+        </el-col>
+        <el-col :span="10">
+          <span @click="toGetCode" class="ColorYellow">{{haGetCode?CountDown + 's 后重新获取':'获取验证码'}}</span>
+        </el-col>
+      </el-form-item> -->
       <el-form-item
         class="TextAlignR"
         prop="code"
@@ -37,13 +48,15 @@
         <el-input type="password" v-model="formSafe.passwordAgain" placeholder="请再次输入新密码" clearable></el-input>
       </el-form-item>
       <el-form-item class="TextAlignR">
-        <el-button type="primary" @click="onSubmit('formSafe')">保存修改</el-button>
+        <el-button class="MarginT_40" type="primary" @click="onSubmit('formSafe')">保存修改</el-button>
       </el-form-item>
    </el-form>
   </div>
 </template>
 
 <script>
+import { mapState } from 'vuex'
+import {send} from '../util/send'
 export default {
   name: 'Safe',
   data () {
@@ -66,16 +79,16 @@ export default {
       }
     }
     return {
+      haGetCode: false,
+      code_R: '',
+      code: '',
+      CountDown: 60,
       formSafe: {
         phone: '18234567890',
         code: '',
         password: '',
         passwordAgain: ''
       },
-      haGetCode: false,
-      code_R: '',
-      code: '',
-      CountDown: 60,
       SafeRules: {
         phone: [
           { required: true, validator: validateAccountPhone, trigger: 'blur' }
@@ -92,6 +105,11 @@ export default {
         ]
       }
     }
+  },
+  computed: {
+    ...mapState({
+      userAccount: state => state.userAccount
+    })
   },
   methods: {
     toGetCode () {
@@ -110,9 +128,28 @@ export default {
         return false
       }
       if (!this.haGetCode) {
-        this.CountDownFN()
-        // this.getCode()
+        this.getCode()
       }
+    },
+    getCode () {
+      send({
+        name: '/tokens/SMScode?fmobile=' + this.accountName,
+        method: 'POST',
+        data: {
+        }
+      }).then(res => {
+        if (res.data.result === 1) {
+          this.code_R = res.data.code
+          this.CountDownFN()
+        } else {
+          this.$message({
+            message: '验证码获取失败！',
+            type: 'error'
+          })
+        }
+      }).catch((res) => {
+        console.log(res)
+      })
     },
     CountDownFN () {
       let Timer = setTimeout(() => {

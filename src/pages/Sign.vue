@@ -1,6 +1,17 @@
 <template>
   <div class="Sign">
     <el-form class="FormBox" :model="formSign" :rules="SignRules" ref="formSign" label-width="80px">
+      <el-form-item label="账户类型" prop="role">
+        <el-radio-group v-model="formSign.role">
+          <el-radio :label="1">承运商</el-radio>
+          <el-radio :label="2">货主</el-radio>
+        </el-radio-group>
+        <!-- <el-radio-group v-model="formSign.role" size="medium">
+          <el-radio border label="承运商"></el-radio>
+          <el-radio border label="货主"></el-radio>
+          <el-radio border label="个人"></el-radio>
+        </el-radio-group> -->
+      </el-form-item>
       <el-form-item label="用户名" prop="accountName">
         <el-input v-model="formSign.accountName" placeholder="请输入手机号" clearable></el-input>
       </el-form-item>
@@ -31,6 +42,7 @@
 
 <script>
 import { mapActions } from 'vuex'
+import {send} from '../util/send'
 export default {
   name: 'Sign',
   data () {
@@ -63,6 +75,7 @@ export default {
     }
     return {
       formSign: {
+        role: 1, // 1-承运商 2-货主
         accountName: '18234567890',
         code: '',
         password: '',
@@ -93,6 +106,18 @@ export default {
       }
     }
   },
+  created () {
+    // send({
+    //   name: '/device2',
+    //   method: 'POST',
+    //   authToken: '123321',
+    //   data: {
+    //   }
+    // }).then(_res => {
+    // }).catch((_res) => {
+    //   console.log(_res)
+    // })
+  },
   methods: {
     ...mapActions([
       'changeLocationIdx'
@@ -100,6 +125,40 @@ export default {
     onSubmit (formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
+          if (this.formSign.code !== this.code_R) {
+            this.$message({
+              message: '验证码不正确！',
+              type: 'warning'
+            })
+            return false
+          }
+          let DATA = {
+            fmobile: this.formSign.accountName,
+            password: this.formSign.password,
+            recommd: this.formSign.recommenderPhone,
+            ftype: this.formSign.role
+          }
+          let stObg = JSON.stringify(DATA)
+          send({
+            name: '/tokens/register?zRegisterJson=' + stObg,
+            method: 'POST',
+            data: {
+            }
+          }).then(res => {
+            if (res.data.code === 1) {
+              this.$message({
+                message: '注册成功！',
+                type: 'success'
+              })
+            } else {
+              this.$message({
+                message: res.data.message + '！',
+                type: 'error'
+              })
+            }
+          }).catch((res) => {
+            console.log(res)
+          })
         } else {
           this.$message({
             message: '请将信息填写完整！',
@@ -111,7 +170,7 @@ export default {
     },
     backLogin () {
       this.$router.push({name: 'Login'})
-      this.changeLocationIdx({idxF: 0, idxS: ''})
+      this.changeLocationIdx(0)
     },
     toGetCode () {
       if (this.formSign.accountName.trim() === '') {
@@ -129,9 +188,28 @@ export default {
         return false
       }
       if (!this.haGetCode) {
-        this.CountDownFN()
-        // this.getCode()
+        this.getCode()
       }
+    },
+    getCode () {
+      send({
+        name: '/tokens/SMScode?fmobile=' + this.accountName,
+        method: 'POST',
+        data: {
+        }
+      }).then(res => {
+        if (res.data.result === 1) {
+          this.code_R = res.data.code
+          this.CountDownFN()
+        } else {
+          this.$message({
+            message: '验证码获取失败！',
+            type: 'error'
+          })
+        }
+      }).catch((res) => {
+        console.log(res)
+      })
     },
     CountDownFN () {
       let Timer = setTimeout(() => {
@@ -156,9 +234,15 @@ export default {
 <style lang="less" scoped>
 .Sign{
   width: 400px;
-  margin: 3rem auto 2rem auto;
+  margin: 5rem auto;
+  /*
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  */
   .FormBox{
-    height: 350px;
+    height: 400px;
     position: relative;
     margin: 2rem auto;
     text-align: right;
@@ -170,7 +254,7 @@ export default {
   }
   .BgBlock{
     width: 380px;
-    height: calc(350px + 2rem + 90px);
+    height: calc(400px + 2rem + 90px);
     background: #e0b32b;
     position: absolute;
     top: -30px;

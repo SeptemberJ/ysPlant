@@ -5,14 +5,15 @@
         <img class="Logo" style="width: 140px;height: 66px;" src="../../static/images/Partner_10.png">
       </el-col>
       <el-col :span="12" class="block TextAlignR">
-        <div class="LogOut">你好， 123<span class="CursorPointer" @click="LogOut"><i class="fa fa-sign-out"></i></span></div>
+        <div v-if="locationIdx != 1" class="LogOut">你好， {{userAccount}}<span class="CursorPointer" @click="LogOut"><i class="fa fa-sign-out"></i></span></div>
       </el-col>
     </el-row>
   </div>
 </template>
 
 <script>
-import { mapActions } from 'vuex'
+import { mapState, mapActions } from 'vuex'
+import {clearCookie} from '../util/utils'
 export default {
   name: 'Header',
   data () {
@@ -20,14 +21,21 @@ export default {
       msg: 'Welcome to Your Vue.js App'
     }
   },
+  computed: {
+    ...mapState({
+      userAccount: state => state.userAccount,
+      locationIdx: state => state.locationIdx
+    })
+  },
   methods: {
     ...mapActions([
       'changeLocationIdx'
     ]),
     LogOut () {
-      localStorage.clear()
+      // localStorage.clear('vuex-along')
       this.$router.push({name: 'Login'})
       this.changeLocationIdx(0)
+      clearCookie('btwccy_cookie')
     }
   }
 }

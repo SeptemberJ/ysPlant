@@ -1,9 +1,55 @@
 html body{
-	overflow-x: hidden;
-	min-width: 320px;
+	/*overflow-x: hidden !important;*/
+	min-width: 1024px !important;
+  min-height: 100% !important;
 	padding: 0 !important;
 	margin: 0 !important;
 }
+/*@media screen and (min-width: 320px) {
+  html{
+    font-size: 14px;
+  }
+}
+@media screen and (min-width: 414px) {
+  html{
+    font-size: 16px;
+  }
+}
+@media screen and (min-width: 768px) {
+  html{
+    font-size: 18px;
+  }
+}
+@media screen and (min-width: 1024px) {
+  html{
+    font-size: 18px;
+  }
+}
+@media screen and (min-width: 1280px) {
+  html{
+    font-size: 20px;
+  }
+}
+@media screen and (min-width: 1366px) {
+  html{
+    font-size: 22px;
+  }
+}
+@media screen and (min-width: 1440px) {
+  html{
+    font-size: 24px;
+  }
+}
+@media screen and (min-width: 1600px) {
+  html{
+    font-size: 26px;
+  }
+}
+@media screen and (min-width: 1920px) {
+  html{
+    font-size: 32px;
+  }
+}*/
 /*@media only screen and (min-width: 320px){html {font-size: 62.5%!important;}}
 @media only screen and (min-width: 360px){html {font-size: 72.5%!important;}}
 @media only screen and (min-width: 400px){html {font-size: 82.5%!important;}}
@@ -28,6 +74,18 @@ html body{
         font-size: 225% !important;
     }
 }*/
+/*@media only screen and (min-width: 1600px){
+    html{
+      font-size: 200% !important;
+      background: red !important;
+    }
+}
+@media only screen and (min-width: 1920px){
+    html{
+      font-size: 225% !important;
+      background: blue !important;
+    }
+}*/
 .ColorYellow{
 	color: #e0b32b !important;
 }
@@ -46,6 +104,15 @@ html body{
 .MarginTB_40{
 	margin: 40px 0;
 }
+.MarginT_40{
+  margin-top: 40px;
+}
+.MarginB_40{
+  margin-bottom: 40px;
+}
+.MarginT_80{
+  margin-top: 80px;
+}
 .MarginTB_10{
 	margin: 10px 0;
 }
@@ -57,6 +124,12 @@ html body{
 }
 .TextAlignR{
 	text-align: right !important;
+}
+.PaddingL_20{
+  padding-left: 20px !important;
+}
+.Padding_20{
+  padding: 20px !important;
 }
 /**/
 /*.Sign .el-input__inner{
@@ -90,4 +163,13 @@ html body{
 }
 .el-menu{
 	border-right: 0px !important;
+}
+.el-form--label-top .el-form-item__label{
+  float: left !important;
+}
+.el-breadcrumb__item:last-child .el-breadcrumb__inner, .el-breadcrumb__item:last-child .el-breadcrumb__inner a, .el-breadcrumb__item:last-child .el-breadcrumb__inner a:hover, .el-breadcrumb__item:last-child .el-breadcrumb__inner:hover{
+  font-weight: bold;
+}
+.el-breadcrumb__inner{
+  font-weight: bold;
 }

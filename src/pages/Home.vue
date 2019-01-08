@@ -5,7 +5,7 @@
         <el-row>
           <el-col :span="4" class="siderMenu">
             <el-menu
-              :default-active="curSideMenu"
+              :default-active="siderIdx"
               class="el-menu-vertical-demo"
               @select="changeSideMenu"
               @open="handleOpen"
@@ -49,20 +49,23 @@
           <el-col :span="20" class="mainContent">
             <div class="moduleTit">
               <el-breadcrumb separator="/">
-                <el-breadcrumb-item v-if="curSideMenu == '1'" :to="{ path: 'Home' }">用户管理</el-breadcrumb-item>
-                <el-breadcrumb-item v-if="curSideMenu == '2'" :to="{ path: 'Home' }">运单管理</el-breadcrumb-item>
-                <el-breadcrumb-item v-if="curSideMenu == '3'" :to="{ path: 'Home' }">个人中心</el-breadcrumb-item>
+                <el-breadcrumb-item v-if="siderIdx == '1'">用户管理</el-breadcrumb-item>
+                <el-breadcrumb-item v-if="siderIdx == '2'">运单管理</el-breadcrumb-item>
+                <el-breadcrumb-item v-if="siderIdx == '3' || siderIdx == '3-1' || siderIdx == '3-2'">个人中心</el-breadcrumb-item>
                 <!-- <el-breadcrumb-item>{{curSideMenu == '1' ? '用户管理' : (curSideMenu == '2' ? '运单管理' : '个人中心')}}</el-breadcrumb-item> -->
-                <el-breadcrumb-item>活动详情</el-breadcrumb-item>
+                <el-breadcrumb-item v-if="siderIdx == '3-1'">基本信息</el-breadcrumb-item>
+                <el-breadcrumb-item v-if="siderIdx == '3-2'">密码修改</el-breadcrumb-item>
               </el-breadcrumb>
               <!-- <span>{{curSideMenu == '1' ? '用户管理' : (curSideMenu == '2' ? '运单管理' : '个人中心')}}</span> -->
             </div>
-            <User v-if="curSideMenu == '1'"/>
-            <Order v-if="curSideMenu == '2'"/>
-            <Center v-if="curSideMenu == '3-1'"/>
-            <Safe v-if="curSideMenu == '3-2'"/>
+            <section>
+              <User v-if="siderIdx == '1'"/>
+              <Order v-if="siderIdx == '2'"/>
+              <Center v-if="siderIdx == '3-1'"/>
+              <Safe v-if="siderIdx == '3-2'"/>
+            </section>
             <div class="CopyrightBar">
-              <p>Copyright  2019 无车承运</p>
+              ©2019 无车承运 版权所有
             </div>
           </el-col>
         </el-row>
@@ -72,7 +75,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapActions } from 'vuex'
 import Order from '../components/Order.vue'
 import Center from '../components/Center.vue'
 import User from '../components/User.vue'
@@ -93,13 +96,21 @@ export default {
   computed: {
     ...mapState({
       locationIdx: state => state.locationIdx,
-      locationIdxSecond: state => state.locationIdxSecond
+      siderIdx: state => state.siderIdx
     })
   },
   methods: {
+    ...mapActions([
+      'changeSiderIdx'
+    ]),
     changeSideMenu (index, keyPath) {
-      console.log(index)
-      this.curSideMenu = index
+      if (keyPath.length > 1) {
+        this.changeSiderIdx(keyPath[1])
+        // this.curSideMenu = keyPath[1]
+      } else {
+        this.changeSiderIdx(keyPath[0])
+        // this.curSideMenu = keyPath[0]
+      }
     },
     handleOpen (key, keyPath) {
       console.log(key, keyPath)
@@ -113,13 +124,16 @@ export default {
 
 <style lang="less" scoped>
 .HomePage{
+  position: relative;
   width: 100%;
-  min-height: 500px;
+  /*min-height: 500px;*/
   display: block;
   .siderMenu{
     overflow: hidden;
   }
   .mainContent{
+    position: relative !important;
+    min-height: 850px;
     background: #f0f2f5;
     border-left: solid 1px #e6e6e6;
     .moduleTit{
@@ -140,11 +154,22 @@ export default {
       */
     }
     .CopyrightBar{
-      height: 50px;
-      line-height: 50px;
+      width: 100%;
+      height: 40px;
+      background: #f0f2f5;
+      line-height: 40px;
+      position: absolute;
+      left: 0;
+      bottom: 0px;
+      text-align: center;
       color: #999;
       font-size: 12px;
     }
   }
+}
+.el-breadcrumb{
+  height: 80px;
+  line-height: 80px;
+  padding-left: 20px;
 }
 </style>

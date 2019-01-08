@@ -1,6 +1,7 @@
 <template>
   <div id="app">
     <Header v-if="locationIdx != 0"/>
+    <!-- <p>locationIdx: {{locationIdx}} siderIdx: {{siderIdx}}</p> -->
     <router-view/>
   </div>
 </template>
@@ -15,7 +16,8 @@ export default {
   },
   computed: {
     ...mapState({
-      locationIdx: state => state.locationIdx
+      locationIdx: state => state.locationIdx,
+      siderIdx: state => state.siderIdx
     })
   }
 }

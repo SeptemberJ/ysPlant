@@ -80,7 +80,7 @@
         </el-pagination>
       </el-col>
     </el-row>
-    <OrderDetail v-if="showDetail"/>
+    <OrderDetail v-if="showDetail" @toggleOrderDetail='changeIfOrderDetail'/>
   </div>
 </template>
 
@@ -97,6 +97,7 @@ export default {
         startDate: '',
         endDate: ''
       },
+      orderList1: [],
       orderList: [
         {
           orderNo: 'ORSCSC123',
@@ -122,6 +123,9 @@ export default {
   },
   methods: {
     handleSelectionChange () {
+    },
+    changeIfOrderDetail () {
+      this.showDetail = false
     },
     handleEdit () {
       this.showDetail = true

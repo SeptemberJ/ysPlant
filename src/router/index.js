@@ -4,6 +4,8 @@ import Login from '@/pages/Login'
 import Sign from '@/pages/Sign'
 import Information from '@/pages/Information'
 import Home from '@/pages/Home'
+import {getCookie} from '../util/utils'
+import store from '../vuex/store'
 
 Vue.use(VueRouter)
 
@@ -25,19 +27,34 @@ const router = new VueRouter({
       path: '/Information',
       name: 'Information',
       component: Information,
-      meta: {requireAuth: false}
+      meta: {requireAuth: true}
     },
     {
       path: '/Home',
       name: 'Home',
       component: Home,
-      meta: {requireAuth: false}
+      meta: {requireAuth: true}
     },
     {path: '*', redirect: '/Login'}
   ]
 })
 // 登录控制
 router.beforeEach((to, from, next) => {
-  next()
+  if (to.name === 'Login') {
+    localStorage.clear('vuex-along')
+    store.dispatch('changeLocationIdx', 0)
+  }
+  if (to.meta.requireAuth) {
+    if (getCookie('btwccy_cookie')) {
+      next()
+    } else {
+      localStorage.clear()
+      next({
+        path: '/Login'
+      })
+    }
+  } else {
+    next()
+  }
 })
 export default router

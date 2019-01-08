@@ -31,7 +31,7 @@
         <span>提货方式：{{Info.getWay}}</span>
       </el-col>
     </el-row>
-    <el-row class="MarginTB_40">
+    <el-row class="MarginT_80 MarginB_40">
       <el-steps :active="Info.status">
         <el-step title="揽货成功" icon="el-icon-tickets"></el-step>
         <el-step title="货物发车" icon="el-icon-news"></el-step>
@@ -43,6 +43,9 @@
       <el-steps direction="vertical" :active="0" space="20">
         <el-step v-for="(logistic, idx) in Info.logistics" :key="idx" icon="el-icon-circle-check-outline" :title="logistic.tip" :description="logistic.date"></el-step>
       </el-steps>
+    </el-row>
+    <el-row class="MarginT_40 TextAlignC">
+      <el-button @click="backOrderList" style="width: 100px;">返回</el-button>
     </el-row>
   </div>
 </template>
@@ -86,6 +89,11 @@ export default {
           }
         ]
       }
+    }
+  },
+  methods: {
+    backOrderList () {
+      this.$emit('toggleOrderDetail')
     }
   }
 }

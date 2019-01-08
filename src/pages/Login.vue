@@ -29,21 +29,29 @@
 
 <script>
 import { mapActions } from 'vuex'
+import {send} from '../util/send'
+import {setCookie} from '../util/utils'
+// import {setCookie, Encrypt, Decrypt} from '../util/utils'
 export default {
   name: 'Login',
   data () {
     return {
       phone: '18234567890',
-      password: '111'
+      password: '111111'
     }
+  },
+  created () {
   },
   methods: {
     ...mapActions([
-      'changeLocationIdx'
+      'changeLocationIdx',
+      'changeUserId',
+      'changeUserAccount',
+      'changeUserRole'
     ]),
     ToSign () {
       this.$router.push({name: 'Sign'})
-      this.changeLocationIdx({idxF: 1, idxS: ''})
+      this.changeLocationIdx(1)
     },
     Login () {
       if (this.phone.trim() === '') {
@@ -67,8 +75,45 @@ export default {
         })
         return false
       }
-      this.$router.push({name: 'Home'})
-      this.changeLocationIdx({idxF: 2, idxS: ''})
+      send({
+        name: '/tokens/registerLogin?fmobile=' + this.phone + '&password=' + this.password,
+        // name: '/userLoginPC?mobile=18234567890&fpassword=111',
+        method: 'POST',
+        data: {
+        }
+      }).then(res => {
+        switch (res.data.code) {
+          case 1:
+            setCookie('btwccy_cookie', res.data.token, 6)
+            this.changeUserId(res.data.id)
+            this.changeUserRole(res.data.ftype)
+            this.changeUserAccount(this.phone)
+            this.$message({
+              message: '登陆成功！',
+              type: 'success'
+            })
+            // 0-未审核 1-通过 2-退回 3-再次提交
+            if (res.data.checkStatus === '1') {
+              // 主页
+              this.$router.push({name: 'Home'})
+              this.changeLocationIdx(2)
+            } else {
+              // 信息页
+              this.$router.push({name: 'Information'})
+              this.changeLocationIdx(3)
+            }
+            break
+          default:
+            this.$message({
+              message: res.data.message + '！',
+              type: 'error'
+            })
+        }
+      }).catch((res) => {
+        console.log(res)
+      })
+      // this.$router.push({name: 'Home'})
+      // this.changeLocationIdx(2)
     }
   }
 }
@@ -77,7 +122,12 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="less" scoped>
 .Login{
+  width: 100%;
   text-algin: center;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   .Logo{
     width: 280px;
     height: 132px;
