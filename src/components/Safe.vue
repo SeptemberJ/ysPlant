@@ -48,15 +48,16 @@
         <el-input type="password" v-model="formSafe.passwordAgain" placeholder="请再次输入新密码" clearable></el-input>
       </el-form-item>
       <el-form-item class="TextAlignR">
-        <el-button class="MarginT_40" type="primary" @click="onSubmit('formSafe')">保存修改</el-button>
+        <el-button class="MarginT_40" type="primary" :loading="ifLoading" @click="onSubmit('formSafe')">保存修改</el-button>
       </el-form-item>
    </el-form>
   </div>
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapActions } from 'vuex'
 import {send} from '../util/send'
+import {clearCookie} from '../util/utils'
 export default {
   name: 'Safe',
   data () {
@@ -79,12 +80,13 @@ export default {
       }
     }
     return {
+      ifLoading: false,
       haGetCode: false,
       code_R: '',
       code: '',
       CountDown: 60,
       formSafe: {
-        phone: '18234567890',
+        phone: '',
         code: '',
         password: '',
         passwordAgain: ''
@@ -108,32 +110,36 @@ export default {
   },
   computed: {
     ...mapState({
-      userAccount: state => state.userAccount
+      userAccount: state => state.userAccount,
+      locationIdx: state => state.locationIdx
     })
   },
   methods: {
+    ...mapActions([
+      'changeLocationIdx'
+    ]),
     toGetCode () {
-      if (this.formSafe.phone.trim() === '') {
-        this.$message({
-          message: '请输入手机号！',
-          type: 'warning'
-        })
-        return false
-      }
-      if (!(/^1[34578]\d{9}$/.test(this.formSafe.phone))) {
-        this.$message({
-          message: '手机号格式不正确！',
-          type: 'warning'
-        })
-        return false
-      }
+      // if (this.formSafe.phone.trim() === '') {
+      //   this.$message({
+      //     message: '请输入手机号！',
+      //     type: 'warning'
+      //   })
+      //   return false
+      // }
+      // if (!(/^1[34578]\d{9}$/.test(this.formSafe.phone))) {
+      //   this.$message({
+      //     message: '手机号格式不正确！',
+      //     type: 'warning'
+      //   })
+      //   return false
+      // }
       if (!this.haGetCode) {
         this.getCode()
       }
     },
     getCode () {
       send({
-        name: '/tokens/SMScode?fmobile=' + this.accountName,
+        name: '/tokens/SMScode?fmobile=' + this.userAccount,
         method: 'POST',
         data: {
         }
@@ -169,6 +175,40 @@ export default {
     onSubmit (formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
+          if (this.formSafe.code.trim() !== this.code_R) {
+            this.$message({
+              message: '验证码不正确！',
+              type: 'warning'
+            })
+            return false
+          }
+          this.ifLoading = true
+          send({
+            name: '/tokens/registerChangePsw?fmobile=' + this.userAccount + '&fpassword=' + this.formSafe.password,
+            method: 'POST',
+            data: {
+            }
+          }).then(res => {
+            if (res.data.code === 1) {
+              this.$message({
+                message: '密码修改成功！',
+                type: 'success'
+              })
+              this.$router.push({name: 'Login'})
+              this.changeLocationIdx(0)
+              clearCookie('btwccy_cookie')
+              this.ifLoading = false
+            } else {
+              this.$message({
+                message: res.data.message + '！',
+                type: 'error'
+              })
+              this.ifLoading = false
+            }
+          }).catch((res) => {
+            console.log(res)
+            this.ifLoading = false
+          })
         } else {
           this.$message({
             message: '请将信息填写完整！',
@@ -183,10 +223,10 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style lanf="less" scoped>
+<style lang="less" scoped>
 .Safe{
   background: #fff;
-  margin: 20px;
+  margin: 20px 20px 60px 20px;
   padding: 20px;
 }
 </style>

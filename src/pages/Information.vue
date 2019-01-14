@@ -40,7 +40,7 @@
         </el-upload>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="onSubmit('formInfo')" style="width: 100px;">提交信息</el-button>
+        <el-button type="primary" @click="onSubmit('formInfo')" style="width: 100px;" :loading="ifLoading">提交信息</el-button>
       </el-form-item>
       <div class="BgBlock"></div>
     </el-form>
@@ -65,6 +65,8 @@ export default {
       }
     }
     return {
+      // ImgURL_PREFIX: 'http://116.62.171.244:8082/yingsu/',
+      ifLoading: false,
       checkStatus: 0,
       licenseImgName: '', // 图片服务器地址
       contractImgName: '', // 图片服务器地址
@@ -97,7 +99,8 @@ export default {
   },
   computed: {
     ...mapState({
-      userId: state => state.userId
+      userId: state => state.userId,
+      ImgURL_PREFIX: state => state.ImgURL_PREFIX
     })
   },
   created () {
@@ -150,13 +153,13 @@ export default {
     },
     // 上传图片
     uploadImg (property, img) {
-      axios.post('http://172.16.52.99:8083/yingsu/rest/registerDriverController/photo', img, {
+      axios.post('http://116.62.171.244:8082/yingsu/rest/registerDriverController/photo', img, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'X-AUTH-TOKEN': getCookie('btwccy_cookie')
         }
       }).then((res) => {
-        this[property] = res.data
+        this[property] = res.data.data
       })
     },
     onSubmit (formName) {
@@ -171,6 +174,7 @@ export default {
             company_phone: this.formInfo.tel
           }
           let stObg = JSON.stringify(DATA)
+          this.ifLoading = true
           send({
             name: '/zRegisterController/doUpdateHZ?jsonHZ=' + stObg,
             method: 'POST',
@@ -183,14 +187,17 @@ export default {
                 message: '信息提交成功，等待审核！',
                 type: 'success'
               })
+              this.ifLoading = false
             } else {
               this.$message({
                 message: res.data.message + '！',
                 type: 'error'
               })
+              this.ifLoading = false
             }
           }).catch((res) => {
             console.log(res)
+            this.ifLoading = false
           })
         } else {
           this.$message({
@@ -204,13 +211,14 @@ export default {
     // 获取基本信息
     getBasicInfo () {
       send({
+        // name: '/zRegisterController/registerInfo?id=' + this.userId,
         name: '/zRegisterController/' + this.userId,
         method: 'GET',
         data: {
         }
       }).then(res => {
         let Info = res.data.data
-        if (res.data.ok) {
+        if (res.data.respCode === '0') {
           if (Info.companyName) {
             this.checkStatus = Info.checkStatus
           } else {
@@ -221,8 +229,8 @@ export default {
           this.formInfo.company = Info.companyName
           this.formInfo.contact = Info.companyLxr
           this.formInfo.tel = Info.companyPhone
-          this.formInfo.license = Info.companyLicence
-          this.formInfo.contract = Info.companyContract
+          this.formInfo.license = this.ImgURL_PREFIX + Info.companyContract
+          this.formInfo.contract = this.ImgURL_PREFIX + Info.companyLicence
           this.formInfo.role = (Info.ftype === '1' ? '承运商' : '货主')
         } else {
           this.$message({

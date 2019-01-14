@@ -1,5 +1,6 @@
 <template>
   <div class="Login">
+    <!-- <img class="Logo" src="../../static/images/Logo.png"> -->
     <img class="Logo" src="../../static/images/Partner_10.png">
     <!-- <img class="Logo" src="https://cdn.loanpal.com/lpaprod/images/logo.svg"> -->
     <p class="ColorYellow FontSize_10">登陆我的无车承运账户</p>
@@ -13,11 +14,12 @@
             <el-input style="width:250px;" type="password" v-model="password" placeholder="请输入您的密码" clearable></el-input>
           </el-col>
           <el-col :span="24" class="MarginTB_20 TextAlignC">
-            <div class="loginBt CursorPointer" @click="Login">登陆</div>
+           <!--  <div class="loginBt CursorPointer" @click="Login">登陆</div> -->
+           <el-button class="loginBt CursorPointer" @click="Login" :loading="ifLoading">登陆</el-button>
           </el-col>
           <el-col :span="24">
             <el-row class="operation">
-              <el-col :span="12" class="TextAlignL"><span class="CursorPointer">忘记密码</span></el-col>
+              <el-col :span="12" class="TextAlignL"><span @click="ToModityPsd" class="CursorPointer">忘记密码</span></el-col>
               <el-col :span="12" class="TextAlignR"><span @click="ToSign" class="CursorPointer">去注册</span></el-col>
             </el-row>
           </el-col>
@@ -36,7 +38,8 @@ export default {
   name: 'Login',
   data () {
     return {
-      phone: '18234567890',
+      ifLoading: false,
+      phone: '18734567890', // 货主 18734567890 承运商 18234567890
       password: '111111'
     }
   },
@@ -47,23 +50,21 @@ export default {
       'changeLocationIdx',
       'changeUserId',
       'changeUserAccount',
-      'changeUserRole'
+      'changeUserRole',
+      'changeUserCode'
     ]),
     ToSign () {
       this.$router.push({name: 'Sign'})
       this.changeLocationIdx(1)
     },
+    ToModityPsd () {
+      this.$router.push({name: 'Password'})
+      this.changeLocationIdx(4)
+    },
     Login () {
       if (this.phone.trim() === '') {
         this.$message({
-          message: '请输入注册的手机号！',
-          type: 'warning'
-        })
-        return false
-      }
-      if (!(/^1[34578]\d{9}$/.test(this.phone))) {
-        this.$message({
-          message: '手机号格式不正确！',
+          message: '请输入账户名！',
           type: 'warning'
         })
         return false
@@ -75,6 +76,7 @@ export default {
         })
         return false
       }
+      this.ifLoading = true
       send({
         name: '/tokens/registerLogin?fmobile=' + this.phone + '&password=' + this.password,
         // name: '/userLoginPC?mobile=18234567890&fpassword=111',
@@ -86,31 +88,51 @@ export default {
           case 1:
             setCookie('btwccy_cookie', res.data.token, 6)
             this.changeUserId(res.data.id)
+            this.changeUserCode(res.data.usercode)
+            // 1-承运商主 2-货主主 4-承运商子 5-货主子 3-个人
             this.changeUserRole(res.data.ftype)
-            this.changeUserAccount(this.phone)
             this.$message({
               message: '登陆成功！',
               type: 'success'
             })
+            this.ifLoading = false
             // 0-未审核 1-通过 2-退回 3-再次提交
-            if (res.data.checkStatus === '1') {
+            if (res.data.checkStatus === '1' || res.data.checkStatus === '3') { // 主账户登陆
               // 主页
+              this.changeUserAccount(this.phone)
               this.$router.push({name: 'Home'})
               this.changeLocationIdx(2)
-            } else {
+            } else if (res.data.checkStatus === undefined) { // 子账户登陆
+              // 主页
+              this.changeUserAccount(res.data.usercode)
+              this.$router.push({name: 'Home'})
+              this.changeLocationIdx(2)
+            } else { // 未通过审核
               // 信息页
+              this.changeUserAccount(this.phone)
               this.$router.push({name: 'Information'})
               this.changeLocationIdx(3)
             }
+            // if (res.data.checkStatus === '1' || res.data.checkStatus === undefined) {
+            //   // 主页
+            //   this.$router.push({name: 'Home'})
+            //   this.changeLocationIdx(2)
+            // } else if (res.data.checkStatus === '0' || res.data.checkStatus === '2' || res.data.checkStatus === '3') {
+            //   // 信息页
+            //   this.$router.push({name: 'Information'})
+            //   this.changeLocationIdx(3)
+            // }
             break
           default:
             this.$message({
               message: res.data.message + '！',
               type: 'error'
             })
+            this.ifLoading = false
         }
       }).catch((res) => {
         console.log(res)
+        this.ifLoading = false
       })
       // this.$router.push({name: 'Home'})
       // this.changeLocationIdx(2)
@@ -152,7 +174,6 @@ export default {
         height: 40px;
         margin: 0 auto;
         text-align: center;
-        line-height: 40px;
         background: #e0b32b;
         color: #fff;
         border-radius: 30px;

@@ -51,8 +51,10 @@
 </template>
 
 <script>
+import {send} from '../../util/send'
 export default {
   name: 'OrderDetail',
+  props: ['orderId'],
   data () {
     return {
       Info: {
@@ -91,9 +93,30 @@ export default {
       }
     }
   },
+  created () {
+    this.getOrderDetail()
+  },
   methods: {
     backOrderList () {
       this.$emit('toggleOrderDetail')
+    },
+    getOrderDetail () {
+      send({
+        name: '/orderController/' + this.orderId,
+        method: 'GET',
+        data: {}
+      }).then(res => {
+        if (res.data.code === 1) {
+          
+        } else {
+          this.$message({
+            message: res.data.message + '！',
+            type: 'error'
+          })
+        }
+      }).catch((res) => {
+        console.log(res)
+      })
     }
   }
 }
@@ -103,7 +126,7 @@ export default {
 <style lang="less" scoped>
 .OrderDetail{
   background: #fff;
-  margin: 20px 20px 50px 20px;
+  margin: 20px 20px 60px 20px;
   padding: 20px;
   text-align: left;
   .DetailInfo{

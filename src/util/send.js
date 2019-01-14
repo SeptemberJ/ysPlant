@@ -1,12 +1,13 @@
 import axios from 'axios'
 // import * as $ from 'jquery'
 // import * as CryptoJS from 'crypto-js'
-import {getCookie} from './utils'
+import {getCookie, clearCookie} from './utils'
 import { Message } from 'element-ui'
+import store from '../vuex/store'
 // import _ from 'underscore'
 
 const URL_PREFIX = 'http://172.16.52.99:8083/yingsu/rest'
-// const URL_PREFIX = 'http://www.smart-hox.com:8081/hoxJK'
+// const URL_PREFIX = 'http://116.62.171.244:8082/yingsu/rest'
 
 // let registerId = localStorage['registerId']
 // let account = localStorage['account']
@@ -128,14 +129,30 @@ export function send (options) {
         ).then((res) => {
           resolve(res)
         }).catch((error) => {
-          console.log(error)
-          Message.error({
-            message: 'Interface error!'
-          })
+          console.log(error.response.status)
+          if (error.response.status === 401) {
+            store.dispatch('changeRouter')
+            store.dispatch('changeLocationIdx', 0)
+            store.dispatch('changeSiderIdx', '1-1')
+            clearCookie('btwccy_cookie')
+            Message.error({
+              message: 'Token已过期请重新登陆!'
+            })
+          } else {
+            Message.error({
+              message: 'Interface error!'
+            })
+          }
         })
         break
       case 'DELETE':
-        axios.delete(encodeURI(options.url), {headers: {'X-Timestamp': timestamp, 'X-AUTH-TOKEN': getCookie('btwccy_cookie')}}
+        axios.delete(encodeURI(options.url),
+          {
+            headers: {
+              'X-AUTH-TOKEN': getCookie('btwccy_cookie') || '',
+              'X-Timestamp': timestamp
+            }
+          }
         ).then((res) => {
           resolve(res)
         }).catch((error) => {
@@ -146,7 +163,13 @@ export function send (options) {
         })
         break
       case 'PUT':
-        axios.put(encodeURI(options.url), {headers: {'X-Timestamp': timestamp, 'X-AUTH-TOKEN': getCookie('btwccy_cookie')}}
+        axios.put(encodeURI(options.url), options.data,
+          {
+            headers: {
+              'X-AUTH-TOKEN': getCookie('btwccy_cookie') || '',
+              'X-Timestamp': timestamp
+            }
+          }
         ).then((res) => {
           resolve(res)
         }).catch((error) => {

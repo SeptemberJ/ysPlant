@@ -51,7 +51,7 @@
       >
         <el-row>
           <el-col class="TextAlignR Padding_20" :span="24">
-            <img style="float: right" src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png" class="avatar">
+            <img style="float: right" :src="formInfo.license" class="avatar">
           </el-col>
         </el-row>
         <!-- <el-upload
@@ -70,7 +70,7 @@
       >
         <el-row>
           <el-col class="TextAlignR Padding_20" :span="24">
-            <img style="float: right" src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png" class="avatar">
+            <img style="float: right" :src="formInfo.companyContract" class="avatar">
           </el-col>
         </el-row>
       </el-form-item>
@@ -119,7 +119,8 @@ export default {
   computed: {
     ...mapState({
       userAccount: state => state.userAccount,
-      userId: state => state.userId
+      userId: state => state.userId,
+      ImgURL_PREFIX: state => state.ImgURL_PREFIX
     })
   },
   created () {
@@ -159,18 +160,19 @@ export default {
     // 获取基本信息
     getBasicInfo () {
       send({
+        // name: '/zRegisterController/registerInfo?id=' + this.userId,
         name: '/zRegisterController/' + this.userId,
         method: 'GET',
         data: {
         }
       }).then(res => {
         let Info = res.data.data
-        if (res.data.ok) {
+        if (res.data.respCode === '0') {
           this.formInfo.company = Info.companyName
           this.formInfo.contact = Info.companyLxr
           this.formInfo.tel = Info.companyPhone
-          this.formInfo.license = Info.companyLicence
-          this.formInfo.contract = Info.companyContract
+          this.formInfo.license = this.ImgURL_PREFIX + Info.companyContract
+          this.formInfo.contract = this.ImgURL_PREFIX + Info.companyLicence
           this.formInfo.role = (Info.ftype === '1' ? '承运商' : '货主')
         } else {
           this.$message({
@@ -190,7 +192,7 @@ export default {
 <style lang="less" scoped>
 .Center{
   background: #fff;
-  margin: 20px;
+  margin: 20px 20px 60px 20px;
   padding: 20px;
 }
 </style>

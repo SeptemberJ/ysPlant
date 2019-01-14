@@ -2,10 +2,11 @@
   <div class="HeaderBar">
     <el-row>
       <el-col :span="12" class="block">
+        <!-- <img class="Logo" style="width: 140px;height: 66px;" src="../../static/images/Logo.png"> -->
         <img class="Logo" style="width: 140px;height: 66px;" src="../../static/images/Partner_10.png">
       </el-col>
       <el-col :span="12" class="block TextAlignR">
-        <div v-if="locationIdx != 1" class="LogOut">你好， {{userAccount}}<span class="CursorPointer" @click="LogOut"><i class="fa fa-sign-out"></i></span></div>
+        <div v-if="locationIdx != 0 & locationIdx != 1 & locationIdx != 4" class="LogOut">你好， {{userAccount}}<span class="CursorPointer" @click="LogOut"><i class="fa fa-sign-out"></i></span></div>
       </el-col>
     </el-row>
   </div>
@@ -29,12 +30,14 @@ export default {
   },
   methods: {
     ...mapActions([
-      'changeLocationIdx'
+      'changeLocationIdx',
+      'changeSiderIdx'
     ]),
     LogOut () {
       // localStorage.clear('vuex-along')
       this.$router.push({name: 'Login'})
       this.changeLocationIdx(0)
+      this.changeSiderIdx('1-1')
       clearCookie('btwccy_cookie')
     }
   }
