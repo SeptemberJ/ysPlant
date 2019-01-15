@@ -214,7 +214,6 @@
                 :value="carType.typeValue">
               </el-option>
             </el-select>
-            <!-- <el-input v-model="formAdd.carType" clearable></el-input> -->
           </el-form-item>
           <!-- time -->
           <el-form-item prop="zhTime" label="装货日期">
@@ -235,8 +234,8 @@
           <span>预估费用</span>
         </div>
         <div class="TextAlignL">
-          <h4 class="ColorWarn"><span style="display:inline-block;width:50%">合计：</span><span style="display:inline-block;width:50%;text-align:right">2000 ¥</span></h4>
-          <p style="font-size: 12px;color: #909399;text-align:right">{{cityDistance}} (公里数) * {{totalWeight}} (重量) * 11 (单价) = 2000 ¥</p>
+          <h4 class="ColorWarn"><span style="display:inline-block;width:50%">合计：</span><span style="display:inline-block;width:50%;text-align:right">{{totalSum}} ¥</span></h4>
+          <p style="font-size: 12px;color: #909399;text-align:right">{{cityDistance}} (公里数) * {{totalWeight}} (重量) * {{unitPrice}} (单价) = {{totalSum}} ¥</p>
         </div>
       </el-card>
       <!-- bt -->
@@ -279,15 +278,15 @@ export default {
       scityPid: '',
       sareaPid: '',
       cityDistance: 0,
-      // totalSum: 0,
+      unitPrice: 0,
+      totalSum: 0,
       formAdd: {
-        fProvince: '',
+        fprovince: '',
         fcity: '',
         farea: '',
-        sProvince: '',
+        sprovince: '',
         scity: '',
         sarea: '',
-        ffee: 0,
         id: '',
         fstatus: '0',
         fcheck: '0',
@@ -295,11 +294,11 @@ export default {
         fsubId: '', // 子账号code
         fhName: '张三',
         fhTelephone: '18234567890',
-        fh: '1235', // 发货地id
+        fh: '', // 发货地id
         fhAddress: '南通',
         shName: '李四',
         shTelephone: '18234567898',
-        sh: '1236', // 收货地id
+        sh: '', // 收货地id
         shArea: '上海',
         shAddress: '上海',
         carType: '',
@@ -379,10 +378,21 @@ export default {
     }),
     totalWeight: function () {
       let sum = 0
-      this.formAdd.orderGoodsList.map( item => {
-        sum+=item.goodsWeight
+      this.formAdd.orderGoodsList.map(item => {
+        sum += Number(item.goodsWeight)
       })
       return sum
+    }
+  },
+  watch: {
+    cityDistance: function (value) {
+      this.totalSum = (value * this.totalWeight / 1000 * this.unitPrice).toFixed(2)
+    },
+    totalWeight: function (value) {
+      this.totalSum = (this.cityDistance * value / 1000 * this.unitPrice).toFixed(2)
+    },
+    unitPrice: function (value) {
+      this.totalSum = (this.cityDistance * this.totalWeight / 1000 * value).toFixed(2)
     }
   },
   created () {
@@ -408,8 +418,12 @@ export default {
     deleteOneLine (idx) {
       this.formAdd.orderGoodsList.splice(idx, 1)
     },
-    changeCarType (item) {
-      console.log(item)
+    changeCarType (typeValue) {
+      this.carTypeList.map(item => {
+        if (item.typeValue === typeValue) {
+          this.unitPrice = item.fprice
+        }
+      })
     },
     onSubmit (formName) {
       if (this.formAdd.orderGoodsList.length === 0) {
@@ -442,7 +456,8 @@ export default {
     },
     sureAdd () {
       let DATA = {
-        ffee:  this.formAdd.ffee,
+        ffee: this.totalSum,
+        fweight: this.totalWeight,
         id: this.formAdd.id,
         fstatus: this.formAdd.fstatus,
         fcheck: this.formAdd.fcheck,
@@ -450,12 +465,12 @@ export default {
         fsubId: this.formAdd.fsubId,
         fhName: this.formAdd.fhName,
         fhTelephone: this.formAdd.fhTelephone,
-        fh: this.formAdd.fh,
+        fh: this.formAdd.farea,
         fhAddress: this.formAdd.fhAddress,
         shName: this.formAdd.shName,
         shTelephone: this.formAdd.shTelephone,
-        sh: this.formAdd.sh,
-        shArea: '',// this.formAdd.shArea,
+        sh: this.formAdd.sarea,
+        shArea: '', // this.formAdd.shArea,
         shAddress: this.formAdd.shAddress,
         carType: this.formAdd.carType,
         zhTime: this.formAdd.zhTime,
@@ -534,6 +549,7 @@ export default {
       this.formAdd.farea = ''
     },
     changeFarea (id) {
+      console.log(id)
       if (this.formAdd.scity !== '') {
         this.getDistance()
       }
@@ -548,6 +564,7 @@ export default {
       this.formAdd.sarea = ''
     },
     changeSarea (id) {
+      console.log(id)
       if (this.formAdd.fcity !== '') {
         this.getDistance()
       }

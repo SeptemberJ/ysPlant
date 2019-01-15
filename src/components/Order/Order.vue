@@ -140,6 +140,7 @@ export default {
     },
     changeIfOrderDetail () {
       this.showDetail = false
+      this.getOrderList()
     },
     handleEdit (idx, row) {
       this.showDetail = true

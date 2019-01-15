@@ -19,6 +19,47 @@
               </el-form-item>
             </el-col>
           </el-row>
+          <!-- <el-row>
+            <el-col :span="24" :offset="0">{{formAdd.fprovince}}-{{formAdd.fcity}}-{{formAdd.farea}}</el-col>
+          </el-row> -->
+          <el-row>
+            <el-col :span="7" :offset="0">
+              <el-form-item prop="fprovince" label="发货省">
+                <el-select v-model="formAdd.fprovince" placeholder="请选择" @change="changeFprovince">
+                  <el-option
+                    v-for="(fprovince, idx) in fprovinceList"
+                    :key="idx"
+                    :label="fprovince.name"
+                    :value="fprovince.id">
+                  </el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="7" :offset="1">
+              <el-form-item prop="fcity" label="发货市">
+                <el-select v-model="formAdd.fcity" placeholder="请选择" @change="changeFcity">
+                  <el-option
+                    v-for="(fcity, idx) in fcityList"
+                    :key="idx"
+                    :label="fcity.name"
+                    :value="fcity.id">
+                  </el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="7" :offset="1">
+              <el-form-item prop="farea" label="发货区">
+                <el-select v-model="formAdd.farea" placeholder="请选择" @change="changeFarea">
+                  <el-option
+                    v-for="(farea, idx) in fareaList"
+                    :key="idx"
+                    :label="farea.name"
+                    :value="farea.id">
+                  </el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
+          </el-row>
           <el-form-item prop="fhAddress" label="发货人地址">
             <el-input v-model="formAdd.fhAddress" clearable></el-input>
           </el-form-item>
@@ -42,9 +83,44 @@
               </el-form-item>
             </el-col>
           </el-row>
-          <el-form-item prop="shArea" label="收货地">
-            <el-input v-model="formAdd.shArea" clearable></el-input>
-          </el-form-item>
+          <el-row>
+            <el-col :span="7" :offset="0">
+              <el-form-item prop="sprovince" label="收货省">
+                <el-select v-model="formAdd.sprovince" placeholder="请选择" @change="changeSprovince">
+                  <el-option
+                    v-for="(sprovince, idx) in sprovinceList"
+                    :key="idx"
+                    :label="sprovince.name"
+                    :value="sprovince.id">
+                  </el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="7" :offset="1">
+              <el-form-item prop="scity" label="收货市">
+                <el-select v-model="formAdd.scity" placeholder="请选择" @change="changeScity">
+                  <el-option
+                    v-for="(scity, idx) in scityList"
+                    :key="idx"
+                    :label="scity.name"
+                    :value="scity.id">
+                  </el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="7" :offset="1">
+              <el-form-item prop="sarea" label="收货区">
+                <el-select v-model="formAdd.sarea" placeholder="请选择" @change="changeSarea">
+                  <el-option
+                    v-for="(sarea, idx) in sareaList"
+                    :key="idx"
+                    :label="sarea.name"
+                    :value="sarea.id">
+                  </el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
+          </el-row>
           <el-form-item prop="shAddress" label="收货人地址">
             <el-input v-model="formAdd.shAddress" clearable></el-input>
           </el-form-item>
@@ -92,11 +168,18 @@
           </el-form-item>
           <!-- car -->
           <el-form-item prop="carType" label="车型">
-            <el-input v-model="formAdd.carType" clearable></el-input>
+            <el-select v-model="formAdd.carType" placeholder="请选择" style="width: 100%" @change="changeCarType">
+              <el-option
+                v-for="(carType, idx) in carTypeList"
+                :key="idx"
+                :label="carType.typeName"
+                :value="carType.typeValue">
+              </el-option>
+            </el-select>
           </el-form-item>
           <!-- time -->
           <el-form-item prop="zhTime" label="装货日期">
-            <el-date-picker type="date" placeholder="选择装货日期" v-model="formAdd.zhTime" style="width: 100%;"></el-date-picker>
+            <el-date-picker type="date" :picker-options="pickerOptionsStart" placeholder="选择装货日期" v-model="formAdd.zhTime" style="width: 100%;"></el-date-picker>
           </el-form-item>
           <el-form-item label="开具发票" prop="isFapiao">
             <el-radio-group v-model="formAdd.isFapiao" style="float: left">
@@ -104,6 +187,16 @@
               <el-radio label="1" border>需要</el-radio>
             </el-radio-group>
           </el-form-item>
+        </div>
+      </el-card>
+      <!-- cost -->
+      <el-card class="box-card MarginTB_20">
+        <div slot="header" class="clearfix TextAlignL">
+          <span>预估费用</span>
+        </div>
+        <div class="TextAlignL">
+          <h4 class="ColorWarn"><span style="display:inline-block;width:50%">合计：</span><span style="display:inline-block;width:50%;text-align:right">{{totalSum}} ¥</span></h4>
+          <p style="font-size: 12px;color: #909399;text-align:right">{{cityDistance}} (公里数/km) * {{totalWeight/1000}} (重量/t) * {{unitPrice}} (单价/¥) = {{totalSum}} ¥</p>
         </div>
       </el-card>
       <!-- bt -->
@@ -142,7 +235,28 @@ export default {
     }
     return {
       ifLoading: false,
+      fprovinceList: [],
+      fcityList: [],
+      fareaList: [],
+      sprovinceList: [],
+      scityList: [],
+      sareaList: [],
+      fProvincePid: 1,
+      fcityPid: '',
+      fareaPid: '',
+      sProvincePid: 1,
+      scityPid: '',
+      sareaPid: '',
+      cityDistance: 0,
+      unitPrice: 0,
+      totalSum: 0,
       formAdd: {
+        fprovince: '',
+        fcity: '',
+        farea: '',
+        sprovince: '',
+        scity: '',
+        sarea: '',
         id: '',
         fstatus: '',
         fcheck: '',
@@ -203,6 +317,12 @@ export default {
         isFapiao: [
           { required: true, message: '请选择是否需要开具发票!', trigger: 'blur' }
         ]
+      },
+      carTypeList: [],
+      pickerOptionsStart: {
+        disabledDate (time) {
+          return time.getTime() < Date.now() - 8.64e7
+        }
       }
     }
   },
@@ -210,10 +330,29 @@ export default {
     ...mapState({
       userRole: state => state.userRole,
       userCode: state => state.userCode
-    })
+    }),
+    totalWeight: function () {
+      let sum = 0
+      this.formAdd.orderGoodsList.map(item => {
+        sum += Number(item.goodsWeight)
+      })
+      return sum
+    }
   },
   created () {
     this.getOrderDetail()
+    // this.getProvince()
+  },
+  watch: {
+    cityDistance: function (value) {
+      this.totalSum = (value * this.totalWeight / 1000 * this.unitPrice).toFixed(2)
+    },
+    totalWeight: function (value) {
+      this.totalSum = (this.cityDistance * value / 1000 * this.unitPrice).toFixed(2)
+    },
+    unitPrice: function (value) {
+      this.totalSum = (this.cityDistance * this.totalWeight / 1000 * value).toFixed(2)
+    }
   },
   components: {
   },
@@ -233,6 +372,13 @@ export default {
     },
     deleteOneLine (idx) {
       this.formAdd.orderGoodsList.splice(idx, 1)
+    },
+    changeCarType (typeValue) {
+      this.carTypeList.map(item => {
+        if (item.typeValue === typeValue) {
+          this.unitPrice = item.fprice
+        }
+      })
     },
     onSubmit (formName) {
       if (this.formAdd.orderGoodsList.length === 0) {
@@ -264,6 +410,8 @@ export default {
     },
     sureAdd () {
       let DATA = {
+        ffee: this.totalSum,
+        fweight: this.totalWeight,
         id: this.formAdd.id,
         fstatus: this.formAdd.fstatus,
         fcheck: this.formAdd.fcheck,
@@ -271,12 +419,12 @@ export default {
         fsubId: this.formAdd.fsubId,
         fhName: this.formAdd.fhName,
         fhTelephone: this.formAdd.fhTelephone,
-        fh: this.formAdd.fh,
+        fh: this.formAdd.farea,
         fhAddress: this.formAdd.fhAddress,
         shName: this.formAdd.shName,
         shTelephone: this.formAdd.shTelephone,
-        sh: this.formAdd.sh,
-        shArea: this.formAdd.shArea,
+        sh: this.formAdd.sarea,
+        shArea: '', // this.formAdd.shArea,
         shAddress: this.formAdd.shAddress,
         carType: this.formAdd.carType,
         zhTime: this.formAdd.zhTime,
@@ -353,27 +501,174 @@ export default {
       }).then(res => {
         if (res.data.respCode === '0') {
           let temp = res.data.data
-          // temp.zhTime = new Date(res.data.data.zh_time)
-          // temp.orderGoodsList = res.data.data.ordergoods
-          // temp.carType = res.data.data.car_type
-          // temp.fmainId = res.data.data.fmain_id
-          // temp.fsubId = res.data.data.fsub_id
-          // temp.goodsName = res.data.data.goods_name
-          // temp.fhName = res.data.data.fh_name
-          // temp.fhTelephone = res.data.data.fh_telephone
-          // temp.fhAddress = res.data.data.fh_address
-          // temp.shAddress = res.data.data.sh_address
-          // temp.shArea = res.data.data.sh_area
-          // temp.shName = res.data.data.sh_name
-          // temp.shTelephone = res.data.data.sh_telephone
-          // temp.isFapiao = res.data.data.is_fapiao
+          this.totalSum = res.data.data.ffee
+          temp.fprovince = res.data.data.origin_province_id
+          temp.fcity = res.data.data.origin_city_id
+          temp.farea = res.data.data.origin_area_id
+          temp.sprovince = res.data.data.destination_province_id
+          temp.scity = res.data.data.destination_city_id
+          temp.sarea = res.data.data.destination_area_id
+          temp.zhTime = new Date(res.data.data.zh_time)
+          temp.orderGoodsList = res.data.data.ordergoods
+          temp.carType = res.data.data.car_type
+          temp.fmainId = res.data.data.fmain_id
+          temp.fsubId = res.data.data.fsub_id
+          temp.goodsName = res.data.data.goods_name
+          temp.fhName = res.data.data.fh_name
+          temp.fhTelephone = res.data.data.fh_telephone
+          temp.fhAddress = res.data.data.fh_address
+          temp.shAddress = res.data.data.sh_address
+          temp.shArea = res.data.data.sh_area
+          temp.shName = res.data.data.sh_name
+          temp.shTelephone = res.data.data.sh_telephone
+          temp.isFapiao = res.data.data.is_fapiao
           this.formAdd = temp
-          console.log(this.formAdd)
+          console.log('this.totalSum------------------')
+          console.log(this.totalSum)
+          // 省市区
+          this.getProvince()
+          this.changeFprovince(temp.fprovince, 1)
+          this.changeSprovince(temp.sprovince, 1)
+          this.changeFcity(temp.fcity, 1)
+          this.changeScity(temp.scity, 1)
+          // 价格
+          this.getDistanceDefault(temp.farea, temp.sarea)
+
+          this.getCarType(res.data.data.car_type)
         } else {
           this.$message({
             message: res.data.message + '！',
             type: 'error'
           })
+        }
+      }).catch((res) => {
+        console.log(res)
+      })
+    },
+    getDistanceDefault (fh, sh) {
+      send({
+        name: '/orderController/cityDistance?fh=' + fh + '&sh=' + sh,
+        method: 'GET',
+        data: {
+        }
+      }).then(res => {
+        if (res.data.code === 1) {
+          this.cityDistance = res.data.cityDistance
+        }
+      }).catch((res) => {
+        console.log(res)
+      })
+    },
+    changeFprovince (id, type) {
+      console.log(id)
+      this.getCity(id, 'fcityList')
+      if (type !== 1) {
+        this.formAdd.fcity = ''
+        this.formAdd.farea = ''
+      }
+    },
+    changeFcity (id, type) {
+      console.log(id)
+      this.getArea(id, 'fareaList')
+      if (type !== 1) {
+        this.formAdd.farea = ''
+      }
+    },
+    changeFarea (id) {
+      if (this.formAdd.scity !== '') {
+        this.getDistance()
+      }
+    },
+    changeSprovince (id, type) {
+      this.getCity(id, 'scityList')
+      if (type !== 1) {
+        this.formAdd.scity = ''
+        this.formAdd.sarea = ''
+      }
+    },
+    changeScity (id, type) {
+      this.getArea(id, 'sareaList')
+      if (type !== 1) {
+        this.formAdd.sarea = ''
+      }
+    },
+    changeSarea (id) {
+      if (this.formAdd.fcity !== '') {
+        this.getDistance()
+      }
+    },
+    getProvince () {
+      send({
+        name: '/registerDriverController/regionSelect?pid=1',
+        method: 'GET',
+        data: {
+        }
+      }).then(res => {
+        if (res.data.respCode === '0') {
+          this.fprovinceList = res.data.data
+          this.sprovinceList = res.data.data
+        }
+      }).catch((res) => {
+        console.log(res)
+      })
+    },
+    getCity (id, property) {
+      send({
+        name: '/registerDriverController/regionSelect?pid=' + id,
+        method: 'GET',
+        data: {
+        }
+      }).then(res => {
+        if (res.data.respCode === '0') {
+          this[property] = res.data.data
+        }
+      }).catch((res) => {
+        console.log(res)
+      })
+    },
+    getArea (id, property) {
+      send({
+        name: '/registerDriverController/regionSelect?pid=' + id,
+        method: 'GET',
+        data: {
+        }
+      }).then(res => {
+        if (res.data.respCode === '0') {
+          this[property] = res.data.data
+        }
+      }).catch((res) => {
+        console.log(res)
+      })
+    },
+    getCarType (carType) {
+      send({
+        name: '/zCarTypeController/list/1/10',
+        method: 'GET',
+        data: {
+        }
+      }).then(res => {
+        if (res.data.respCode === '0') {
+          let carList = res.data.data
+          this.carTypeList = carList
+          carList.map(item => {
+            if (item.typeValue === carType) {
+              this.unitPrice = item.fprice
+            }
+          })
+        }
+      }).catch((res) => {
+        console.log(res)
+      })
+    },
+    getDistance () {
+      send({
+        name: '/orderController/cityDistance?fh=' + this.formAdd.farea + '&sh=' + this.formAdd.sarea,
+        method: 'GET',
+        data: {
+        }
+      }).then(res => {
+        if (res.data.code === 1) {
+          this.cityDistance = res.data.cityDistance
         }
       }).catch((res) => {
         console.log(res)
