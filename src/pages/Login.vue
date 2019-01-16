@@ -39,7 +39,7 @@ export default {
   data () {
     return {
       ifLoading: false,
-      phone: '18734567890', // 货主 18734567890 承运商 18234567890
+      phone: '18734567890', // 货主 18734567890 承运商 18234567890 13734567890 个人18834567890
       password: '111111'
     }
   },
@@ -150,6 +150,7 @@ export default {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  overflow: hidden;
   .Logo{
     width: 280px;
     height: 132px;

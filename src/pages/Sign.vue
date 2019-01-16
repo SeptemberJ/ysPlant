@@ -9,9 +9,9 @@
         <el-form class="FormBox" :model="formSign" :rules="SignRules" ref="formSign" label-width="80px">
           <el-form-item label="账户类型" prop="role">
             <el-radio-group v-model="formSign.role">
-              <el-radio :label="1" disabled>承运商</el-radio>
+              <el-radio :label="1">承运商</el-radio>
               <el-radio :label="2">货主</el-radio>
-              <el-radio :label="3" disabled>个人</el-radio>
+              <el-radio :label="3">个人</el-radio>
             </el-radio-group>
           </el-form-item>
           <el-form-item label="用户名" prop="accountName">

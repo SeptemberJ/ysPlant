@@ -2,31 +2,32 @@
   <div class="InfoBox">
     <p class="ColorYellow">{{checkStatus == -1 ? '请填写您的信息！' : (checkStatus == 0 ? '您的信息正在等待审核！' : '您的信息未通过审核，请重新填写！')}}</p>
     <el-form class="FormBox" :model="formInfo" :rules="InfoRules" ref="formInfo" label-width="200px">
-      <el-form-item label="公司名称" prop="company">
+      <el-form-item v-if="userRole == 1 || userRole == 2" label="公司名称" prop="company">
         <el-input v-model="formInfo.company" placeholder="请输入公司名称" clearable></el-input>
       </el-form-item>
-      <el-form-item label="联系人" prop="contact">
+      <el-form-item v-if="userRole == 1 || userRole == 2" label="联系人" prop="contact">
         <el-input v-model="formInfo.contact" placeholder="请输入联系人" clearable></el-input>
       </el-form-item>
-       <el-form-item label="身份证" prop="ID" v-if="userRole === 3">
+       <el-form-item v-if="userRole == 3" label="身份证" prop="ID">
         <el-input v-model="formInfo.ID" placeholder="请输入身份证号" clearable></el-input>
       </el-form-item>
-      <el-form-item label="联系电话" prop="tel">
+      <el-form-item v-if="userRole == 1 || userRole == 2" label="联系电话" prop="tel">
         <el-input v-model="formInfo.tel" placeholder="请输入联系人手机号" clearable></el-input>
       </el-form-item>
-      <el-form-item label="抬头" prop="taitou">
+      <el-form-item v-if="userRole == 2" label="抬头" prop="taitou">
         <el-input v-model="formInfo.taitou" placeholder="请输入抬头" clearable></el-input>
       </el-form-item>
-      <el-form-item label="开户行" prop="bank">
+      <el-form-item v-if="userRole == 2" label="开户行" prop="bank">
         <el-input v-model="formInfo.bank" placeholder="请输入开户行" clearable></el-input>
       </el-form-item>
-      <el-form-item label="银行账号" prop="bankNo">
+      <el-form-item v-if="userRole == 2" label="银行账号" prop="bankNo">
         <el-input v-model="formInfo.bankNo" placeholder="请输入银行账号" clearable></el-input>
       </el-form-item>
-      <el-form-item label="税号" prop="tax">
+      <el-form-item v-if="userRole == 2" label="税号" prop="tax">
         <el-input v-model="formInfo.tax" placeholder="请输入税号" clearable></el-input>
       </el-form-item>
-      <el-form-item  label="营业执照" prop="license">
+      <!-- ID -->
+      <el-form-item v-if="userRole == 3" label="身份证前面" prop="license">
         <el-upload
           class="avatar-uploader"
           action=""
@@ -37,7 +38,30 @@
           <i v-else class="el-icon-plus avatar-uploader-icon"></i>
         </el-upload>
       </el-form-item>
-      <el-form-item  label="合同(请下载文件后盖章)" prop="contract">
+      <el-form-item v-if="userRole == 3" label="身份证背面" prop="contract">
+        <el-upload
+          class="avatar-uploader"
+          action=""
+          :show-file-list="false"
+          :on-success="handleAvatarSuccess"
+          :before-upload="beforeAvatarUploadC">
+          <img v-if="formInfo.contract" :src="formInfo.contract" class="avatar">
+          <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+        </el-upload>
+      </el-form-item>
+      <!-- ID -->
+      <el-form-item v-if="userRole == 1 || userRole == 2" label="营业执照" prop="license">
+        <el-upload
+          class="avatar-uploader"
+          action=""
+          :show-file-list="false"
+          :on-success="handleAvatarSuccess"
+          :before-upload="beforeAvatarUpload">
+          <img v-if="formInfo.license" :src="formInfo.license" class="avatar">
+          <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+        </el-upload>
+      </el-form-item>
+      <el-form-item v-if="userRole == 1 || userRole == 2" label="合同(请下载文件后盖章)" prop="contract">
         <el-upload
           class="avatar-uploader"
           action=""
@@ -49,7 +73,7 @@
         </el-upload>
         <a class="CursorPointer" style="color:#409EFF" href="../../static/公函.pdf" target="_blank">点击下载合同格式文件</a>
       </el-form-item>
-      <el-form-item label="">
+      <el-form-item v-if="userRole == 1 || userRole == 2" label="">
         <el-checkbox v-model="agreed">我已阅读并同意</el-checkbox><span class="CursorPointer" style="color:#409EFF" @click="showAgreement">使用许可及服务协议</span>
       </el-form-item>
       <el-form-item>
@@ -158,31 +182,25 @@ export default {
     },
     // 营业执照
     beforeAvatarUpload (file) {
+      if (file.size > 1024000 * 2) {
+        this.$message({
+          message: '您上传的图片太大了, 请不要超过2M!',
+          type: 'warning'
+        })
+        return false
+      }
       let licenseImage = new FormData()
       licenseImage.append('file', file)
       this.uploadImg('licenseImgName', licenseImage)
       var _this = this
       var reader = new FileReader()
       reader.readAsDataURL(file)
-      if (file.size > 1024000 * 2) {
-        this.$message({
-          message: '您上传的图片太大了, 请不要超过2M!',
-          type: 'warning'
-        })
-        return false
-      }
       reader.onload = function (e) {
         _this.formInfo.license = this.result
       }
     },
     // 合同
     beforeAvatarUploadC (file) {
-      let contractImage = new FormData()
-      contractImage.append('file', file)
-      this.uploadImg('contractImgName', contractImage)
-      var _this = this
-      var reader = new FileReader()
-      reader.readAsDataURL(file)
       if (file.size > 1024000 * 2) {
         this.$message({
           message: '您上传的图片太大了, 请不要超过2M!',
@@ -190,6 +208,12 @@ export default {
         })
         return false
       }
+      let contractImage = new FormData()
+      contractImage.append('file', file)
+      this.uploadImg('contractImgName', contractImage)
+      var _this = this
+      var reader = new FileReader()
+      reader.readAsDataURL(file)
       reader.onload = function (e) {
         _this.formInfo.contract = this.result
       }
@@ -208,51 +232,62 @@ export default {
     onSubmit (formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          if (!this.agreed) {
+          if (!this.agreed && this.userRole != 3) {
             this.$message({
               message: '请先阅读并同意使用许可及服务协议！',
               type: 'warning'
             })
             return false
           }
-          let DATA = {
-            id: this.userId,
-            company_name: this.formInfo.company,
-            company_lxr: this.formInfo.contact,
-            company_licence: this.licenseImgName,
-            company_contract: this.contractImgName,
-            company_phone: this.formInfo.tel,
-            tai_tou: this.formInfo.taitou,
-            f_bank: this.formInfo.bank,
-            f_bank_no: this.formInfo.bankNo,
-            tax_number: this.formInfo.tax
+          switch (this.userRole) {
+            case '1':
+              this.submitCYS()
+              break
+            case '2':
+              this.submitHZ()
+              break
+            case '3':
+              this.submitGR()
+              break
           }
-          let stObg = JSON.stringify(DATA)
-          this.ifLoading = true
-          send({
-            name: '/zRegisterController/doUpdateHZ?jsonHZ=' + stObg,
-            method: 'POST',
-            data: {
-            }
-          }).then(res => {
-            if (res.data.code === 1) {
-              this.checkStatus = 0
-              this.$message({
-                message: '信息提交成功，等待审核！',
-                type: 'success'
-              })
-              this.ifLoading = false
-            } else {
-              this.$message({
-                message: res.data.message + '！',
-                type: 'error'
-              })
-              this.ifLoading = false
-            }
-          }).catch((res) => {
-            console.log(res)
-            this.ifLoading = false
-          })
+          // let DATA = {
+          //   id: this.userId,
+          //   company_name: this.formInfo.company,
+          //   company_lxr: this.formInfo.contact,
+          //   company_licence: this.licenseImgName,
+          //   company_contract: this.contractImgName,
+          //   company_phone: this.formInfo.tel,
+          //   tai_tou: this.formInfo.taitou,
+          //   f_bank: this.formInfo.bank,
+          //   f_bank_no: this.formInfo.bankNo,
+          //   tax_number: this.formInfo.tax
+          // }
+          // let stObg = JSON.stringify(DATA)
+          // this.ifLoading = true
+          // send({
+          //   name: '/zRegisterController/doUpdateHZ?jsonHZ=' + stObg,
+          //   method: 'POST',
+          //   data: {
+          //   }
+          // }).then(res => {
+          //   if (res.data.code === 1) {
+          //     this.checkStatus = 0
+          //     this.$message({
+          //       message: '信息提交成功，等待审核！',
+          //       type: 'success'
+          //     })
+          //     this.ifLoading = false
+          //   } else {
+          //     this.$message({
+          //       message: res.data.message + '！',
+          //       type: 'error'
+          //     })
+          //     this.ifLoading = false
+          //   }
+          // }).catch((res) => {
+          //   console.log(res)
+          //   this.ifLoading = false
+          // })
         } else {
           this.$message({
             message: '请将信息填写完整！',
@@ -260,6 +295,120 @@ export default {
           })
           return false
         }
+      })
+    },
+    // sureSumit
+    // 货主
+    submitHZ () {
+      let DATA = {
+        id: this.userId,
+        company_name: this.formInfo.company,
+        company_lxr: this.formInfo.contact,
+        company_licence: this.licenseImgName,
+        company_contract: this.contractImgName,
+        company_phone: this.formInfo.tel,
+        tai_tou: this.formInfo.taitou,
+        f_bank: this.formInfo.bank,
+        f_bank_no: this.formInfo.bankNo,
+        tax_number: this.formInfo.tax
+      }
+      let stObg = JSON.stringify(DATA)
+      this.ifLoading = true
+      send({
+        name: '/zRegisterController/doUpdateHZ?jsonHZ=' + stObg,
+        method: 'POST',
+        data: {
+        }
+      }).then(res => {
+        if (res.data.code === 1) {
+          this.checkStatus = 0
+          this.$message({
+            message: '信息提交成功，等待审核！',
+            type: 'success'
+          })
+          this.ifLoading = false
+        } else {
+          this.$message({
+            message: res.data.message + '！',
+            type: 'error'
+          })
+          this.ifLoading = false
+        }
+      }).catch((res) => {
+        console.log(res)
+        this.ifLoading = false
+      })
+    },
+    // 承运商
+    submitCYS () {
+      let DATA = {
+        id: this.userId,
+        company_name: this.formInfo.company,
+        company_lxr: this.formInfo.contact,
+        company_licence: this.licenseImgName,
+        company_contract: this.contractImgName,
+        company_phone: this.formInfo.tel
+      }
+      let stObg = JSON.stringify(DATA)
+      this.ifLoading = true
+      send({
+        name: '/zRegisterController/doUpdatePersonal?jsonPersonal=' + stObg,
+        method: 'POST',
+        data: {
+        }
+      }).then(res => {
+        if (res.data.code === 1) {
+          this.checkStatus = 0
+          this.$message({
+            message: '信息提交成功，等待审核！',
+            type: 'success'
+          })
+          this.ifLoading = false
+        } else {
+          this.$message({
+            message: res.data.message + '！',
+            type: 'error'
+          })
+          this.ifLoading = false
+        }
+      }).catch((res) => {
+        console.log(res)
+        this.ifLoading = false
+      })
+    },
+    // 个人
+    submitGR () {
+      let DATA = {
+        id: this.userId,
+        fidentity: this.formInfo.ID,
+        fidentity_front: this.licenseImgName,
+        fidentity_back: this.contractImgName
+      }
+      let stObg = JSON.stringify(DATA)
+      this.ifLoading = true
+      send({
+        name: '/zRegisterController/doUpdateLogistics?jsonLogistics=' + stObg,
+        method: 'POST',
+        data: {
+        }
+      }).then(res => {
+        if (res.data.code === 1) {
+          this.checkStatus = 0
+          this.$message({
+            message: '信息提交成功，等待审核！',
+            type: 'success'
+          })
+          this.ifLoading = false
+        } else {
+          this.$message({
+            message: res.data.message + '！',
+            type: 'error'
+          })
+          this.ifLoading = false
+        }
+      }).catch((res) => {
+        console.log(res)
+        this.ifLoading = false
       })
     },
     // 获取基本信息
@@ -278,14 +427,31 @@ export default {
           } else {
             this.checkStatus = -1 // 未填写过信息
           }
-          this.licenseImgName = Info.companyLicence
-          this.contractImgName = Info.companyContract
           this.formInfo.company = Info.companyName
           this.formInfo.contact = Info.companyLxr
           this.formInfo.tel = Info.companyPhone
-          this.formInfo.license = Info.companyContract ? (this.ImgURL_PREFIX + Info.companyContract) : ''
-          this.formInfo.contract = Info.companyLicence ? (this.ImgURL_PREFIX + Info.companyLicence) : ''
           this.formInfo.role = (Info.ftype === '1' ? '承运商' : '货主')
+
+          this.formInfo.tax = Info.taxNumber
+          this.formInfo.taitou = Info.taiTou
+          this.formInfo.bank = Info.fBank
+          this.formInfo.bankNo = Info.fBankNO
+
+          this.formInfo.ID = Info.fIdentity
+          // 货主 承运商
+          if (this.userRole === '1' || this.userRole === '2') {
+            this.formInfo.license = Info.companyContract ? (this.ImgURL_PREFIX + Info.companyContract) : ''
+            this.formInfo.contract = Info.companyLicence ? (this.ImgURL_PREFIX + Info.companyLicence) : ''
+            this.licenseImgName = Info.companyLicence
+            this.contractImgName = Info.companyContract
+          }
+          // 个人
+          if (this.userRole === '3') {
+            this.formInfo.license = Info.fIdentityFront ? (this.ImgURL_PREFIX + Info.fIdentityFront) : ''
+            this.formInfo.contract = Info.fIdentityBack ? (this.ImgURL_PREFIX + Info.fIdentityBack) : ''
+            this.licenseImgName = Info.fIdentityFront
+            this.contractImgName = Info.fIdentityBack
+          }
         } else {
           this.$message({
             message: res.data.message + '！',
