@@ -9,6 +9,7 @@
         <el-input v-model="userAccount" placeholder="请输入注册的手机号" disabled clearable></el-input>
       </el-form-item> -->
       <el-form-item
+        v-if="userRole == 1 || userRole == 2"
         class="TextAlignR"
         prop="company"
         label="公司名称："
@@ -18,9 +19,9 @@
             <span class="Padding_20">{{formInfo.company}}</span>
           </el-col>
         </el-row>
-        <!-- <el-input v-model="formInfo.company" placeholder="请输入公司名称" clearable></el-input> -->
       </el-form-item>
       <el-form-item
+        v-if="userRole == 1 || userRole == 2"
         class="TextAlignR"
         prop="contact"
         label="联系人："
@@ -30,9 +31,21 @@
             <span class="Padding_20">{{formInfo.contact}}</span>
           </el-col>
         </el-row>
-        <!-- <el-input v-model="formInfo.contact" placeholder="请输入联系人" clearable></el-input> -->
       </el-form-item>
       <el-form-item
+        v-if="userRole == 3"
+        class="TextAlignR"
+        prop="contact"
+        label="身份证："
+      >
+        <el-row>
+          <el-col class="TextAlignR" :span="24">
+            <span class="Padding_20">{{formInfo.ID}}</span>
+          </el-col>
+        </el-row>
+      </el-form-item>
+      <el-form-item
+        v-if="userRole == 1 || userRole == 2"
         class="TextAlignR"
         prop="tel"
         label="联系电话："
@@ -42,12 +55,59 @@
             <span class="Padding_20">{{formInfo.tel}}</span>
           </el-col>
         </el-row>
-        <!-- <el-input v-model="formInfo.tel" placeholder="请输入联系人电话" clearable></el-input> -->
+      </el-form-item>
+      <el-form-item
+        v-if="userRole == 2"
+        class="TextAlignR"
+        prop="contact"
+        label="抬头："
+      >
+        <el-row>
+          <el-col class="TextAlignR" :span="24">
+            <span class="Padding_20">{{formInfo.taitou}}</span>
+          </el-col>
+        </el-row>
+      </el-form-item>
+      <el-form-item
+        v-if="userRole == 2"
+        class="TextAlignR"
+        prop="contact"
+        label="开户行："
+      >
+        <el-row>
+          <el-col class="TextAlignR" :span="24">
+            <span class="Padding_20">{{formInfo.bank}}</span>
+          </el-col>
+        </el-row>
+      </el-form-item>
+      <el-form-item
+        v-if="userRole == 2"
+        class="TextAlignR"
+        prop="contact"
+        label="银行账号："
+      >
+        <el-row>
+          <el-col class="TextAlignR" :span="24">
+            <span class="Padding_20">{{formInfo.bankNo}}</span>
+          </el-col>
+        </el-row>
+      </el-form-item>
+      <el-form-item
+        v-if="userRole == 2"
+        class="TextAlignR"
+        prop="contact"
+        label="税号："
+      >
+        <el-row>
+          <el-col class="TextAlignR" :span="24">
+            <span class="Padding_20">{{formInfo.tax}}</span>
+          </el-col>
+        </el-row>
       </el-form-item>
       <el-form-item
         class="TextAlignR"
         prop="license"
-        label="营业执照："
+        :label="userRole == 3 ? '身份证正面：' : '营业执照：'"
       >
         <el-row>
           <el-col class="TextAlignR Padding_20" :span="24">
@@ -66,11 +126,11 @@
       <el-form-item
         class="TextAlignR"
         prop="contract"
-        label="合同："
+        :label="userRole == 3 ? '身份证反面：' : '合同：'"
       >
         <el-row>
           <el-col class="TextAlignR Padding_20" :span="24">
-            <img style="float: right" :src="formInfo.companyContract" class="avatar">
+            <img style="float: right" :src="formInfo.contract" class="avatar">
           </el-col>
         </el-row>
       </el-form-item>
@@ -90,6 +150,11 @@ export default {
     return {
       formInfo: {
         phone: '',
+        bank: '',
+        bankNo: '',
+        taitou: '',
+        tax: '',
+        ID: '',
         company: '',
         contact: '',
         tel: '',
@@ -120,6 +185,7 @@ export default {
     ...mapState({
       userAccount: state => state.userAccount,
       userId: state => state.userId,
+      userRole: state => state.userRole,
       ImgURL_PREFIX: state => state.ImgURL_PREFIX
     })
   },
@@ -168,12 +234,32 @@ export default {
       }).then(res => {
         let Info = res.data.data
         if (res.data.respCode === '0') {
+          // this.formInfo.company = Info.companyName
+          // this.formInfo.contact = Info.companyLxr
+          // this.formInfo.tel = Info.companyPhone
+          // this.formInfo.contract = this.ImgURL_PREFIX + Info.companyContract
+          // this.formInfo.license = this.ImgURL_PREFIX + Info.companyLicence
+          // this.formInfo.role = (Info.ftype === '1' ? '承运商' : '货主')
           this.formInfo.company = Info.companyName
           this.formInfo.contact = Info.companyLxr
           this.formInfo.tel = Info.companyPhone
-          this.formInfo.license = this.ImgURL_PREFIX + Info.companyContract
-          this.formInfo.contract = this.ImgURL_PREFIX + Info.companyLicence
-          this.formInfo.role = (Info.ftype === '1' ? '承运商' : '货主')
+
+          this.formInfo.tax = Info.taxNumber
+          this.formInfo.taitou = Info.taiTou
+          this.formInfo.bank = Info.fBank
+          this.formInfo.bankNo = Info.fBankNO
+
+          this.formInfo.ID = Info.fIdentity
+          // 货主 承运商
+          if (this.userRole === '1' || this.userRole === '2') {
+            this.formInfo.license = Info.companyContract ? (this.ImgURL_PREFIX + Info.companyContract) : ''
+            this.formInfo.contract = Info.companyLicence ? (this.ImgURL_PREFIX + Info.companyLicence) : ''
+          }
+          // 个人
+          if (this.userRole === '3') {
+            this.formInfo.license = Info.fIdentityFront ? (this.ImgURL_PREFIX + Info.fIdentityFront) : ''
+            this.formInfo.contract = Info.fIdentityBack ? (this.ImgURL_PREFIX + Info.fIdentityBack) : ''
+          }
         } else {
           this.$message({
             message: res.data.message + '！',

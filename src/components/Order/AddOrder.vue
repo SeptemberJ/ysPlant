@@ -1,6 +1,6 @@
 <template>
   <div class="AddOrder">
-    <el-form ref="formAdd" :model="formAdd" :rules="AddRules" label-width="120px" label-position="left">
+    <el-form ref="formAdd" :model="formAdd" :rules="AddRules" label-width="110px" label-position="left">
       <!-- fh -->
       <el-card class="box-card">
         <div slot="header" class="clearfix TextAlignL">
@@ -57,7 +57,7 @@
               </el-form-item>
             </el-col>
           </el-row>
-          <el-form-item prop="fhAddress" label="详细地址">
+          <el-form-item prop="fhAddress" label="街道">
             <el-input v-model="formAdd.fhAddress" clearable></el-input>
           </el-form-item>
         </div>
@@ -159,7 +159,7 @@
               </el-form-item>
             </el-col>
           </el-row>
-          <el-form-item prop="shAddress" label="收货人地址">
+          <el-form-item prop="shAddress" label="街道">
             <el-input v-model="formAdd.shAddress" clearable></el-input>
           </el-form-item>
         </div>
@@ -191,7 +191,7 @@
               <el-button icon="el-icon-delete" style="border: 0px;" @click="deleteOneLine(idx)"></el-button>
             </el-col>
           </el-row>
-          <el-button icon="el-icon-plus" style="width: 100%;border:1px dashed #dcdfe6" @click="addOneLine">添加</el-button>
+          <el-button icon="el-icon-plus" class="MarginT_20" style="width: 100%;border:1px dashed #dcdfe6" @click="addOneLine">添加</el-button>
         </div>
       </el-card>
       <!-- goods -->
@@ -235,13 +235,13 @@
         </div>
         <div class="TextAlignL">
           <h4 class="ColorWarn"><span style="display:inline-block;width:50%">合计：</span><span style="display:inline-block;width:50%;text-align:right">{{totalSum}} ¥</span></h4>
-          <p style="font-size: 12px;color: #909399;text-align:right">{{cityDistance}} (公里数) * {{totalWeight}} (重量) * {{unitPrice}} (单价) = {{totalSum}} ¥</p>
+          <p style="font-size: 12px;color: #909399;text-align:right">{{cityDistance}} (路程/km) * {{totalWeight/1000}} (重量/t) * {{unitPrice}} (单价/¥) = {{totalSum}} ¥</p>
         </div>
       </el-card>
       <!-- bt -->
       <el-row>
         <el-col :span="24" class="TextAlignC">
-          <el-button type="primary" :loading="ifLoading" @click="onSubmit('formAdd')">提交运单</el-button>
+          <el-button type="primary" :loading="ifLoading" @click="onSubmit('formAdd')">提交订单</el-button>
         </el-col>
       </el-row>
     </el-form>
@@ -345,7 +345,7 @@ export default {
           { required: true, message: '请输入收货人地址!', trigger: 'blur' }
         ],
         carType: [
-          { required: true, message: '请输入车型!', trigger: 'blur' }
+          { required: true, message: '请选择车型!', trigger: 'blur' }
         ],
         zhTime: [
           { required: true, message: '请选择装货日期!', trigger: 'blur' }
@@ -361,6 +361,24 @@ export default {
         ],
         isFapiao: [
           { required: true, message: '请选择是否需要开具发票!', trigger: 'blur' }
+        ],
+        fprovince: [
+          { required: true, message: '请选择发货地所属省份!', trigger: 'change' }
+        ],
+        fcity: [
+          { required: true, message: '请选择发货地所属市!', trigger: 'change' }
+        ],
+        farea: [
+          { required: true, message: '请选择发货地所属区!', trigger: 'change' }
+        ],
+        sprovince: [
+          { required: true, message: '请选择收货地所属省份!', trigger: 'change' }
+        ],
+        scity: [
+          { required: true, message: '请选择收货地所属市!', trigger: 'change' }
+        ],
+        sarea: [
+          { required: true, message: '请选择收货地所属区!', trigger: 'change' }
         ]
       },
       carTypeList: [],
@@ -486,7 +504,7 @@ export default {
       }).then(res => {
         if (res.data.respCode === '0') {
           this.$message({
-            message: '运单新增成功！',
+            message: '订单新增成功！',
             type: 'success'
           })
           this.clearDataABack()

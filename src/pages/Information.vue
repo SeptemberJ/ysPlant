@@ -8,7 +8,7 @@
       <el-form-item v-if="userRole == 1 || userRole == 2" label="联系人" prop="contact">
         <el-input v-model="formInfo.contact" placeholder="请输入联系人" clearable></el-input>
       </el-form-item>
-       <el-form-item v-if="userRole == 3" label="身份证" prop="ID">
+      <el-form-item v-if="userRole == 3" label="身份证" prop="ID">
         <el-input v-model="formInfo.ID" placeholder="请输入身份证号" clearable></el-input>
       </el-form-item>
       <el-form-item v-if="userRole == 1 || userRole == 2" label="联系电话" prop="tel">
@@ -27,7 +27,7 @@
         <el-input v-model="formInfo.tax" placeholder="请输入税号" clearable></el-input>
       </el-form-item>
       <!-- ID -->
-      <el-form-item v-if="userRole == 3" label="身份证前面" prop="license">
+      <el-form-item v-if="userRole == 3" label="身份证正面" prop="license">
         <el-upload
           class="avatar-uploader"
           action=""
@@ -71,13 +71,13 @@
           <img v-if="formInfo.contract" :src="formInfo.contract" class="avatar">
           <i v-else class="el-icon-plus avatar-uploader-icon"></i>
         </el-upload>
-        <a class="CursorPointer" style="color:#409EFF" href="../../static/公函.pdf" target="_blank">点击下载合同格式文件</a>
+        <span class="CursorPointer" style="color:#409EFF" target="_blank" @click="ToPdf">点击下载合同格式文件</span>
       </el-form-item>
       <el-form-item v-if="userRole == 1 || userRole == 2" label="">
         <el-checkbox v-model="agreed">我已阅读并同意</el-checkbox><span class="CursorPointer" style="color:#409EFF" @click="showAgreement">使用许可及服务协议</span>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="onSubmit('formInfo')" style="width: 100px;" :loading="ifLoading">提交信息</el-button>
+        <el-button type="primary" @click="onSubmit('formInfo')" style="width: 100px;" :loading="ifLoading">{{checkStatus == -1 ? '提交信息' :'保存修改'}}</el-button>
       </el-form-item>
       <div class="BgBlock"></div>
     </el-form>
@@ -167,18 +167,26 @@ export default {
   },
   methods: {
     ...mapActions([
-      'changeLocationIdx'
+      'changeLocationIdx',
+      'changPDFCompany'
     ]),
     handleAvatarSuccess (res, file) {
       // this.formInfo.license = URL.createObjectURL(file.raw)
     },
     showAgreement () {
-      this.$alert('<div style="height: 300px;overflow-y:scroll;"><h5>一 服务条款确认</h5><p>在接受本服务条款之前，请您仔细阅读本服务条款的全部内容。如果您对本服务条款的条款有疑问的，济南邻商将向您解释条款内容。如果您不同意本服务条款的任意内容，或者无法准确理解条款的解释，请不要进行后续操作。 本服务条款的效力范围及于济南邻商的一切产品和服务，用户在享受济南邻商任何单项服务时，应当受本服务条款的约束。当用户使用济南邻商各单项服务时，用户的使用行为视为其对该单项服务的服务条款以及济南邻商在该单项服务中发出的各类公告的同意。 用户通过进入注册程序使用服务，即表示用户与济南邻商已达成协议，自愿接受本服务条款的所有内容。[1]</p><h5>二 声明及承诺 </h5><p>1 您以任何方式使用本公司所提供的服务，即表示您已充分阅读、理解并接受本协议的全部内容，一旦您使用本服务，即表示您同意遵循本协议之所有约定。</p><p>2 本公司可随时自行全权决定更改“条款”。如“条款”有任何变更，本公司将在其网站上刊载公告，无需另行单独通知您。公告后，一旦您继续使用“服务”，则表示您已接受经修订的“条款”，如您不同意相关变更，必须停止使用“服务”。</p><p>3 在您完成注册程序或以其他济南邻商允许的方式实际使用大驼队服务时，您应当是具备完全民事行为权利和完全民事能力的自然人、法人或其他组织。若您不具备前述主体资格，则您及您的监护人应承担因此而导致的一切后果，且大驼队有权注销或永久冻结您的账户，并向您及您的监护人索偿相应损失。</p><h5>三 收费及续费</h5><p>1 济南邻商保留在服务条款确认后，收取服务费用或者是改变服务费用的权利。本公司保留在无须发出书面通知，仅在大驼队官网网站公示的情况下，暂时或永久地更改或停止部分或全部“服务”的权利。</p><p>2 服务期满双方愿意继续合作的，您至少应在服务期满前7天内支付续费款项，以使服务得以继续进行。如续费时济南邻商对大驼队服务体系、名称或价格进行调整的，双方同意按照届时有效的新的服务体系、名称或价格履行，但调整前您已经支付的款项不受影响。</p><p>3 延期续费 服务到期后，如果未续费，则视为服务终止。本公司没有义务替您保留账号及与之相关的数据，如果您超过60日没有支付相关费用，这些数据有可能被永久删除，本公司对此不承担任何责任。如果您延期续费，则需补全拖欠费用期间的与之相对应的服务费用。</p><p>4 济南邻商保留在您未按照约定支付全部费用之前不向您提供服务和技术支持，或者终止服务和技术支持的权利。</p></div>', '使用许可及服务协议', {
+      this.$alert('<div style="height: 300px;overflow-y:scroll;"><h5>一 服务条款确认</h5><p>在接受本服务条款之前，请您仔细阅读本服务条款的全部内容。如果您对本服务条款的条款有疑问的，无车承运将向您解释条款内容。如果您不同意本服务条款的任意内容，或者无法准确理解条款的解释，请不要进行后续操作。 本服务条款的效力范围及于无车承运的一切产品和服务，用户在享受无车承运任何单项服务时，应当受本服务条款的约束。当用户使用无车承运各单项服务时，用户的使用行为视为其对该单项服务的服务条款以及无车承运在该单项服务中发出的各类公告的同意。 用户通过进入注册程序使用服务，即表示用户与无车承运已达成协议，自愿接受本服务条款的所有内容。[1]</p><h5>二 声明及承诺 </h5><p>1 您以任何方式使用本公司所提供的服务，即表示您已充分阅读、理解并接受本协议的全部内容，一旦您使用本服务，即表示您同意遵循本协议之所有约定。</p><p>2 本公司可随时自行全权决定更改“条款”。如“条款”有任何变更，本公司将在其网站上刊载公告，无需另行单独通知您。公告后，一旦您继续使用“服务”，则表示您已接受经修订的“条款”，如您不同意相关变更，必须停止使用“服务”。</p><p>3 在您完成注册程序或以其他无车承运允许的方式实际使用无车承运服务时，您应当是具备完全民事行为权利和完全民事能力的自然人、法人或其他组织。若您不具备前述主体资格，则您及您的监护人应承担因此而导致的一切后果，且无车承运有权注销或永久冻结您的账户，并向您及您的监护人索偿相应损失。</p><h5>三 收费及续费</h5><p>1 无车承运保留在服务条款确认后，收取服务费用或者是改变服务费用的权利。本公司保留在无须发出书面通知，仅在无车承运官网网站公示的情况下，暂时或永久地更改或停止部分或全部“服务”的权利。</p><p>2 服务期满双方愿意继续合作的，您至少应在服务期满前7天内支付续费款项，以使服务得以继续进行。如续费时无车承运对无车承运服务体系、名称或价格进行调整的，双方同意按照届时有效的新的服务体系、名称或价格履行，但调整前您已经支付的款项不受影响。</p><p>3 延期续费 服务到期后，如果未续费，则视为服务终止。本公司没有义务替您保留账号及与之相关的数据，如果您超过60日没有支付相关费用，这些数据有可能被永久删除，本公司对此不承担任何责任。如果您延期续费，则需补全拖欠费用期间的与之相对应的服务费用。</p><p>4 无车承运保留在您未按照约定支付全部费用之前不向您提供服务和技术支持，或者终止服务和技术支持的权利。</p></div>', '使用许可及服务协议', {
         dangerouslyUseHTMLString: true,
         confirmButtonText: '关闭'
       })
     },
-    showPDF () {
+    ToPdf () {
+      // let routeData = this.$router.resolve({
+      //   name: 'PDF',
+      //   params:{name: this.formInfo.company}
+      // })
+      this.changPDFCompany(this.formInfo.company)
+      let routeData = this.$router.resolve({name: 'PDF', params: {name: this.formInfo.company}})
+      window.open(routeData.href, '_blank')
     },
     // 营业执照
     beforeAvatarUpload (file) {
@@ -220,7 +228,7 @@ export default {
     },
     // 上传图片
     uploadImg (property, img) {
-      axios.post('http://116.62.171.244:8082/yingsu/rest/registerDriverController/photo', img, {
+      axios.post('http://172.16.52.99:8083/yingsu/rest/registerDriverController/photo', img, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'X-AUTH-TOKEN': getCookie('btwccy_cookie')
@@ -232,7 +240,7 @@ export default {
     onSubmit (formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          if (!this.agreed && this.userRole != 3) {
+          if (!this.agreed && this.userRole !== 3) {
             this.$message({
               message: '请先阅读并同意使用许可及服务协议！',
               type: 'warning'
@@ -424,13 +432,14 @@ export default {
         if (res.data.respCode === '0') {
           if (Info.companyName) {
             this.checkStatus = Info.checkStatus
+            this.agreed = true
           } else {
             this.checkStatus = -1 // 未填写过信息
           }
           this.formInfo.company = Info.companyName
           this.formInfo.contact = Info.companyLxr
           this.formInfo.tel = Info.companyPhone
-          this.formInfo.role = (Info.ftype === '1' ? '承运商' : '货主')
+          // this.formInfo.role = (Info.ftype === '1' ? '承运商' : '货主')
 
           this.formInfo.tax = Info.taxNumber
           this.formInfo.taitou = Info.taiTou

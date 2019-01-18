@@ -80,7 +80,7 @@ export default {
     return {
       ifLoading: false,
       formSign: {
-        role: 2, // 1-承运商 2-货主
+        role: 2, // 1-承运商 2-货主 3-个人
         accountName: '',
         code: '',
         password: '',

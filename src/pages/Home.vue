@@ -3,32 +3,28 @@
     <el-row>
       <el-col :span="24">
         <el-row>
-          <el-col :span="4" class="siderMenu">
+          <el-col :span="3" class="siderMenu">
             <el-menu
               :default-active="siderIdx"
               class="el-menu-vertical-demo"
               @select="changeSideMenu"
               @open="handleOpen"
               @close="handleClose">
-              <!-- <el-menu-item index="1">
-                <i class="fa fa-truck"></i>
-                <span slot="title">运单管理</span>
-              </el-menu-item> -->
               <el-submenu index="1">
                 <template slot="title">
                   <i class="fa fa-truck"></i>
-                  <span>运单管理</span>
+                  <span>订单管理</span>
                 </template>
                 <el-menu-item-group>
-                  <el-menu-item index="1-1">运单列表</el-menu-item>
-                  <el-menu-item index="1-2">运单新增</el-menu-item>
+                  <el-menu-item index="1-1">订单列表</el-menu-item>
+                  <el-menu-item index="1-2">订单新增</el-menu-item>
                 </el-menu-item-group>
               </el-submenu>
               <el-menu-item index="2" v-if="userRole == 1 || userRole == 2">
                 <i class="fa fa-users"></i>
                 <span slot="title">用户管理</span>
               </el-menu-item>
-              <el-submenu index="3" v-if="userRole == 1 || userRole == 2">
+              <el-submenu index="3" v-if="userRole == 1 || userRole == 2 || userRole == 3">
                 <template slot="title">
                   <i class="fa fa-user-circle-o"></i>
                   <span>个人中心</span>
@@ -40,10 +36,13 @@
               </el-submenu>
             </el-menu>
           </el-col>
-          <el-col :span="20" class="mainContent">
+          <el-col :span="21" class="mainContent">
             <div class="moduleTit">
               <el-breadcrumb separator="/">
-                <el-breadcrumb-item v-if="siderIdx == '1' || siderIdx == '1-1' || siderIdx == '1-2'">运单管理</el-breadcrumb-item>
+                <el-breadcrumb-item v-if="siderIdx == '1' || siderIdx == '1-1' || siderIdx == '1-2'">订单管理</el-breadcrumb-item>
+                <el-breadcrumb-item v-if="siderIdx == '1-1'"><span @click="backOrderList" class="CursorPointer">订单列表</span></el-breadcrumb-item>
+                <el-breadcrumb-item v-if="siderIdx == '1-2'">订单新增</el-breadcrumb-item>
+                <el-breadcrumb-item v-if="siderIdx == '1-1' && showDetail">订单详情</el-breadcrumb-item>
                 <el-breadcrumb-item v-if="siderIdx == '2'">用户管理</el-breadcrumb-item>
                 <el-breadcrumb-item v-if="siderIdx == '3' || siderIdx == '3-1' || siderIdx == '3-2'">个人中心</el-breadcrumb-item>
                 <el-breadcrumb-item v-if="siderIdx == '3-1'">基本信息</el-breadcrumb-item>
@@ -91,13 +90,18 @@ export default {
     ...mapState({
       locationIdx: state => state.locationIdx,
       siderIdx: state => state.siderIdx,
+      showDetail: state => state.showDetail,
       userRole: state => state.userRole // 1-承运商主 2-货主主 4-承运商子 5-货主子 3-个人
     })
   },
   methods: {
     ...mapActions([
-      'changeSiderIdx'
+      'changeSiderIdx',
+      'changeShowDetail'
     ]),
+    backOrderList () {
+      this.changeShowDetail(false)
+    },
     changeSideMenu (index, keyPath) {
       if (keyPath.length > 1) {
         this.changeSiderIdx(keyPath[1])

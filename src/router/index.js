@@ -4,6 +4,7 @@ import Login from '@/pages/Login'
 import Sign from '@/pages/Sign'
 import Password from '@/pages/Password'
 import Information from '@/pages/Information'
+import PDF from '@/pages/PDF'
 import Home from '@/pages/Home'
 import {getCookie} from '../util/utils'
 import store from '../vuex/store'
@@ -34,6 +35,12 @@ const router = new VueRouter({
       path: '/Information',
       name: 'Information',
       component: Information,
+      meta: {requireAuth: true}
+    },
+    {
+      path: '/PDF',
+      name: 'PDF',
+      component: PDF,
       meta: {requireAuth: true}
     },
     {

@@ -4,8 +4,8 @@
       <el-col :span="24" class="BgWhite MarginTB_10 TextAlignR">
         <!-- <el-button type="primary" icon="el-icon-plus" size="small">新增</el-button> -->
         <el-form :inline="true" :model="formCondition" class="demo-form-inline">
-          <!-- <el-form-item label="运单号">
-            <el-input v-model="formCondition.orderNo" placeholder="运单号" clearable></el-input>
+          <!-- <el-form-item label="订单号">
+            <el-input v-model="formCondition.orderNo" placeholder="订单号" clearable></el-input>
           </el-form-item> -->
           <!-- <el-form-item label="起始日期">
             <el-date-picker type="date" placeholder="选择起始日期" v-model="formCondition.startDate" style="width: 100%;"></el-date-picker>
@@ -41,15 +41,12 @@
           </el-table-column>
           <el-table-column
             prop="fh_name"
+            width="120"
             label="发货人">
           </el-table-column>
-          <!-- <el-table-column
-            prop="fstatus"
-            label="运单状态"
-            show-overflow-tooltip>
-          </el-table-column> -->
           <el-table-column
-            label="运单状态"
+            label="订单状态"
+            width="100"
             >
             <template slot-scope="scope">
               <!-- <el-button
@@ -58,19 +55,30 @@
               <span>{{scope.row.fstatus == 0 ? '待接单' : (scope.row.fstatus == 1 ? '已接单' : (scope.row.fstatus == 2 ? '已撤单' : (scope.row.fstatus == 3 ? '运输中' : (scope.row.fstatus == 4 ? '已签收' : '已取消'))))}}</span>
             </template>
           </el-table-column>
-          <!-- <el-table-column
-            prop="zhDate"
-            label="装货日期"
-            show-overflow-tooltip>
-          </el-table-column> -->
           <el-table-column
             prop="goods_name"
             label="货物名称"
             show-overflow-tooltip>
           </el-table-column>
           <el-table-column
+            prop="origin"
+            label="发货地"
+            show-overflow-tooltip>
+          </el-table-column>
+          <el-table-column
+            prop="destination"
+            label="收货地"
+            show-overflow-tooltip>
+          </el-table-column>
+          <!-- <el-table-column
+            prop="zhDate"
+            label="装货日期"
+            show-overflow-tooltip>
+          </el-table-column> -->
+          <el-table-column
             align="right"
             label="操作"
+            width="200"
             >
             <template slot-scope="scope">
               <el-button v-if="scope.row.fstatus == 0"
@@ -87,7 +95,7 @@
           </el-table-column>
         </el-table>
       </el-col>
-      <el-col :span="24" class="MarginTB_20 TextAlignR">
+      <el-col :span="24" class="MarginTB_20 TextAlignR" v-if="orderList.length > 0">
         <el-pagination
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
@@ -103,7 +111,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapActions } from 'vuex'
 import {send} from '../../util/send'
 import {secondToFormat} from '../../util/utils'
 import OrderDetail from './OrderDetail.vue'
@@ -111,7 +119,7 @@ export default {
   name: 'Order',
   data () {
     return {
-      showDetail: false,
+      // showDetail: false,
       orderId: '',
       currentPage: 1,
       sum: 0,
@@ -126,28 +134,35 @@ export default {
   computed: {
     ...mapState({
       userRole: state => state.userRole,
-      userCode: state => state.userCode
+      userCode: state => state.userCode,
+      showDetail: state => state.showDetail
     })
   },
   created () {
     this.getOrderList()
+    // this.changeIfOrderDetail(false)
   },
   components: {
     OrderDetail
   },
   methods: {
+    ...mapActions([
+      'changeShowDetail'
+    ]),
     handleSelectionChange () {
     },
     changeIfOrderDetail () {
-      this.showDetail = false
+      this.changeShowDetail(false)
+      // this.showDetail = false
       this.getOrderList()
     },
     handleEdit (idx, row) {
-      this.showDetail = true
+      this.changeShowDetail(true)
+      // this.showDetail = true
       this.orderId = row.id
     },
     handleCancel (idx, row) {
-      this.$confirm('此操作将取消该运单, 是否继续?', '提示', {
+      this.$confirm('此操作将取消该订单, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
@@ -189,7 +204,7 @@ export default {
     getOrderList () {
       let urlName = ''
       // 主账户
-      if (this.userRole === '1' || this.userRole === '2') {
+      if (this.userRole === '1' || this.userRole === '2' || this.userRole === '3') {
         urlName = '/orderController/orderList?number=10&page_num=' + this.currentPage + '&main_usercode=' + this.userCode
       }
       // 子账户

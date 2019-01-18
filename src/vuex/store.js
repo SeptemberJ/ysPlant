@@ -16,7 +16,9 @@ const state = {
   userAccount: '',
   userRole: '', // 1-承运商主 2-货主主 4-承运商子 5-货主子 3-个人
   userCode: '',
-  ImgURL_PREFIX: 'http://116.62.171.244:8082/yingsu/'
+  ImgURL_PREFIX: 'http://116.62.171.244:8082/yingsu/',
+  showDetail: false,
+  PDFCompany: ''
 }
 // actions
 const actions = {
@@ -40,6 +42,12 @@ const actions = {
   },
   changeUserAccount ({commit, state}, Account) {
     commit('setUserAccount', Account)
+  },
+  changeShowDetail ({commit, state}, STATUS) {
+    commit('toggleShowDetail', STATUS)
+  },
+  changPDFCompany ({commit, state}, NAME) {
+    commit('setPDFCompany', NAME)
   }
 }
 
@@ -47,7 +55,6 @@ const actions = {
 const mutations = {
   setLocationIdx (state, IDX) {
     state.locationIdx = IDX
-    // localStorage['locationIdx'] = IDX
   },
   setSiderIdx (state, IDX) {
     state.siderIdx = IDX
@@ -63,6 +70,12 @@ const mutations = {
   },
   setUserAccount (state, Account) {
     state.userAccount = Account
+  },
+  toggleShowDetail (state, STATUS) {
+    state.showDetail = STATUS
+  },
+  setPDFCompany (state, NAME) {
+    state.PDFCompany = NAME
   }
 }
 
