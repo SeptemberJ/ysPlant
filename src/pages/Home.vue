@@ -16,11 +16,13 @@
                   <span>订单管理</span>
                 </template>
                 <el-menu-item-group>
-                  <el-menu-item index="1-1">订单列表</el-menu-item>
-                  <el-menu-item index="1-2">订单新增</el-menu-item>
+                  <el-menu-item index="1-1" v-if="userRole == 2 || userRole == 5 || userRole == 3">订单列表</el-menu-item>
+                  <el-menu-item index="1-2" v-if="userRole == 2 || userRole == 5  || userRole == 3">订单新增</el-menu-item>
+                  <el-menu-item index="1-3" v-if="userRole == 1 || userRole == 4">订单查询</el-menu-item>
+                  <el-menu-item index="1-4" v-if="userRole == 1 || userRole == 4">接单</el-menu-item>
                 </el-menu-item-group>
               </el-submenu>
-              <el-menu-item index="2" v-if="userRole == 1 || userRole == 2">
+              <el-menu-item index="2" v-if="userRole == 1 || userRole == 2 || userRole == 4">
                 <i class="fa fa-users"></i>
                 <span slot="title">用户管理</span>
               </el-menu-item>
@@ -39,10 +41,15 @@
           <el-col :span="21" class="mainContent">
             <div class="moduleTit">
               <el-breadcrumb separator="/">
-                <el-breadcrumb-item v-if="siderIdx == '1' || siderIdx == '1-1' || siderIdx == '1-2'">订单管理</el-breadcrumb-item>
-                <el-breadcrumb-item v-if="siderIdx == '1-1'"><span @click="backOrderList" class="CursorPointer">订单列表</span></el-breadcrumb-item>
+                <!-- 订单管理导航 -->
+                <el-breadcrumb-item v-if="siderIdx == '1' || siderIdx == '1-1' || siderIdx == '1-2' || siderIdx == '1-3' || siderIdx == '1-4' || siderIdx == '1-5'">订单管理</el-breadcrumb-item>
+                <el-breadcrumb-item v-if="siderIdx == '1-1' && (userRole == 2 || userRole == 5 || userRole == 3)"><span @click="backOrderList" class="CursorPointer">订单列表</span></el-breadcrumb-item>
+                <el-breadcrumb-item v-if="siderIdx == '1-4'"><span @click="backOrderList" class="CursorPointer">接单</span></el-breadcrumb-item>
+                <el-breadcrumb-item v-if="siderIdx == '1-3' && (userRole == 1 || userRole == 4)"><span @click="backOrderList" class="CursorPointer">订单查询</span></el-breadcrumb-item>
+                <el-breadcrumb-item v-if="ifSJOrderSearch && siderIdx == '1-3' && (userRole == 1 || userRole == 4)"><span @click="backSjList" class="CursorPointer">司机订单列表</span></el-breadcrumb-item>
                 <el-breadcrumb-item v-if="siderIdx == '1-2'">订单新增</el-breadcrumb-item>
-                <el-breadcrumb-item v-if="siderIdx == '1-1' && showDetail">订单详情</el-breadcrumb-item>
+                <el-breadcrumb-item v-if="showDetail && (siderIdx == '1-1' || siderIdx == '1-3' || siderIdx == '1-4')">订单详情</el-breadcrumb-item>
+                <!-- 用户管理导航 -->
                 <el-breadcrumb-item v-if="siderIdx == '2'">用户管理</el-breadcrumb-item>
                 <el-breadcrumb-item v-if="siderIdx == '3' || siderIdx == '3-1' || siderIdx == '3-2'">个人中心</el-breadcrumb-item>
                 <el-breadcrumb-item v-if="siderIdx == '3-1'">基本信息</el-breadcrumb-item>
@@ -52,6 +59,8 @@
             <section>
               <Order v-if="siderIdx == '1-1'"/>
               <AddOrder v-if="siderIdx == '1-2'"/>
+              <OrderC v-if="siderIdx == '1-3'"/>
+              <Receipt v-if="siderIdx == '1-4'"/>
               <User v-if="siderIdx == '2'"/>
               <Center v-if="siderIdx == '3-1'"/>
               <Safe v-if="siderIdx == '3-2'"/>
@@ -69,6 +78,8 @@
 <script>
 import { mapState, mapActions } from 'vuex'
 import Order from '../components/Order/Order.vue'
+import Receipt from '../components/OrderC/Receipt.vue'
+import OrderC from '../components/OrderC/Order.vue'
 import AddOrder from '../components/Order/AddOrder.vue'
 import Center from '../components/Center.vue'
 import User from '../components/User.vue'
@@ -83,6 +94,8 @@ export default {
     User,
     Order,
     AddOrder,
+    Receipt,
+    OrderC,
     Center,
     Safe
   },
@@ -91,22 +104,34 @@ export default {
       locationIdx: state => state.locationIdx,
       siderIdx: state => state.siderIdx,
       showDetail: state => state.showDetail,
-      userRole: state => state.userRole // 1-承运商主 2-货主主 4-承运商子 5-货主子 3-个人
+      ifSJOrderSearch: state => state.ifSJOrderSearch,
+      userRole: state => state.userRole // 1-承运商主 2-货主主 4-承运商子 5-货主子 3-个人 searchOrderId: state => state.searchOrderId,
     })
   },
   methods: {
     ...mapActions([
       'changeSiderIdx',
-      'changeShowDetail'
+      'changeShowDetail',
+      'changeIfSJOrderSearch'
     ]),
     backOrderList () {
+      this.changeShowDetail(false)
+      this.changeIfSJOrderSearch(false)
+    },
+    // 订单查询司机列表
+    backSjList () {
+      this.changeIfSJOrderSearch(true)
       this.changeShowDetail(false)
     },
     changeSideMenu (index, keyPath) {
       if (keyPath.length > 1) {
         this.changeSiderIdx(keyPath[1])
+        this.changeIfSJOrderSearch(false)
+        this.changeShowDetail(false)
       } else {
         this.changeSiderIdx(keyPath[0])
+        this.changeIfSJOrderSearch(false)
+        this.changeShowDetail(false)
       }
     },
     handleOpen (key, keyPath) {

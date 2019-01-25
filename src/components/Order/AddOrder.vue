@@ -220,6 +220,13 @@
             <el-date-picker :picker-options="pickerOptionsStart" type="datetime" placeholder="选择装货日期" v-model="formAdd.zhTime" style="width: 100%;">
             </el-date-picker>
           </el-form-item>
+          <el-form-item prop="appointId" label="指派人员" class="TextAlignL">
+            <span class="MarginR_10" v-if="appointName">{{appointName}}</span>
+            <el-button type="text" size="small" @click="chooseSJ">选择<i class="el-icon-d-arrow-right el-icon--right"></i></el-button>
+            <!-- <el-tooltip class="item" effect="dark" content="可以选择指定的承运商或司机来接受您的订单" placement="bottom">
+              <i class="el-icon-question"></i>
+            </el-tooltip> -->
+          </el-form-item>
           <el-form-item label="开具发票" prop="isFapiao">
             <el-radio-group v-model="formAdd.isFapiao" style="float: left">
               <el-radio :label="0" border>不需要</el-radio>
@@ -234,6 +241,14 @@
           <span>预估费用</span>
         </div>
         <div class="TextAlignL">
+          <el-form-item label="支付方式" prop="isFapiao">
+            <el-row class="TextAlignR">
+              <el-col :span="1" :offset="18"><el-radio v-model="formAdd.payType" :label="0"><span style="color:#fff">0</span></el-radio></el-col>
+              <el-col :span="1"><img src="../../../static/images/icon/zfb.png" style="width: 35px;margin-top:5px;"></el-col>
+              <el-col :span="1" :offset="2"><el-radio v-model="formAdd.payType" :label="1"><span style="color:#fff">1</span></el-radio></el-col>
+              <el-col :span="1"><img src="../../../static/images/icon/wx.png" style="width: 35px;margin-top:5px;"></el-col>
+            </el-row>
+          </el-form-item>
           <h4 class="ColorWarn"><span style="display:inline-block;width:50%">合计：</span><span style="display:inline-block;width:50%;text-align:right">{{totalSum}} ¥</span></h4>
           <p style="font-size: 12px;color: #909399;text-align:right">{{cityDistance}} (路程/km) * {{totalWeight/1000}} (重量/t) * {{unitPrice}} (单价/¥) = {{totalSum}} ¥</p>
         </div>
@@ -245,6 +260,32 @@
         </el-col>
       </el-row>
     </el-form>
+    <!-- dialog -->
+    <el-dialog title="指派查询" :visible.sync="dialogVisible" width="450px">
+      <el-row>
+        <el-col :span="6" class="TextAlignL">
+          <span>指派类型：</span>
+        </el-col>
+         <el-col :span="17" :offset="1">
+          <el-radio-group v-model="appointType" style="float: left">
+            <el-radio :label="0">承运商</el-radio>
+            <el-radio :label="1">个体司机</el-radio>
+          </el-radio-group>
+        </el-col>
+      </el-row>
+      <el-row class="MarginTB_20">
+        <el-col :span="6" class="TextAlignL">
+          <span>承运商 / 司机手机号：</span>
+        </el-col>
+         <el-col :span="17" :offset="1">
+          <el-input v-model="appointPhone" placeholder="请输入指派的司机/承运商手机号" clearable></el-input>
+        </el-col>
+      </el-row>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="getSJByPhone">指定</el-button>
+      </div>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -264,6 +305,7 @@ export default {
       }
     }
     return {
+      dialogVisible: false,
       ifLoading: false,
       fprovinceList: [],
       fcityList: [],
@@ -280,7 +322,11 @@ export default {
       cityDistance: 0,
       unitPrice: 0,
       totalSum: 0,
+      appointType: 0, // 指派类型 0承运商 1个体司机
+      appointName: '',
+      appointPhone: '13734567890',
       formAdd: {
+        appointId: '', // 指派司机id
         fprovince: '',
         fcity: '',
         farea: '',
@@ -292,7 +338,7 @@ export default {
         fcheck: '0',
         fmainId: '', // 主账号code
         fsubId: '', // 子账号code
-        fhName: '张三',
+        fhName: '赵三',
         fhTelephone: '18234567890',
         fh: '', // 发货地id
         fhAddress: '南通',
@@ -320,7 +366,8 @@ export default {
             orderId: ''
           }
         ],
-        isFapiao: 0 // 0-不要 1-要
+        isFapiao: 0, // 0-不要 1-要
+        payType: 0 // 0-支付宝 1-微信
       },
       AddRules: {
         fhName: [
@@ -443,6 +490,29 @@ export default {
         }
       })
     },
+    chooseSJ () {
+      this.dialogVisible = true
+    },
+    getSJByPhone () {
+      send({
+        name: '/zRegisterController/appointDriver?fmobile=' + this.appointPhone + '&ftype=' + this.appointType,
+        method: 'GET',
+        data: ''
+      }).then(res => {
+        if (res.data.code === 1) {
+          this.formAdd.appointId = res.data.user.id
+          this.appointName = res.data.user.fname
+          this.dialogVisible = false
+        } else {
+          this.$message({
+            message: '该司机或承运商不存在，请检查所选的类型和手机号是否匹配！',
+            type: 'error'
+          })
+        }
+      }).catch((res) => {
+        console.log(res)
+      })
+    },
     onSubmit (formName) {
       if (this.formAdd.orderGoodsList.length === 0) {
         this.$message({
@@ -474,6 +544,8 @@ export default {
     },
     sureAdd () {
       let DATA = {
+        appointId: this.formAdd.appointId,
+        isAppoint: this.formAdd.appointId === '' ? 0 : 1,
         ffee: this.totalSum,
         fweight: this.totalWeight,
         id: this.formAdd.id,

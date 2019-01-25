@@ -1,10 +1,5 @@
 <template>
   <div class="OrderDetail">
-    <!-- <el-row class="MarginTB_20">
-      <el-col :span="24" class="TextAlignR">
-        <el-button type="text" @click="backOrderList">返回</el-button>
-      </el-col>
-    </el-row> -->
     <el-row>
       <el-form ref="formAdd" :model="formAdd" :rules="AddRules" label-width="110px" label-position="left">
         <!-- fh -->
@@ -17,6 +12,7 @@
               <el-col :span="12">
                 <el-form-item prop="fhName" label="发货人">
                   <el-input v-model="formAdd.fhName" clearable></el-input>
+                  <!-- <span>{{formAdd.fhName}}</span> -->
                 </el-form-item>
               </el-col>
               <el-col :span="11" :offset="1">
@@ -31,7 +27,7 @@
             <el-row>
               <el-col :span="7" :offset="0">
                 <el-form-item prop="fprovince" label="发货省">
-                  <el-select v-model="formAdd.fprovince" placeholder="请选择" @change="changeFprovince">
+                  <el-select v-model="formAdd.fprovince" placeholder="请选择">
                     <el-option
                       v-for="(fprovince, idx) in fprovinceList"
                       :key="idx"
@@ -159,7 +155,6 @@
                 <el-button icon="el-icon-delete" style="border: 0px;" @click="deleteOneLine(idx)"></el-button>
               </el-col>
             </el-row>
-            <el-button icon="el-icon-plus" class="MarginT_20" style="width: 100%;border:1px dashed #dcdfe6" @click="addOneLine">添加</el-button>
           </div>
         </el-card>
         <!-- goods -->
@@ -174,7 +169,7 @@
             </el-form-item>
             <!-- car -->
             <el-form-item prop="carType" label="车型">
-              <el-select v-model="formAdd.carType" placeholder="请选择" style="width: 100%" @change="changeCarType">
+              <el-select v-model="formAdd.carType" placeholder="请选择" style="width: 100%">
                 <el-option
                   v-for="(carType, idx) in carTypeList"
                   :key="idx"
@@ -201,14 +196,6 @@
             <span>预估费用</span>
           </div>
           <div class="TextAlignL">
-            <!-- <el-form-item label="支付方式" prop="isFapiao">
-              <el-row class="TextAlignR">
-                <el-col :span="1" :offset="18"><el-radio v-model="formAdd.payType" :label="0" disabled><span style="color:#fff">0</span></el-radio></el-col>
-                <el-col :span="1"><img src="../../../static/images/icon/zfb.png" style="width: 35px;margin-top:5px;"></el-col>
-                <el-col :span="1" :offset="2"><el-radio v-model="formAdd.payType" :label="1" disabled><span style="color:#fff">1</span></el-radio></el-col>
-                <el-col :span="1"><img src="../../../static/images/icon/wx.png" style="width: 35px;margin-top:5px;"></el-col>
-              </el-row>
-            </el-form-item> -->
             <h4 class="ColorWarn"><span style="display:inline-block;width:50%">合计：</span><span style="display:inline-block;width:50%;text-align:right">{{totalSum}} ¥</span></h4>
             <p style="font-size: 12px;color: #909399;text-align:right">{{cityDistance}} (路程/km) * {{totalWeight/1000}} (重量/t) * {{unitPrice}} (单价/¥) = {{totalSum}} ¥</p>
           </div>
@@ -216,14 +203,9 @@
         <!-- bt -->
         <el-row v-if="formAdd.fstatus == 0">
           <el-col :span="12" class="TextAlignC" >
-            <el-button type="primary" :loading="ifLoading" @click="onSubmit('formAdd')">保存修改</el-button>
+            <el-button type="primary" :loading="ifLoading" @click="Receipt">接单</el-button>
           </el-col>
           <el-col :span="12" class="TextAlignC">
-            <el-button @click="backOrderList" style="width: 100px;">返回</el-button>
-          </el-col>
-        </el-row>
-        <el-row v-else>
-          <el-col :span="24" class="TextAlignC">
             <el-button @click="backOrderList" style="width: 100px;">返回</el-button>
           </el-col>
         </el-row>
@@ -237,6 +219,7 @@ import { mapState, mapActions } from 'vuex'
 import {send} from '../../util/send'
 export default {
   name: 'AddOrder',
+  props: ['searchType'],
   data () {
     var validatePhone = (rule, value, callback) => {
       if (value.trim() === '') {
@@ -296,8 +279,7 @@ export default {
         zhTime: '',
         goodsName: '',
         orderGoodsList: [],
-        isFapiao: '0', // 0-不要 1-要
-        payType: '0' // 0-支付宝 1-微信
+        isFapiao: '0' // 0-不要 1-要
       },
       AddRules: {
         fhName: [
@@ -401,138 +383,8 @@ export default {
     ...mapActions([
       'changeSiderIdx'
     ]),
-    addOneLine () {
-      let tempGoods = {
-        goodsName: '',
-        goodsSpace: '',
-        goodsWeight: '',
-        id: '',
-        orderId: ''
-      }
-      this.formAdd.orderGoodsList.push(tempGoods)
-    },
-    deleteOneLine (idx) {
-      this.formAdd.orderGoodsList.splice(idx, 1)
-    },
-    changeCarType (typeValue) {
-      this.carTypeList.map(item => {
-        if (item.typeValue === typeValue) {
-          this.unitPrice = item.fprice
-        }
-      })
-    },
-    onSubmit (formName) {
-      if (this.formAdd.orderGoodsList.length === 0) {
-        this.$message({
-          message: '请至少添加一行货物信息！',
-          type: 'warning'
-        })
-        return false
-      }
-      this.ifLoading = true
-      // if (this.userRole === '1' || this.userRole === '2') {
-      //   this.formAdd.fmainId = this.userCode
-      // }
-      // if (this.userRole === '4' || this.userRole === '5') {
-      //   this.formAdd.fsubId = this.userCode
-      // }
-      // console.log(this.formAdd)
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          this.sureAdd()
-        } else {
-          this.$message({
-            message: '请将信息填写完整！',
-            type: 'warning'
-          })
-          return false
-        }
-      })
-    },
-    sureAdd () {
-      let DATA = {
-        ffee: this.totalSum,
-        fweight: this.totalWeight,
-        id: this.formAdd.id,
-        fstatus: this.formAdd.fstatus,
-        fcheck: this.formAdd.fcheck,
-        fmainId: this.formAdd.fmainId,
-        fsubId: this.formAdd.fsubId,
-        fhName: this.formAdd.fhName,
-        fhTelephone: this.formAdd.fhTelephone,
-        fh: this.formAdd.farea,
-        fhAddress: this.formAdd.fhAddress,
-        shName: this.formAdd.shName,
-        shTelephone: this.formAdd.shTelephone,
-        sh: this.formAdd.sarea,
-        shArea: '', // this.formAdd.shArea,
-        shAddress: this.formAdd.shAddress,
-        carType: this.formAdd.carType,
-        zhTime: this.formAdd.zhTime,
-        goodsName: this.formAdd.goodsName,
-        orderGoodsList: this.formAdd.orderGoodsList,
-        isFapiao: this.formAdd.isFapiao
-      }
-
-      send({
-        name: '/orderController/' + this.searchOrderId,
-        method: 'PUT',
-        data: DATA
-      }).then(res => {
-        if (res.data.respCode === '0') {
-          this.$message({
-            message: '订单修改成功！',
-            type: 'success'
-          })
-          this.ifLoading = false
-        } else {
-          this.$message({
-            message: res.data.message + '！',
-            type: 'error'
-          })
-          this.ifLoading = false
-        }
-      }).catch((res) => {
-        console.log(res)
-        this.ifLoading = false
-      })
-    },
-    clearDataABack () {
-      // clear data
-      this.formAdd = {
-        id: '',
-        fstatus: '0',
-        fcheck: '0',
-        fmainId: '',
-        fsubId: '',
-        fhName: '',
-        fhTelephone: '',
-        fh: '',
-        fhAddress: '',
-        shName: '',
-        shTelephone: '',
-        sh: '',
-        shArea: '',
-        shAddress: '',
-        carType: '',
-        zhTime: '',
-        goodsName: '',
-        orderGoodsList: [
-          {
-            goodsName: '',
-            goodsSpace: '',
-            goodsWeight: '',
-            id: '',
-            orderId: ''
-          }
-        ],
-        isFapiao: 0
-      }
-      // tolist
-      this.changeSiderIdx('1-1')
-    },
     backOrderList () {
-      this.$emit('toggleOrderDetail')
+      this.$emit('toggleOrderDetail', this.searchType)
     },
     getOrderDetail () {
       send({
@@ -563,7 +415,6 @@ export default {
           temp.shName = res.data.data.sh_name
           temp.shTelephone = res.data.data.sh_telephone
           temp.isFapiao = res.data.data.is_fapiao
-          temp.payType = res.data.data.payType ? res.data.data.payType : 0
           this.formAdd = temp
           console.log('this.totalSum------------------')
           console.log(this.totalSum)
@@ -715,6 +566,9 @@ export default {
       }).catch((res) => {
         console.log(res)
       })
+    },
+    Receipt () {
+
     }
   }
 }

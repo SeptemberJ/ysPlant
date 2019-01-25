@@ -1,14 +1,22 @@
 <template>
   <div class="User">
     <el-row>
+      <el-col :span="24"  class="MarginTB_20" v-if="userRole == 1">
+        <el-row>
+          <el-col :span="12" :class="{'activeTab': userType == 0, 'normalTab': userType == 1, 'Padding_10': true}"><span @click="changeTab(0)">子账户</span></el-col>
+          <el-col :span="12" :class="{'activeTab': userType == 1, 'normalTab': userType == 0, 'Padding_10': true}"><span @click="changeTab(1)">司机</span></el-col>
+        </el-row>
+      </el-col>
       <el-col :span="24" class="BgWhite MarginTB_10 TextAlignR">
-        <el-button type="primary" icon="el-icon-plus" size="small" @click="addUser">新增</el-button>
+        <el-button type="primary" icon="el-icon-plus" size="small" @click="addUser">{{userType == 0 ? '新增' : '新增'}}</el-button>
       </el-col>
       <el-col :span="24" class="MarginTB_20">
+        <!-- 子账户列表 -->
         <el-table
-          v-if="userRole == 2"
+          v-if="userType == 0"
           ref="multipleTable"
           v-loading="loading"
+          key="secondAccount"
           :data="UserList"
           tooltip-effect="dark"
           style="width: 100%"
@@ -48,11 +56,13 @@
             </template>
           </el-table-column>
         </el-table>
+        <!-- 司机列表 -->
         <el-table
-          v-if="userRole == 1"
+          v-if="userType == 1"
           ref="multipleTable"
           v-loading="loading"
           :data="LogisticsList"
+          key="LogisticsList"
           tooltip-effect="dark"
           style="width: 100%"
           @selection-change="handleSelectionChange">
@@ -88,12 +98,22 @@
           </el-table-column>
         </el-table>
       </el-col>
-      <el-col :span="24" class="MarginTB_20 TextAlignR" v-if="UserList.length > 0">
+      <el-col :span="24" class="MarginTB_20 TextAlignR" v-if="UserList.length > 0 && userType == 0">
         <el-pagination
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         :current-page.sync="currentPage"
-        :page-size="100"
+        :page-size="10"
+        layout="prev, pager, next, jumper"
+        :total="sum">
+        </el-pagination>
+      </el-col>
+      <el-col :span="24" class="MarginTB_20 TextAlignR" v-if="LogisticsList.length > 0 && userType == 1">
+        <el-pagination
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page.sync="currentPage"
+        :page-size="10"
         layout="prev, pager, next, jumper"
         :total="sum">
         </el-pagination>
@@ -123,7 +143,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapActions } from 'vuex'
 import {send} from '../util/send'
 export default {
   name: 'User',
@@ -151,12 +171,12 @@ export default {
         LogisticPsd: ''
       },
       Rules: {
-        // LogisticPhone: [
-        //   { required: true, validator: validateAccountPhone, trigger: 'blur' }
-        // ],
         LogisticPhone: [
-          { required: true, message: '请输入手机号！', trigger: 'blur' }
+          { required: true, validator: validateAccountPhone, trigger: 'blur' }
         ],
+        // LogisticPhone: [
+        //   { required: true, message: '请输入手机号！', trigger: 'blur' }
+        // ],
         LogisticName: [
           { required: true, message: '请输入司机姓名！', trigger: 'blur' }
         ],
@@ -173,24 +193,37 @@ export default {
     ...mapState({
       userId: state => state.userId,
       userCode: state => state.userCode,
-      userRole: state => state.userRole
+      userRole: state => state.userRole,
+      userType: state => state.accountKind
     })
   },
   created () {
-    if (this.userRole === '1' || this.userCode === 1) {
+    if (this.userType === 1) {
       this.getLogisticsList()
     } else {
       this.getUserList()
     }
   },
   methods: {
+    ...mapActions([
+      'changeAccountKind'
+    ]),
     handleSelectionChange () {
     },
-    addUser () {
-      if (this.userRole === '1' || this.userCode === 1) {
-        this.dialogFormVisible = true
+    changeTab (type) {
+      this.changeAccountKind(type)
+      this.currentPage = 1
+      if (type === 0) {
+        this.getUserList()
       } else {
+        this.getLogisticsList()
+      }
+    },
+    addUser () {
+      if (this.userType === 0) {
         this.modalUser()
+      } else {
+        this.dialogFormVisible = true
       }
     },
     modalUser () {
@@ -201,83 +234,6 @@ export default {
       }).then(({ value }) => {
         this.sureAdd(value)
       }).catch(() => {
-      })
-    },
-    modalLogistic () {
-      const h = this.$createElement
-      this.$msgbox({
-        title: '新增用户',
-        message: h('div', null, [
-          h('div', null, [
-            h('p', {style: 'margin: 5px'}, '司机名称 '),
-            h('el-input', {
-              props: {
-                value: this.LogisticName
-              },
-              nativeOn: {
-                change: this.changeName
-              }
-            })
-          ]),
-          h('div', null, [
-            h('p', {style: 'margin: 5px'}, '司机手机号 '),
-            h('el-input', {
-              props: ['LogisticPhone'],
-              // attrs: {
-              //   value: this.LogisticPhone,
-              //   id: 'LogisticPhone'
-              // },
-              nativeOn: {
-                change: this.changePhone
-              }
-            })
-          ]),
-          h('div', null, [
-            h('p', {style: 'margin: 5px'}, '密码 '),
-            h('el-input', {
-              props: ['LogisticPsd'],
-              // attrs: {
-              //   value: this.LogisticPsd,
-              //   id: 'LogisticPsd'
-              // },
-              nativeOn: {
-                change: this.changePsd
-              }
-            })
-          ]),
-          h('div', null, [
-            h('p', {style: 'margin: 5px'}, '公司名称 '),
-            h('el-input', {
-              props: ['LogisticCompany'],
-              // attrs: {
-              //   value: this.LogisticCompany,
-              //   id: 'LogisticCompany'
-              // },
-              nativeOn: {
-                change: this.changeCompany
-              }
-            })
-          ])
-        ]),
-        beforeClose: (action, instance, done) => {
-          if (action === 'confirm') {
-            if (!this.LogisticName || !this.LogisticPhone || !this.LogisticPsd || !this.LogisticCompany) {
-              this.$message({
-                message: '请将信息填写完整！',
-                type: 'warning'
-              })
-            } else {
-              done()
-            }
-          } else {
-            done()
-          }
-        },
-        showCancelButton: true,
-        confirmButtonText: '提交',
-        cancelButtonText: '取消'
-      }).then(action => {
-        this.addLogistic()
       })
     },
     addLogistic (formName) {
@@ -320,10 +276,6 @@ export default {
           return false
         }
       })
-    },
-    changeName (item) {
-      console.log(this.LogisticName)
-      // this.LogisticName = item.target.value
     },
     changePhone (item) {
       this.LogisticPhone = item.target.value
@@ -486,15 +438,16 @@ export default {
         if (res.data.code === 1) {
           this.sum = res.data.sum_number
           this.UserList = res.data.subAccountList
-          this.loading = false
         } else {
           this.$message({
             message: res.data.message + '！',
             type: 'error'
           })
         }
+        this.loading = false
       }).catch((res) => {
         console.log(res)
+        this.loading = false
       })
     },
     getLogisticsList () {
@@ -508,21 +461,26 @@ export default {
         if (res.data.code === 1) {
           this.sum = res.data.sum_number
           this.LogisticsList = res.data.driverList
-          this.loading = false
         } else {
           this.$message({
             message: res.data.message + '！',
             type: 'error'
           })
         }
+        this.loading = false
       }).catch((res) => {
         console.log(res)
+        this.loading = false
       })
     },
     handleSizeChange () {
     },
     handleCurrentChange () {
-      this.getUserList()
+      if (this.userType === 0) {
+        this.getUserList()
+      } else {
+        this.getLogisticsList()
+      }
     }
   }
 }
@@ -534,5 +492,24 @@ export default {
   background: #fff;
   margin: 20px 20px 50px 20px;
   padding: 20px;
+  .activeTab{
+    border: 1px solid #e0b32b;
+    background: #e0b32b;
+    color: #fff;
+    cursor: pointer;
+    span{
+      width: 100%;
+      display: block;
+    }
+  }
+  .normalTab{
+    border: 1px solid #e0b32b;
+    color: #e0b32b;
+    cursor: pointer;
+    span{
+      width: 100%;
+      display: block;
+    }
+  }
 }
 </style>

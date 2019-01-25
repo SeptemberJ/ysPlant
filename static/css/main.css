@@ -127,6 +127,9 @@ html body{
 .MarginTB_10{
 	margin: 10px 0;
 }
+.MarginR_10{
+  margin-right: 10px;
+}
 .TextAlignC{
 	text-align: center !important;
 }
@@ -139,8 +142,17 @@ html body{
 .PaddingL_20{
   padding-left: 20px !important;
 }
+.PaddingL_10{
+  padding-left: 10px !important;
+}
 .Padding_20{
   padding: 20px !important;
+}
+.Padding_10{
+  padding: 10px !important;
+}
+.PaddingT_20{
+  padding-top: 20px !important;
 }
 /**/
 /*.Sign .el-input__inner{

@@ -117,6 +117,7 @@ export function send (options) {
         ).then((res) => {
           resolve(res)
         }).catch((error) => {
+          // resolve(error)
           Message.error({
             message: 'Interface error!'
           })

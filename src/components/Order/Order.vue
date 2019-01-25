@@ -28,6 +28,7 @@
         <el-table
           ref="multipleTable"
           :data="orderList"
+          v-loading="loading"
           tooltip-effect="dark"
           style="width: 100%"
           @selection-change="handleSelectionChange">
@@ -40,9 +41,8 @@
             width="50">
           </el-table-column>
           <el-table-column
-            prop="fh_name"
-            width="120"
-            label="发货人">
+            prop="order_no"
+            label="订单号">
           </el-table-column>
           <el-table-column
             label="订单状态"
@@ -106,7 +106,7 @@
         </el-pagination>
       </el-col>
     </el-row>
-    <OrderDetail v-if="showDetail" :orderId="orderId" @toggleOrderDetail='changeIfOrderDetail'/>
+    <OrderDetail v-if="showDetail" @toggleOrderDetail='changeIfOrderDetail'/>
   </div>
 </template>
 
@@ -119,8 +119,7 @@ export default {
   name: 'Order',
   data () {
     return {
-      // showDetail: false,
-      orderId: '',
+      loading: false,
       currentPage: 1,
       sum: 0,
       formCondition: {
@@ -135,31 +134,30 @@ export default {
     ...mapState({
       userRole: state => state.userRole,
       userCode: state => state.userCode,
-      showDetail: state => state.showDetail
+      showDetail: state => state.showDetail,
+      searchOrderId: state => state.searchOrderId
     })
   },
   created () {
     this.getOrderList()
-    // this.changeIfOrderDetail(false)
   },
   components: {
     OrderDetail
   },
   methods: {
     ...mapActions([
-      'changeShowDetail'
+      'changeShowDetail',
+      'changeSearchOrderId'
     ]),
     handleSelectionChange () {
     },
     changeIfOrderDetail () {
       this.changeShowDetail(false)
-      // this.showDetail = false
       this.getOrderList()
     },
     handleEdit (idx, row) {
       this.changeShowDetail(true)
-      // this.showDetail = true
-      this.orderId = row.id
+      this.changeSearchOrderId(row.id)
     },
     handleCancel (idx, row) {
       this.$confirm('此操作将取消该订单, 是否继续?', '提示', {
@@ -202,6 +200,7 @@ export default {
       console.log('submit!')
     },
     getOrderList () {
+      this.loading = true
       let urlName = ''
       // 主账户
       if (this.userRole === '1' || this.userRole === '2' || this.userRole === '3') {
@@ -228,8 +227,10 @@ export default {
             type: 'error'
           })
         }
+        this.loading = false
       }).catch((res) => {
         console.log(res)
+        this.loading = false
       })
     }
   }
