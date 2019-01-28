@@ -20,6 +20,11 @@
             width="50">
           </el-table-column>
           <el-table-column
+            prop="orderNo"
+            label="订单号"
+            show-overflow-tooltip>
+          </el-table-column>
+          <el-table-column
             prop="goodsName"
             label="货物名称"
             show-overflow-tooltip>

@@ -324,8 +324,37 @@ export default {
       totalSum: 0,
       appointType: 0, // 指派类型 0承运商 1个体司机
       appointName: '',
-      appointPhone: '13734567890',
+      appointPhone: '', // 13734567890
       formAdd: {
+        appointId: '', // 指派司机id
+        fprovince: '',
+        fcity: '',
+        farea: '',
+        sprovince: '',
+        scity: '',
+        sarea: '',
+        id: '',
+        fstatus: '0',
+        fcheck: '0',
+        fmainId: '', // 主账号code
+        fsubId: '', // 子账号code
+        fhName: '',
+        fhTelephone: '',
+        fh: '', // 发货地id
+        fhAddress: '',
+        shName: '',
+        shTelephone: '',
+        sh: '', // 收货地id
+        shArea: '',
+        shAddress: '',
+        carType: '',
+        zhTime: '',
+        goodsName: '',
+        orderGoodsList: [],
+        isFapiao: 0, // 0-不要 1-要
+        payType: 0 // 0-支付宝 1-微信
+      },
+      formAdd2: {
         appointId: '', // 指派司机id
         fprovince: '',
         fcity: '',

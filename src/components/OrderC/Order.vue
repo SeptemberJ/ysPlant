@@ -148,10 +148,10 @@
         <el-pagination
         @size-change="handleSizeChange"
         @current-change="handleCurrentChangeOrder"
-        :current-page.sync="currentPage"
+        :current-page.sync="currentPageOrder"
         :page-size="10"
         layout="prev, pager, next, jumper"
-        :total="sum">
+        :total="sumOrder">
         </el-pagination>
       </el-col>
     </el-row>
@@ -173,7 +173,9 @@ export default {
       // orderId: '',
       // sjId: '',
       currentPage: 1,
+      currentPageOrder: 1,
       sum: 0,
+      sumOrder: 0,
       formCondition: {
         // orderNo: '',
         // startDate: '',
@@ -201,6 +203,14 @@ export default {
       this.getStatusOrderList()
     }
   },
+  watch: {
+    ifSJOrderSearch: function (val) {
+      if (!val) {
+        this.getLogisticsList()
+        this.currentPageOrder = 1
+      }
+    }
+  },
   components: {
     OrderDetail
   },
@@ -223,6 +233,7 @@ export default {
     },
     getLogisticsList () {
       this.loading = true
+      let oldPage = this.currentPage
       send({
         name: '/zRegisterController/driverList?fid=' + this.userId + '&number=10&page_num=' + this.currentPage,
         method: 'GET',
@@ -231,6 +242,7 @@ export default {
       }).then(res => {
         if (res.data.code === 1) {
           this.sum = res.data.sum_number
+          this.currentPage = oldPage
           this.LogisticsList = res.data.driverList
         } else {
           this.$message({
@@ -257,21 +269,21 @@ export default {
       this.getStatusOrderList()
     },
     searchOrder () {
-      this.currentPage = 1
+      this.currentPageOrder = 1
       this.getStatusOrderList()
     },
     getStatusOrderList () {
       this.loading = true
       send({
-        name: '/driverOrderController/order/' + this.currentPage + '/10?id=' + this.searchSjId + '&status=' + this.formCondition.status,
+        name: '/driverOrderController/order/' + this.currentPageOrder + '/10?id=' + this.searchSjId + '&status=' + this.formCondition.status,
         method: 'GET',
         data: {}
       }).then(res => {
         if (res.data.code === 1) {
-          this.sum = res.data.size
+          this.sumOrder = res.data.size
           this.orderList = res.data.orderList
         } else if (res.data.code === 0) {
-          this.sum = 0
+          this.sumOrder = 0
           this.orderList = []
         } else {
           this.$message({

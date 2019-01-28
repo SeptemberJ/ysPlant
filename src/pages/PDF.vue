@@ -1,8 +1,10 @@
 <template>
   <div class="PDF">
-    <el-button type="primary" @click="SavePdf">主要按钮</el-button>
+    <div class="TextAlignR" style="width: 100%;background:#fff;">
+      <el-button class="MarginT_20" type="primary" @click="SavePdf">下载</el-button>
+    </div>
     <div id="page" style="background: #fff; padding: 10px 0;">
-      <h4 style="text-align: center;">无车承运合同</h4>
+      <h4 style="text-align: center;margin-bottom: 40px">无车承运合同</h4>
       <p>申请主体 {{PDFCompany}} 同意授权委托指定人员 ______________（身份证号码：________________________）作为帐号联系人，以申请主体名义不可撤销地申请微信
 （公众号/小程序/开放平台）帐号（原始ID） gh_e4c6a3df6e14 认证服务，并授权其负责该帐号的内容维护、开发维护及运营管理。</p>
       <p>1. 申请主体及初始申请注册主体同意：申请主体帐号在进行认证服务时，若提交的主体信息与初始申请注册主体信息不一致，应当填写初始申请注册主体姓名并
@@ -21,6 +23,9 @@
       <p>帐号联系人签字：</p>
       <P style="text-align: right;">日期：____年____月____日</P>
     </div>
+    <!-- <div class="TextAlignC" style="width: 100%;background:#fff;position:absolute;bottom: -100px;">
+      <el-button class="MarginT_20" type="primary" @click="SavePdf">下载</el-button>
+    </div> -->
   </div>
 </template>
 <script src="https://cdn.bootcss.com/bluebird/3.5.3/bluebird.min.js"></script>
@@ -76,7 +81,10 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="less" scoped>
 .PDF{
-  padding: 0 40px;
+  min-width: 1024px;
+  position:absolute;
+  top: 0;
+  padding: 0 20px;
   text-align: left;
   #page{
     p{
