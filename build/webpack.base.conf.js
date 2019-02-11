@@ -24,6 +24,9 @@ module.exports = {
   entry: {
     app: ["babel-polyfill","./src/main.js"]
   },
+  externals: {
+    'BMap': 'BMap'
+  },
   output: {
     path: config.build.assetsRoot,
     filename: '[name].js',
@@ -36,6 +39,7 @@ module.exports = {
     alias: {
       'vue$': 'vue/dist/vue.esm.js',
       '@': resolve('src'),
+      'vendor': path.resolve(__dirname, '../src/vendor')
     }
   },
   module: {

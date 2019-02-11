@@ -16,6 +16,7 @@ const state = {
   userRole: '', // 1-承运商主 2-货主主 4-承运商子 5-货主子 3-个人
   userCode: '',
   ImgURL_PREFIX: 'http://116.62.171.244:8082/yingsu',
+  // ImgURL_PREFIX: 'http://172.16.52.99:8083/yingsu',
   showDetail: false, // 是否显示订单详情页
   ifSJOrderSearch: '', // 是否显示查询司机订单页面
   searchOrderId: '',

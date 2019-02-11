@@ -23,14 +23,7 @@
             <el-button type="primary" @click="onSubmit">查询</el-button>
           </el-form-item> -->
           <el-form-item>
-            <!-- <download-excel v-if="selectedOrder.length > 1"
-              class = "btn btn-default"
-              :data = "selectedOrder"
-              :fields = "jsonFields"
-              name = "订单列表.xls">
-              <el-button type="success" icon="el-icon-printer">导出</el-button>
-            </download-excel> -->
-            <el-button type="success" icon="el-icon-printer" @click="exportExcell">导出</el-button>
+            <el-button type="primary" @click="exportExcel">导出</el-button>
           </el-form-item>
         </el-form>
       </el-col>
@@ -43,9 +36,13 @@
           tooltip-effect="dark"
           style="width: 100%"
           @selection-change="handleSelectionChange">
-          <el-table-column
+          <!-- <el-table-column
             type="selection"
             width="55">
+          </el-table-column> -->
+          <el-table-column
+            type="index"
+            width="50">
           </el-table-column>
           <el-table-column
             prop="order_no"
@@ -56,12 +53,15 @@
             width="100"
             >
             <template slot-scope="scope">
+              <!-- <el-button
+                size="mini">{{scope.row.fstatus == 0 ? '待接单' : (scope.row.fstatus == 1 ? '已接单' : (scope.row.fstatus == 2 ? '已撤单' : (scope.row.fstatus == 3 ? '运输中' : (scope.row.fstatus == 4 ? '已签收' : '已取消'))))}}
+              </el-button> -->
               <span>{{scope.row.fstatus == 0 ? '待接单' : (scope.row.fstatus == 1 ? '已接单' : (scope.row.fstatus == 2 ? '已撤单' : (scope.row.fstatus == 3 ? '运输中' : (scope.row.fstatus == 4 ? '已签收' : '已取消'))))}}</span>
             </template>
           </el-table-column>
           <el-table-column
             prop="goods_name"
-            label="货物类型"
+            label="货物名称"
             show-overflow-tooltip>
           </el-table-column>
           <el-table-column
@@ -74,6 +74,11 @@
             label="收货地"
             show-overflow-tooltip>
           </el-table-column>
+          <!-- <el-table-column
+            prop="zhDate"
+            label="装货日期"
+            show-overflow-tooltip>
+          </el-table-column> -->
           <el-table-column
             align="right"
             label="操作"
@@ -114,10 +119,8 @@ import { mapState, mapActions } from 'vuex'
 import {send} from '../../util/send'
 import {secondToFormat} from '../../util/utils'
 import OrderDetail from './OrderDetail.vue'
-// import FileSaver from 'file-saver'
-// import XLSX from 'xlsx'
-// import expandRow from './TableExpand.vue'
-// import JsonExcel from 'vue-json-to-excel'
+import FileSaver from 'file-saver'
+import XLSX from 'xlsx'
 export default {
   name: 'Order',
   data () {
@@ -130,34 +133,7 @@ export default {
         startDate: '',
         endDate: ''
       },
-      orderList: [],
-      carTypeList: [],
-      selectedOrder: [
-      ],
-      jsonFields: {
-        order_no: 'String',
-        fstatusTxt: 'String',
-        goods_name: 'String',
-        fh_name: 'String',
-        fh_telephone: 'String',
-        origin: 'String',
-        fh_address: 'String',
-        sh_name: 'String',
-        sh_telephone: 'String',
-        destination: 'String',
-        sh_address: 'String',
-        carType: 'String',
-        zhTime: 'String',
-        isFapiao: 'String',
-        ffee: 'String'
-      },
-      json_meta: [
-        [{
-          key: 'charset',
-          value: 'utf-8'
-        }]
-      ],
-      positionData: [{ID: '00', Name: '123'}]
+      orderList: []
     }
   },
   computed: {
@@ -170,10 +146,8 @@ export default {
   },
   created () {
     this.getOrderList()
-    this.getCarType()
   },
   components: {
-    // 'downloadExcel': JsonExcel,
     OrderDetail
   },
   methods: {
@@ -181,29 +155,7 @@ export default {
       'changeShowDetail',
       'changeSearchOrderId'
     ]),
-    handleSelectionChange (selection) {
-      let tempChoosed = []
-      selection.map((Order, idx) => {
-        let obj = {
-          order_no: Order.order_no,
-          fstatusTxt: Order.fstatusTxt,
-          goods_name: Order.goods_name,
-          fh_name: Order.fh_name,
-          fh_telephone: Order.fh_telephone,
-          origin: Order.origin,
-          fh_address: Order.fh_address,
-          sh_name: Order.sh_name,
-          sh_telephone: Order.sh_telephone,
-          destination: Order.destination,
-          sh_address: Order.sh_address,
-          carType: this.checkCarType(Order.car_type),
-          zhTime: Order.zhDate,
-          isFapiao: Order.is_fapiao === '0' ? '不需要' : '需要',
-          ffee: Order.ffee
-        }
-        tempChoosed.push(obj)
-      })
-      this.selectedOrder = tempChoosed
+    handleSelectionChange () {
     },
     changeIfOrderDetail () {
       this.changeShowDetail(false)
@@ -273,7 +225,6 @@ export default {
           this.sum = res.data.sum_number
           res.data.orderList.map(order => {
             order.zhDate = secondToFormat(order.zh_time.time)
-            order.fstatusTxt = (order.fstatus === '0' ? '待接单' : (order.fstatus === '1' ? '已接单' : (order.fstatus === '2' ? '已撤单' : (order.fstatus === '3' ? '运输中' : (order.fstatus === '4' ? '已签收' : '已取消')))))
           })
           this.orderList = res.data.orderList
         } else {
@@ -288,46 +239,21 @@ export default {
         this.loading = false
       })
     },
-    getCarType (carType) {
-      send({
-        name: '/zCarTypeController/list/1/10',
-        method: 'GET',
-        data: {
+    // 导出
+    exportExcel () {
+      /* generate workbook object from table */
+      let wb = XLSX.utils.table_to_book(document.querySelector('#rebateSetTable'))
+      /* get binary string as output */
+      let wbout = XLSX.write(wb, { bookType: 'xlsx', bookSST: true, type: 'array' })
+      try {
+        FileSaver.saveAs(new Blob([wbout], { type: 'application/octet-stream' }), '订单导出.xlsx')
+      } catch (e) {
+        if (typeof console !== 'undefined') {
+
         }
-      }).then(res => {
-        if (res.data.respCode === '0') {
-          this.carTypeList = res.data.data
-        }
-      }).catch((res) => {
-        console.log(res)
-      })
-    },
-    checkCarType (carType) {
-      let len = this.carTypeList.length
-      for (let i = 0; i < len; i++) {
-        if (this.carTypeList[i].typeValue === carType) {
-          return this.carTypeList[i].typeName
-        }
+        console.log(e, wbout)
       }
-    },
-    exportExcell () {
-      if (this.selectedOrder.length === 0) {
-        this.$message({
-          message: '请至少选择一条需要导出的记录！',
-          type: 'warning'
-        })
-        return false
-      }
-      require.ensure([], () => {
-        const { exportJsonToExcel } = require('@/vendor/Export2Excel.js')
-        const tHeader = ['订单号', '订单状态', '货物类型', '发货人', '手机号', '发货地', '街道', '发货人', '手机号', '收货地', '街道', '车型', '装货日期', '开具发票', '预估费用']
-        const filterVal = ['order_no', 'fstatusTxt', 'goods_name', 'fh_name', 'fh_telephone', 'origin', 'fh_address', 'sh_name', 'sh_telephone', 'destination', 'sh_address', 'carType', 'zhTime', 'isFapiao', 'ffee']
-        const data = this.formatJson(filterVal, this.selectedOrder)
-        exportJsonToExcel(tHeader, data, '订单')
-      })
-    },
-    formatJson (filterVal, jsonData) {
-      return jsonData.map(v => filterVal.map(j => v[j]))
+      return wbout
     }
   }
 }

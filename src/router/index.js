@@ -5,7 +5,7 @@ import Sign from '@/pages/Sign'
 import Password from '@/pages/Password'
 import Information from '@/pages/Information'
 import PDF from '@/pages/PDF'
-import PAY from '@/pages/pay'
+// import PAY from '@/pages/pay'
 import Home from '@/pages/Home'
 import {getCookie} from '../util/utils'
 import store from '../vuex/store'
@@ -26,12 +26,12 @@ const router = new VueRouter({
       component: Sign,
       meta: {requireAuth: false}
     },
-    {
-      path: '/PAY',
-      name: 'PAY',
-      component: PAY,
-      meta: {requireAuth: false}
-    },
+    // {
+    //   path: '/PAY',
+    //   name: 'PAY',
+    //   component: PAY,
+    //   meta: {requireAuth: false}
+    // },
     {
       path: '/Password',
       name: 'Password',

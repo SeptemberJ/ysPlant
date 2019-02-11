@@ -18,12 +18,10 @@
               <el-col :span="11" :offset="1">
                 <el-form-item prop="fhTelephone" label="手机号">
                   <el-input v-model="formAdd.fhTelephone" clearable></el-input>
+                  <!-- <span>{{formAdd.fhTelephone}}</span> -->
                 </el-form-item>
               </el-col>
             </el-row>
-            <!-- <el-row>
-              <el-col :span="24" :offset="0">{{formAdd.fprovince}}-{{formAdd.fcity}}-{{formAdd.farea}}</el-col>
-            </el-row> -->
             <el-row>
               <el-col :span="7" :offset="0">
                 <el-form-item prop="fprovince" label="发货省">
@@ -35,6 +33,7 @@
                       :value="fprovince.id">
                     </el-option>
                   </el-select>
+                  <!-- <span>{{fprovinceName}}</span> -->
                 </el-form-item>
               </el-col>
               <el-col :span="7" :offset="1">
@@ -47,6 +46,7 @@
                       :value="fcity.id">
                     </el-option>
                   </el-select>
+                  <!-- <span>{{fcityName}}</span> -->
                 </el-form-item>
               </el-col>
               <el-col :span="7" :offset="1">
@@ -59,11 +59,13 @@
                       :value="farea.id">
                     </el-option>
                   </el-select>
+                  <!-- <span>{{fareaName}}</span> -->
                 </el-form-item>
               </el-col>
             </el-row>
             <el-form-item prop="fhAddress" label="街道">
               <el-input v-model="formAdd.fhAddress" clearable></el-input>
+              <!-- <span>{{formAdd.fhAddress}}</span> -->
             </el-form-item>
           </div>
         </el-card>
@@ -96,6 +98,7 @@
                       :value="sprovince.id">
                     </el-option>
                   </el-select>
+                  <!-- <span>{{sprovinceName}}</span> -->
                 </el-form-item>
               </el-col>
               <el-col :span="7" :offset="1">
@@ -108,6 +111,7 @@
                       :value="scity.id">
                     </el-option>
                   </el-select>
+                  <!-- <span>{{scityName}}</span> -->
                 </el-form-item>
               </el-col>
               <el-col :span="7" :offset="1">
@@ -120,11 +124,13 @@
                       :value="sarea.id">
                     </el-option>
                   </el-select>
+                  <!-- <span>{{sareaName}}</span> -->
                 </el-form-item>
               </el-col>
             </el-row>
             <el-form-item prop="shAddress" label="街道">
               <el-input v-model="formAdd.shAddress" clearable></el-input>
+              <!-- <span>{{formAdd.shAddress}}</span> -->
             </el-form-item>
           </div>
         </el-card>
@@ -157,7 +163,7 @@
             </el-row>
           </div>
         </el-card>
-        <!-- goods -->
+        <!-- other -->
         <el-card class="box-card MarginTB_20">
           <div slot="header" class="clearfix TextAlignL">
             <span>其它信息</span>
@@ -180,7 +186,7 @@
             </el-form-item>
             <!-- time -->
             <el-form-item prop="zhTime" label="装货日期">
-              <el-date-picker type="date" :picker-options="pickerOptionsStart" placeholder="选择装货日期" v-model="formAdd.zhTime" style="width: 100%;"></el-date-picker>
+              <el-date-picker type="datetime" :picker-options="pickerOptionsStart" placeholder="选择装货日期" v-model="formAdd.zhTime" style="width: 100%;"></el-date-picker>
             </el-form-item>
             <el-form-item label="开具发票" prop="isFapiao">
               <el-radio-group v-model="formAdd.isFapiao" style="float: left">
@@ -230,13 +236,6 @@ export default {
         callback()
       }
     }
-    // var validateNumber = (rule, value, callback) => {
-    //   if (value.trim() === '') {
-    //     callback(new Error('请输入数字！'))
-    //   } else {
-    //     callback()
-    //   }
-    // }
     return {
       ifLoading: false,
       fprovinceList: [],
@@ -254,6 +253,12 @@ export default {
       cityDistance: 0,
       unitPrice: 0,
       totalSum: 0,
+      fprovinceName: '',
+      sprovinceName: '',
+      fcityName: '',
+      scityName: '',
+      fareaName: '',
+      sareaName: '',
       formAdd: {
         fprovince: '',
         fcity: '',
@@ -364,7 +369,6 @@ export default {
   },
   created () {
     this.getOrderDetail()
-    // this.getProvince()
   },
   watch: {
     cityDistance: function (value) {
@@ -416,8 +420,6 @@ export default {
           temp.shTelephone = res.data.data.sh_telephone
           temp.isFapiao = res.data.data.is_fapiao
           this.formAdd = temp
-          console.log('this.totalSum------------------')
-          console.log(this.totalSum)
           // 省市区
           this.getProvince()
           this.changeFprovince(temp.fprovince, 1)
@@ -426,7 +428,7 @@ export default {
           this.changeScity(temp.scity, 1)
           // 价格
           this.getDistanceDefault(temp.farea, temp.sarea)
-
+          // 车型
           this.getCarType(res.data.data.car_type)
         } else {
           this.$message({
@@ -438,6 +440,11 @@ export default {
         console.log(res)
       })
     },
+    // filterName () {
+    //   const name = state.cart.find(content=> {
+
+    //   })
+    // },
     getDistanceDefault (fh, sh) {
       send({
         name: '/orderController/cityDistance?fh=' + fh + '&sh=' + sh,
@@ -453,7 +460,6 @@ export default {
       })
     },
     changeFprovince (id, type) {
-      console.log(id)
       this.getCity(id, 'fcityList')
       if (type !== 1) {
         this.formAdd.fcity = ''
@@ -500,6 +506,14 @@ export default {
         if (res.data.respCode === '0') {
           this.fprovinceList = res.data.data
           this.sprovinceList = res.data.data
+          res.data.data.find(item => {
+            if (item.id === this.formAdd.fprovince) {
+              this.fprovinceName = item.name
+            }
+            if (item.id === this.formAdd.sprovince) {
+              this.sprovinceName = item.name
+            }
+          })
         }
       }).catch((res) => {
         console.log(res)
@@ -514,6 +528,14 @@ export default {
       }).then(res => {
         if (res.data.respCode === '0') {
           this[property] = res.data.data
+          res.data.data.find(item => {
+            if (item.id === this.formAdd.fcity) {
+              this.fcityName = item.name
+            }
+            if (item.id === this.formAdd.scity) {
+              this.scityName = item.name
+            }
+          })
         }
       }).catch((res) => {
         console.log(res)
@@ -528,6 +550,14 @@ export default {
       }).then(res => {
         if (res.data.respCode === '0') {
           this[property] = res.data.data
+          res.data.data.find(item => {
+            if (item.id === this.formAdd.farea) {
+              this.fareaName = item.name
+            }
+            if (item.id === this.formAdd.sarea) {
+              this.sareaName = item.name
+            }
+          })
         }
       }).catch((res) => {
         console.log(res)
@@ -574,8 +604,12 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="less" scoped>
 .OrderDetail{
+  span{
+    width: 100%;
+    display:  inline-block;
+    text-align: left;
+  }
 }
 </style>

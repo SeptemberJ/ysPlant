@@ -39,8 +39,8 @@ export default {
   data () {
     return {
       ifLoading: false,
-      phone: '', // 货主 18534567899 18734567890 承运商 13734567890  17734567890 个人 18834567890
-      password: ''
+      phone: '18734567890', // 货主 18534567899 18734567890 承运商 13734567890  17734567890 个人 18834567890
+      password: '111111'
     }
   },
   created () {
@@ -189,7 +189,6 @@ export default {
     height: 132px;
   }
   .MainBox{
-    height: 300px;
     position: relative;
     margin: 2rem auto;
     box-shadow: 0 0 10px 3px rgba(0,0,0,.1);
@@ -198,7 +197,6 @@ export default {
     border-radius: 40%;
     .InnerBox{
       width: 120%;
-      height: 260px;
       padding: 20px;
       background: #fff;
       margin-left: -10%;

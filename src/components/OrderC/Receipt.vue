@@ -70,32 +70,6 @@
     </el-row>
     <OrderDetail v-if="showDetail" :orderId="orderId" :searchType="searchType" @toggleOrderDetail='changeIfOrderDetail'/>
     <el-dialog title="派单" :visible.sync="dialogFormVisible" width="550px">
-      <!-- <el-table
-        ref="multipleTable"
-        v-loading="loading"
-        :data="LogisticsList"
-        tooltip-effect="dark"
-        style="width: 100%"
-        @selection-change="handleSelectionChange">
-        <el-table-column
-          type="index"
-          width="50">
-        </el-table-column>
-        <el-table-column
-          prop="fname"
-          label="司机">
-        </el-table-column>
-        <el-table-column
-          prop="fmobile"
-          label="司机手机"
-          show-overflow-tooltip>
-        </el-table-column>
-         <el-table-column
-          prop="company_name"
-          label="司机公司"
-          show-overflow-tooltip>
-        </el-table-column>
-      </el-table> -->
       <el-row>
         <el-col :span="4">
           <span style="line-height: 35px;">选择司机：</span>
@@ -243,7 +217,7 @@ export default {
     getOrderList () {
       this.loading = true
       send({
-        name: '/orderController/list/' + this.currentPage + '/10/1' + '/&appointId=' + this.userId,
+        name: '/orderController/list/' + this.currentPage + '/10/1' + '/{appointId}?appointId=' + this.userId,
         method: 'GET',
         data: {}
       }).then(res => {
@@ -265,7 +239,7 @@ export default {
     getOrderListNotAppoint () {
       this.loading = true
       send({
-        name: '/orderController/list/' + this.currentPage + '/10/0' + '/&appointId=',
+        name: '/orderController/list/' + this.currentPage + '/10/0' + '/{appointId}?appointId=',
         method: 'GET',
         data: {}
       }).then(res => {

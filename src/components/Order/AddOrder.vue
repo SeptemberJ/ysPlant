@@ -217,7 +217,7 @@
           </el-form-item>
           <!-- time -->
           <el-form-item prop="zhTime" label="装货日期">
-            <el-date-picker :picker-options="pickerOptionsStart" type="datetime" placeholder="选择装货日期" v-model="formAdd.zhTime" style="width: 100%;">
+            <el-date-picker  type="datetime" :picker-options="pickerOptionsStart" placeholder="选择装货日期" v-model="formAdd.zhTime" style="width: 100%;">
             </el-date-picker>
           </el-form-item>
           <el-form-item prop="appointId" label="指派人员" class="TextAlignL">
@@ -325,7 +325,7 @@ export default {
       appointType: 0, // 指派类型 0承运商 1个体司机
       appointName: '',
       appointPhone: '', // 13734567890
-      formAdd: {
+      formAdd2: {
         appointId: '', // 指派司机id
         fprovince: '',
         fcity: '',
@@ -354,7 +354,7 @@ export default {
         isFapiao: 0, // 0-不要 1-要
         payType: 0 // 0-支付宝 1-微信
       },
-      formAdd2: {
+      formAdd: {
         appointId: '', // 指派司机id
         fprovince: '',
         fcity: '',
@@ -597,6 +597,8 @@ export default {
         orderGoodsList: this.formAdd.orderGoodsList,
         isFapiao: this.formAdd.isFapiao
       }
+      console.log(DATA)
+      debugger
       this.ifLoading = true
       send({
         name: '/orderController',

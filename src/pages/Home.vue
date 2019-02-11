@@ -20,6 +20,7 @@
                   <el-menu-item index="1-2" v-if="userRole == 2 || userRole == 5  || userRole == 3">订单新增</el-menu-item>
                   <el-menu-item index="1-3" v-if="userRole == 1 || userRole == 4">订单查询</el-menu-item>
                   <el-menu-item index="1-4" v-if="userRole == 1 || userRole == 4">接单</el-menu-item>
+                  <el-menu-item index="1-5" v-if="userRole == 2 || userRole == 5  || userRole == 3">实况查询</el-menu-item>
                 </el-menu-item-group>
               </el-submenu>
               <el-menu-item index="2" v-if="userRole == 1 || userRole == 2 || userRole == 4">
@@ -49,8 +50,10 @@
                 <el-breadcrumb-item v-if="ifSJOrderSearch && siderIdx == '1-3' && (userRole == 1 || userRole == 4)"><span @click="backSjList" class="CursorPointer">司机订单列表</span></el-breadcrumb-item>
                 <el-breadcrumb-item v-if="siderIdx == '1-2'">订单新增</el-breadcrumb-item>
                 <el-breadcrumb-item v-if="showDetail && (siderIdx == '1-1' || siderIdx == '1-3' || siderIdx == '1-4')">订单详情</el-breadcrumb-item>
+                <el-breadcrumb-item v-if="siderIdx == '1-5' && (userRole == 2 || userRole == 5 || userRole == 3)">实况查询</el-breadcrumb-item>
                 <!-- 用户管理导航 -->
                 <el-breadcrumb-item v-if="siderIdx == '2'">用户管理</el-breadcrumb-item>
+                <!-- 个人中心导航 -->
                 <el-breadcrumb-item v-if="siderIdx == '3' || siderIdx == '3-1' || siderIdx == '3-2'">个人中心</el-breadcrumb-item>
                 <el-breadcrumb-item v-if="siderIdx == '3-1'">基本信息</el-breadcrumb-item>
                 <el-breadcrumb-item v-if="siderIdx == '3-2'">密码修改</el-breadcrumb-item>
@@ -61,6 +64,7 @@
               <AddOrder v-if="siderIdx == '1-2'"/>
               <OrderC v-if="siderIdx == '1-3'"/>
               <Receipt v-if="siderIdx == '1-4'"/>
+              <Map v-if="siderIdx == '1-5'"/>
               <User v-if="siderIdx == '2'"/>
               <Center v-if="siderIdx == '3-1'"/>
               <Safe v-if="siderIdx == '3-2'"/>
@@ -79,6 +83,7 @@
 import { mapState, mapActions } from 'vuex'
 import Order from '../components/Order/Order.vue'
 import Receipt from '../components/OrderC/Receipt.vue'
+import Map from '../components/Map/Map.vue'
 import OrderC from '../components/OrderC/Order.vue'
 import AddOrder from '../components/Order/AddOrder.vue'
 import Center from '../components/Center.vue'
@@ -95,6 +100,7 @@ export default {
     Order,
     AddOrder,
     Receipt,
+    Map,
     OrderC,
     Center,
     Safe

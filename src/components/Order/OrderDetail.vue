@@ -185,7 +185,7 @@
             </el-form-item>
             <!-- time -->
             <el-form-item prop="zhTime" label="装货日期">
-              <el-date-picker type="date" :picker-options="pickerOptionsStart" placeholder="选择装货日期" v-model="formAdd.zhTime" style="width: 100%;"></el-date-picker>
+              <el-date-picker type="datetime" :picker-options="pickerOptionsStart" placeholder="选择装货日期" v-model="formAdd.zhTime" style="width: 100%;"></el-date-picker>
             </el-form-item>
             <el-form-item label="开具发票" prop="isFapiao">
               <el-radio-group v-model="formAdd.isFapiao" style="float: left">
@@ -565,8 +565,6 @@ export default {
           temp.isFapiao = res.data.data.is_fapiao
           temp.payType = res.data.data.payType ? res.data.data.payType : 0
           this.formAdd = temp
-          console.log('this.totalSum------------------')
-          console.log(this.totalSum)
           // 省市区
           this.getProvince()
           this.changeFprovince(temp.fprovince, 1)
@@ -575,7 +573,7 @@ export default {
           this.changeScity(temp.scity, 1)
           // 价格
           this.getDistanceDefault(temp.farea, temp.sarea)
-
+          // 车型
           this.getCarType(res.data.data.car_type)
         } else {
           this.$message({

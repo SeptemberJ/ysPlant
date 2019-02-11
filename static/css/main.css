@@ -5,6 +5,9 @@ html body{
 	padding: 0 !important;
 	margin: 0 !important;
 }
+form{
+  box-sizing: initial !important;
+}
 /*@media screen and (min-width: 320px) {
   html{
     font-size: 14px;
@@ -198,4 +201,8 @@ html body{
 }
 .el-breadcrumb__inner{
   font-weight: bold;
+}
+.BMap_bubble_title{
+  font-weight: bold;
+  margin-bottom: 5px;
 }

@@ -228,7 +228,7 @@ export default {
     },
     // 上传图片
     uploadImg (property, img) {
-      axios.post('http://172.16.52.99:8083/yingsu/rest/registerDriverController/photo', img, {
+      axios.post('http://116.62.171.244:8082/yingsu/rest/registerDriverController/photo', img, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'X-AUTH-TOKEN': getCookie('btwccy_cookie')

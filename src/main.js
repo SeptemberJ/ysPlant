@@ -5,9 +5,14 @@ import Vuex from 'vuex'
 import App from './App'
 import store from './vuex/store'
 import router from './router'
+import 'babel-polyfill'
+// import 'iview/dist/styles/iview.css'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import '../static/css/main.css'
+// import { Button, Tag } from 'iview'
+// Vue.component('Button', Button)
+// Vue.component('Tag', Tag)
 
 Vue.use(Vuex)
 Vue.use(ElementUI)
