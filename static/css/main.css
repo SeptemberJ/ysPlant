@@ -8,6 +8,10 @@ html body{
 form{
   box-sizing: initial !important;
 }
+.OrderDetail .el-input.is-disabled .el-input__inner{
+  color: #666 !important;
+  background-color: #fff !important;
+}
 /*@media screen and (min-width: 320px) {
   html{
     font-size: 14px;
@@ -129,6 +133,15 @@ form{
 }
 .MarginTB_10{
 	margin: 10px 0;
+}
+.MarginT_10{
+  margin-top: 10px;
+}
+.MarginB_10{
+  margin-bottom: 10px;
+}
+.MarginB_20{
+  margin-bottom: 20px;
 }
 .MarginR_10{
   margin-right: 10px;

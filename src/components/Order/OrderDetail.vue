@@ -170,7 +170,15 @@
           <div>
             <!-- goods -->
             <el-form-item prop="goodsName" label="货物类型">
-              <el-input v-model="formAdd.goodsName" clearable></el-input>
+              <el-select v-model="formAdd.goodsName" placeholder="请选择" style="width: 100%" @change="changeGoodsType">
+                <el-option
+                  v-for="(goodsType, idx) in goodsTypeList"
+                  :key="idx"
+                  :label="goodsType.name"
+                  :value="goodsType.id">
+                </el-option>
+              </el-select>
+              <!-- <el-input v-model="formAdd.goodsName" clearable></el-input> -->
             </el-form-item>
             <!-- car -->
             <el-form-item prop="carType" label="车型">
@@ -179,7 +187,7 @@
                   v-for="(carType, idx) in carTypeList"
                   :key="idx"
                   :label="carType.typeName"
-                  :value="carType.typeValue">
+                  :value="carType.id">
                 </el-option>
               </el-select>
             </el-form-item>
@@ -198,7 +206,7 @@
         <!-- cost -->
         <el-card class="box-card MarginTB_20">
           <div slot="header" class="clearfix TextAlignL">
-            <span>预估费用</span>
+            <span>费用</span>
           </div>
           <div class="TextAlignL">
             <!-- <el-form-item label="支付方式" prop="isFapiao">
@@ -209,24 +217,33 @@
                 <el-col :span="1"><img src="../../../static/images/icon/wx.png" style="width: 35px;margin-top:5px;"></el-col>
               </el-row>
             </el-form-item> -->
-            <h4 class="ColorWarn"><span style="display:inline-block;width:50%">合计：</span><span style="display:inline-block;width:50%;text-align:right">{{totalSum}} ¥</span></h4>
-            <p style="font-size: 12px;color: #909399;text-align:right">{{cityDistance}} (路程/km) * {{totalWeight/1000}} (重量/t) * {{unitPrice}} (单价/¥) = {{totalSum}} ¥</p>
+            <el-form-item prop="ffee" :label="formAdd.fstatus == 0 ? '货主报价' : '确认报价'">
+              <el-input v-model="formAdd.ffee" clearable>
+                <template slot="append">¥</template>
+              </el-input>
+            </el-form-item>
+
+            <el-form-item label="">
+              <span style="float:right;margin-left: 10px;color: red">（最高限价 {{formAdd.fmaxFee}}¥）</span>
+            </el-form-item>
+           <!--  <h4 class="ColorWarn"><span style="display:inline-block;width:50%">合计：</span><span style="display:inline-block;width:50%;text-align:right">{{totalSum}} ¥</span></h4>
+            <p style="font-size: 12px;color: #909399;text-align:right">{{cityDistance}} (路程/km) * {{totalWeight/1000}} (重量/t) * {{unitPrice}} (单价/¥) = {{totalSum}} ¥</p> -->
           </div>
         </el-card>
         <!-- bt -->
-        <el-row v-if="formAdd.fstatus == 0">
+        <el-row>
           <el-col :span="12" class="TextAlignC" >
-            <el-button type="primary" :loading="ifLoading" @click="onSubmit('formAdd')">保存修改</el-button>
+            <el-button type="primary" :loading="ifLoading" @click="onSubmit('formAdd')" :disabled="formAdd.fstatus !== 0">保存修改</el-button>
           </el-col>
           <el-col :span="12" class="TextAlignC">
             <el-button @click="backOrderList" style="width: 100px;">返回</el-button>
           </el-col>
         </el-row>
-        <el-row v-else>
+        <!-- <el-row v-else>
           <el-col :span="24" class="TextAlignC">
             <el-button @click="backOrderList" style="width: 100px;">返回</el-button>
           </el-col>
-        </el-row>
+        </el-row> -->
       </el-form>
     </el-row>
   </div>
@@ -243,6 +260,13 @@ export default {
         callback(new Error('请输入手机号！'))
       } else if (!(/^1[34578]\d{9}$/.test(value))) {
         callback(new Error('手机号格式不正确!'))
+      } else {
+        callback()
+      }
+    }
+    var validateFee = (rule, value, callback) => {
+      if (value > this.formAdd.max_price) {
+        callback(new Error('超出了最高限价！'))
       } else {
         callback()
       }
@@ -296,8 +320,11 @@ export default {
         zhTime: '',
         goodsName: '',
         orderGoodsList: [],
+        goodsTypeList: [],
         isFapiao: '0', // 0-不要 1-要
-        payType: '0' // 0-支付宝 1-微信
+        payType: '0', // 0-支付宝 1-微信
+        max_price: 0,
+        fmaxFee: 0
       },
       AddRules: {
         fhName: [
@@ -339,6 +366,9 @@ export default {
         isFapiao: [
           { required: true, message: '请选择是否需要开具发票!', trigger: 'blur' }
         ],
+        ffee: [
+          { required: true, validator: validateFee, trigger: 'blur' }
+        ],
         fprovince: [
           { required: true, message: '请选择所属省份!', trigger: 'change' }
         ],
@@ -359,6 +389,7 @@ export default {
         ]
       },
       carTypeList: [],
+      goodsTypeList: [],
       pickerOptionsStart: {
         disabledDate (time) {
           return time.getTime() < Date.now() - 8.64e7
@@ -382,6 +413,7 @@ export default {
   },
   created () {
     this.getOrderDetail()
+
     // this.getProvince()
   },
   watch: {
@@ -414,11 +446,41 @@ export default {
     deleteOneLine (idx) {
       this.formAdd.orderGoodsList.splice(idx, 1)
     },
-    changeCarType (typeValue) {
+    changeCarType (typeId) {
       this.carTypeList.map(item => {
-        if (item.typeValue === typeValue) {
+        if (item.id === typeId) {
           this.unitPrice = item.fprice
+          if (this.formAdd.goodsName !== '') {
+            this.getMaxFee()
+          }
         }
+      })
+    },
+    changeGoodsType (typeId) {
+      this.goodsTypeList.map(item => {
+        if (item.id === typeId) {
+          if (this.formAdd.carType !== '') {
+            this.getMaxFee()
+          }
+        }
+      })
+    },
+    getMaxFee () {
+      send({
+        name: '/zFareRuleController/getMaxPrice?goods_type=' + this.formAdd.goodsName + '&cartype=' + this.formAdd.carType + '&fkm=622',
+        method: 'GET',
+        data: ''
+      }).then(res => {
+        if (res.data.code === 1) {
+          this.formAdd.max_price = res.data.max_price
+        } else {
+          this.$message({
+            message: res.data.message + '！',
+            type: 'error'
+          })
+        }
+      }).catch((res) => {
+        console.log(res)
       })
     },
     onSubmit (formName) {
@@ -451,7 +513,9 @@ export default {
     },
     sureAdd () {
       let DATA = {
-        ffee: this.totalSum,
+        // ffee: this.totalSum,
+        fmaxFee: this.formAdd.fmaxFee,
+        ffee: this.formAdd.ffee,
         fweight: this.totalWeight,
         id: this.formAdd.id,
         fstatus: this.formAdd.fstatus,
@@ -542,14 +606,16 @@ export default {
       }).then(res => {
         if (res.data.respCode === '0') {
           let temp = res.data.data
-          this.totalSum = res.data.data.ffee
+          // this.totalSum = res.data.data.ffee
+          temp.fmaxFee = res.data.data.fmax_fee
+          temp.ffee = res.data.data.ffee
           temp.fprovince = res.data.data.origin_province_id
           temp.fcity = res.data.data.origin_city_id
           temp.farea = res.data.data.origin_area_id
           temp.sprovince = res.data.data.destination_province_id
           temp.scity = res.data.data.destination_city_id
           temp.sarea = res.data.data.destination_area_id
-          temp.zhTime = new Date(res.data.data.zh_time)
+          temp.zhTime = new Date(res.data.data.zh_time.time)
           temp.orderGoodsList = res.data.data.ordergoods
           temp.carType = res.data.data.car_type
           temp.fmainId = res.data.data.fmain_id
@@ -575,6 +641,9 @@ export default {
           this.getDistanceDefault(temp.farea, temp.sarea)
           // 车型
           this.getCarType(res.data.data.car_type)
+          this.getGoodsType()
+          // 查询最高限价
+          // this.getMaxFee()
         } else {
           this.$message({
             message: res.data.message + '！',
@@ -680,9 +749,9 @@ export default {
         console.log(res)
       })
     },
-    getCarType (carType) {
+    getCarType (carTypeId) {
       send({
-        name: '/zCarTypeController/list/1/10',
+        name: '/zCarTypeController/list',
         method: 'GET',
         data: {
         }
@@ -691,10 +760,24 @@ export default {
           let carList = res.data.data
           this.carTypeList = carList
           carList.map(item => {
-            if (item.typeValue === carType) {
+            if (item.id === carTypeId) {
               this.unitPrice = item.fprice
             }
           })
+        }
+      }).catch((res) => {
+        console.log(res)
+      })
+    },
+    getGoodsType () {
+      send({
+        name: '/typeController/list',
+        method: 'GET',
+        data: {
+        }
+      }).then(res => {
+        if (res.data.respCode === '0') {
+          this.goodsTypeList = res.data.data
         }
       }).catch((res) => {
         console.log(res)

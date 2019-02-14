@@ -25,10 +25,15 @@
             show-overflow-tooltip>
           </el-table-column>
           <el-table-column
+            prop="ZHTime"
+            width="170"
+            label="装货日期">
+          </el-table-column>
+          <!-- <el-table-column
             prop="goodsName"
             label="货物名称"
             show-overflow-tooltip>
-          </el-table-column>
+          </el-table-column> -->
           <el-table-column
             prop="fhName"
             label="发货人">
@@ -43,15 +48,15 @@
             width="200"
             >
             <template slot-scope="scope">
-              <el-button v-if="scope.row.fstatus == 0"
+              <!-- <el-button v-if="scope.row.fstatus == 0"
                 size="mini"
                 type="danger"
-                @click="Receipt(scope.$index, scope.row)">接单
-              </el-button>
+                @click="Receipt(scope.$index, scope.row)"> {{searchType == 0 ? '报价' : '接单'}}
+              </el-button> -->
               <el-button
                 size="mini"
                 type="primary"
-                @click="ToDetail(scope.$index, scope.row)">查看
+                @click="ToDetail(scope.$index, scope.row)">查看详情
               </el-button>
             </template>
           </el-table-column>
@@ -72,6 +77,17 @@
     <el-dialog title="派单" :visible.sync="dialogFormVisible" width="550px">
       <el-row>
         <el-col :span="4">
+          <span style="line-height: 35px;">报价金额：</span>
+        </el-col>
+        <el-col :span="12" class="TextAlignL">
+          <el-input v-model='offer' placeholder='请输入您的报价金额' clearable></el-input>
+        </el-col>
+        <el-col :span="8">
+          <span style="line-height: 35px;color:red">（最高限价{{maxFee}}）</span>
+        </el-col>
+      </el-row>
+      <el-row class="MarginT_10">
+        <el-col :span="4">
           <span style="line-height: 35px;">选择司机：</span>
         </el-col>
         <el-col :span="20" class="TextAlignL">
@@ -89,7 +105,7 @@
       </el-row>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="Assignment">确 定</el-button>
+        <el-button type="primary" @click="sureOffer">确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -98,6 +114,7 @@
 <script>
 import { mapState, mapActions } from 'vuex'
 import {send} from '../../util/send'
+import {secondToFormat} from '../../util/utils'
 import OrderDetail from './OrderDetail.vue'
 export default {
   name: 'Order',
@@ -112,6 +129,9 @@ export default {
       OrderList: [],
       LogisticsList: [],
       choosedLogistic: '',
+      offer: '',
+      // fee: '',
+      maxFee: '',
       orderIdReceipt: ''
     }
   },
@@ -145,7 +165,8 @@ export default {
   },
   methods: {
     ...mapActions([
-      'changeShowDetail'
+      'changeShowDetail',
+      'changeSearchOrderId'
     ]),
     handleSelectionChange () {
     },
@@ -160,14 +181,25 @@ export default {
     },
     Receipt (idx, row) {
       this.orderIdReceipt = row.id
+      this.maxFee = row.fmaxFee
+      // this.fee = row.ffee
       this.dialogFormVisible = true
       this.getDriverList()
     },
-    Assignment () {
+    sureOffer () {
+      if (this.maxFee < this.ffee) {
+        this.$message({
+          message: '报价超过了最高限价！',
+          type: 'error'
+        })
+        return false
+      }
       let DATA = {
+        registerId: this.userId,
         driverId: this.choosedLogistic,
         orderId: this.orderIdReceipt,
-        orderStatus: '1',
+        orderStatus: '5',
+        ffee: this.offer,
         createDate: new Date()
       }
       send({
@@ -176,6 +208,10 @@ export default {
         data: DATA
       }).then(res => {
         if (res.data.respCode === '0') {
+          this.$message({
+            message: '报价成功！',
+            type: 'success'
+          })
           if (this.searchType === 0 || this.searchType === '0') {
             this.getOrderListNotAppoint()
           } else {
@@ -192,6 +228,33 @@ export default {
         console.log(res)
       })
     },
+    // 货主
+    // Assignment () {
+    //   send({
+    //     name: '/orderController/confirmOrder?driver_id=' + this.choosedLogistic + '&order_id=' + this.orderIdReceipt + '&ffee=' + this.fee,
+    //     method: 'GET'
+    //   }).then(res => {
+    //     if (res.data.code === 1) {
+    //       this.$message({
+    //         message: '报价成功！',
+    //         type: 'success'
+    //       })
+    //       if (this.searchType === 0 || this.searchType === '0') {
+    //         this.getOrderListNotAppoint()
+    //       } else {
+    //         this.getOrderList()
+    //       }
+    //       this.dialogFormVisible = false
+    //     } else {
+    //       this.$message({
+    //         message: res.data.message + '！',
+    //         type: 'error'
+    //       })
+    //     }
+    //   }).catch((res) => {
+    //     console.log(res)
+    //   })
+    // },
     changeTab (type) {
       this.searchType = type
       this.currentPage = 1
@@ -213,6 +276,7 @@ export default {
     ToDetail (idx, row) {
       this.changeShowDetail(true)
       this.orderId = row.id
+      this.changeSearchOrderId(row.id)
     },
     getOrderList () {
       this.loading = true
@@ -222,7 +286,11 @@ export default {
         data: {}
       }).then(res => {
         if (res.data.code === 1) {
-          this.OrderList = res.data.pageList
+          let temp = res.data.pageList
+          temp.map(item => {
+            item.ZHTime = secondToFormat(item.zhTime.time)
+          })
+          this.OrderList = temp
           this.sum = res.data.pageSize
         } else {
           this.$message({
@@ -244,7 +312,12 @@ export default {
         data: {}
       }).then(res => {
         if (res.data.code === 1) {
-          this.OrderList = res.data.pageList
+          let temp = res.data.pageList
+          temp.map(item => {
+            item.ZHTime = secondToFormat(item.zhTime.time)
+          })
+          console.log(temp)
+          this.OrderList = temp
           this.sum = res.data.pageSize
         } else {
           this.$message({
@@ -284,9 +357,7 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="less" scoped>
 .Order{
-  background: #fff;
-  margin: 20px 20px 50px 20px;
-  padding: 20px;
+  margin: 20px 20px 60px 20px;
   .activeTab{
     border: 1px solid #e0b32b;
     background: #e0b32b;

@@ -1,8 +1,6 @@
 <template>
   <div class='Login'>
-    <!-- <img class='Logo' src='../../static/images/Logo.png'> -->
     <img class='Logo' src='../../static/images/Partner_10.png'>
-    <!-- <img class='Logo' src='https://cdn.loanpal.com/lpaprod/images/logo.svg'> -->
     <p class='ColorYellow FontSize_10'>登陆我的无车承运账户</p>
     <div class='MainBox'>
       <div class='InnerBox'>
@@ -14,8 +12,7 @@
             <el-input style='width:250px;' type='password' v-model='password' placeholder='请输入您的密码' clearable></el-input>
           </el-col>
           <el-col :span='24' class='MarginTB_20 TextAlignC'>
-           <!--  <div class='loginBt CursorPointer' @click='Login'>登陆</div> -->
-           <el-button class='loginBt CursorPointer' @click='Login' :loading='ifLoading'>登陆</el-button>
+            <el-button class='loginBt CursorPointer' @click='Login' :loading='ifLoading'>登陆</el-button>
           </el-col>
           <el-col :span='24'>
             <el-row class='operation'>
@@ -52,7 +49,9 @@ export default {
       'changeUserAccount',
       'changeUserRole',
       'changeUserCode',
-      'changeSiderIdx'
+      'changeSiderIdx',
+      'changeIfSJOrderSearch',
+      'changeShowDetail'
     ]),
     pay () {
       let DATA = {
@@ -146,6 +145,9 @@ export default {
             } else {
               this.changeSiderIdx('1-1')
             }
+            // 关闭详情页确保进入首页一级菜单
+            this.changeIfSJOrderSearch(false)
+            this.changeShowDetail(false)
             // if (res.data.checkStatus === '1' || res.data.checkStatus === undefined) {
             //   // 主页
             //   this.$router.push({name: 'Home'})
@@ -174,21 +176,20 @@ export default {
 }
 </script>
 
-<!-- Add 'scoped' attribute to limit CSS to this component only -->
 <style lang='less' scoped>
 .Login{
   width: 100%;
+  overflow: hidden;
   text-algin: center;
   position: absolute;
   top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  overflow: hidden;
+  transform: translateY(-50%);
   .Logo{
     width: 280px;
     height: 132px;
   }
   .MainBox{
+    height: 300px;
     position: relative;
     margin: 2rem auto;
     box-shadow: 0 0 10px 3px rgba(0,0,0,.1);
@@ -196,6 +197,7 @@ export default {
     -moz-box-shadow: 0 0 10px 3px rgba(0,0,0,.1);
     border-radius: 40%;
     .InnerBox{
+      height: 260px;
       width: 120%;
       padding: 20px;
       background: #fff;

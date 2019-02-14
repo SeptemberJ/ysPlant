@@ -60,27 +60,19 @@
             <el-input v-model="formCondition.orderNo" placeholder="订单号" clearable></el-input>
           </el-form-item> -->
           <el-form-item label="订单状态">
-            <el-select v-model="formCondition.status" placeholder="订单状态">
-              <!-- <el-option label="待接单" value="0"></el-option> -->
-              <el-option label="已接单" value="1"></el-option>
-              <el-option label="已撤单" value="2"></el-option>
-              <el-option label="运输中" value="3"></el-option>
-              <el-option label="已签收" value="4"></el-option>
-              <el-option label="待货主确认" value="5"></el-option>
-               <el-option label="已取消" value="6"></el-option>
+            <el-select v-model="formCondition.status" placeholder="订单状态" @change="searchOrder">
+              <el-option label="预接单" value="5"></el-option>
+              <!-- <el-option label="待货主确认" value="2"></el-option> -->
+              <el-option label="接单" value="0"></el-option>
+              <el-option label="运输" value="1"></el-option>
+              <el-option label="已取消" value="3"></el-option>
+              <el-option label="签收" value="4"></el-option>
             </el-select>
           </el-form-item>
-          <el-form-item>
+          <!-- <el-form-item>
             <el-button type="primary" icon="el-icon-search" @click="searchOrder">查询</el-button>
-          </el-form-item>
+          </el-form-item> -->
           <el-form-item>
-            <!-- <download-excel v-if="selectedOrder.length > 1"
-              class = "btn btn-default"
-              :data = "selectedOrder"
-              :fields = "jsonFields"
-              name = "司机订单列表.xls">
-              <el-button type="success" icon="el-icon-printer">导出</el-button>
-            </download-excel> -->
             <el-button type="success" icon="el-icon-printer" @click="exportExcell">导出</el-button>
           </el-form-item>
         </el-form>
@@ -114,9 +106,14 @@
             width="120"
             label="发货人">
           </el-table-column>
-          <el-table-column
+          <!-- <el-table-column
             prop="goods_name"
             label="货物类型"
+            show-overflow-tooltip>
+          </el-table-column> -->
+          <el-table-column
+            prop="ffee"
+            label="报价"
             show-overflow-tooltip>
           </el-table-column>
           <el-table-column
@@ -178,7 +175,7 @@ export default {
         // orderNo: '',
         // startDate: '',
         // endDate: '',
-        status: '1'
+        status: '5'
       },
       LogisticsList: [],
       orderList: [],
@@ -206,7 +203,8 @@ export default {
           value: 'utf-8'
         }]
       ],
-      carTypeList: []
+      carTypeList: [],
+      goodsTypeList: []
     }
   },
   computed: {
@@ -223,6 +221,7 @@ export default {
   created () {
     this.getLogisticsList()
     this.getCarType()
+    this.getGoodsType()
     if (this.ifSJOrderSearch) {
       this.getStatusOrderList()
     }
@@ -232,7 +231,7 @@ export default {
       if (!val) {
         this.getLogisticsList()
         this.currentPageOrder = 1
-        this.formCondition.status = '1'
+        this.formCondition.status = '5'
       }
     }
   },
@@ -255,7 +254,7 @@ export default {
         let obj = {
           order_no: Order.order_no,
           fstatusTxt: (Order.fstatus === '0' ? '待接单' : (Order.fstatus === '1' ? '已接单' : (Order.fstatus === '2' ? '已撤单' : (Order.fstatus === '3' ? '运输中' : (Order.fstatus === '4' ? '已签收' : '已取消'))))),
-          goods_name: Order.goods_name,
+          goods_name: this.checkGoodsType(Order.goods_name),
           fh_name: Order.fh_name,
           fh_telephone: Order.fh_telephone,
           origin: Order.origin,
@@ -355,7 +354,7 @@ export default {
     },
     getCarType (carType) {
       send({
-        name: '/zCarTypeController/list/1/10',
+        name: '/zCarTypeController/list',
         method: 'GET',
         data: {
         }
@@ -367,11 +366,33 @@ export default {
         console.log(res)
       })
     },
-    checkCarType (carType) {
+    checkCarType (carTypeId) {
       let len = this.carTypeList.length
       for (let i = 0; i < len; i++) {
-        if (this.carTypeList[i].typeValue === carType) {
+        if (this.carTypeList[i].id === carTypeId) {
           return this.carTypeList[i].typeName
+        }
+      }
+    },
+    getGoodsType () {
+      send({
+        name: '/typeController/list',
+        method: 'GET',
+        data: {
+        }
+      }).then(res => {
+        if (res.data.respCode === '0') {
+          this.goodsTypeList = res.data.data
+        }
+      }).catch((res) => {
+        console.log(res)
+      })
+    },
+    checkGoodsType (goodsTypeId) {
+      let len = this.goodsTypeList.length
+      for (let i = 0; i < len; i++) {
+        if (this.goodsTypeList[i].id === goodsTypeId) {
+          return this.goodsTypeList[i].name
         }
       }
     },
@@ -385,7 +406,7 @@ export default {
       }
       require.ensure([], () => {
         const { exportJsonToExcel } = require('@/vendor/Export2Excel.js')
-        const tHeader = ['订单号', '订单状态', '货物类型', '发货人', '手机号', '发货地', '街道', '发货人', '手机号', '收货地', '街道', '车型', '装货日期', '开具发票', '预估费用']
+        const tHeader = ['订单号', '订单状态', '货物类型', '发货人', '手机号', '发货地', '街道', '发货人', '手机号', '收货地', '街道', '车型', '装货日期', '开具发票', '报价']
         const filterVal = ['order_no', 'fstatusTxt', 'goods_name', 'fh_name', 'fh_telephone', 'origin', 'fh_address', 'sh_name', 'sh_telephone', 'destination', 'sh_address', 'carType', 'zhTime', 'isFapiao', 'ffee']
         const data = this.formatJson(filterVal, this.selectedOrder)
         exportJsonToExcel(tHeader, data, '订单')

@@ -264,6 +264,7 @@ export default {
                 message: res.data.message + '！',
                 type: 'error'
               })
+              this.loading = true
             }
           }).catch((res) => {
             console.log(res)

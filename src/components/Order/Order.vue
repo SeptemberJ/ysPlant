@@ -1,7 +1,7 @@
 <template>
   <div class="Order">
     <el-row v-if="!showDetail" style="background: #fff;padding: 20px;">
-      <el-col :span="24" class="BgWhite MarginTB_10 TextAlignR">
+      <el-col :span="24" class="BgWhite MarginT_10 TextAlignR">
         <!-- <el-button type="primary" icon="el-icon-plus" size="small">新增</el-button> -->
         <el-form :inline="true" :model="formCondition" class="demo-form-inline">
           <!-- <el-form-item label="订单号">
@@ -23,18 +23,11 @@
             <el-button type="primary" @click="onSubmit">查询</el-button>
           </el-form-item> -->
           <el-form-item>
-            <!-- <download-excel v-if="selectedOrder.length > 1"
-              class = "btn btn-default"
-              :data = "selectedOrder"
-              :fields = "jsonFields"
-              name = "订单列表.xls">
-              <el-button type="success" icon="el-icon-printer">导出</el-button>
-            </download-excel> -->
             <el-button type="success" icon="el-icon-printer" @click="exportExcell">导出</el-button>
           </el-form-item>
         </el-form>
       </el-col>
-      <el-col :span="24"  class="MarginTB_20">
+      <el-col :span="24"  class="MarginB_20">
         <el-table
           id="rebateSetTable"
           ref="multipleTable"
@@ -49,21 +42,27 @@
           </el-table-column>
           <el-table-column
             prop="order_no"
-            label="订单号">
+            label="订单号"
+            show-overflow-tooltip>
           </el-table-column>
           <el-table-column
             label="订单状态"
-            width="100"
+            width="120"
             >
             <template slot-scope="scope">
               <span>{{scope.row.fstatus == 0 ? '待接单' : (scope.row.fstatus == 1 ? '已接单' : (scope.row.fstatus == 2 ? '已撤单' : (scope.row.fstatus == 3 ? '运输中' : (scope.row.fstatus == 4 ? '已签收' : '已取消'))))}}</span>
             </template>
           </el-table-column>
-          <el-table-column
+          <!-- <el-table-column
+            prop="ffee"
+            label="预估价"
+            show-overflow-tooltip>
+          </el-table-column> -->
+          <!-- <el-table-column
             prop="goods_name"
             label="货物类型"
             show-overflow-tooltip>
-          </el-table-column>
+          </el-table-column> -->
           <el-table-column
             prop="origin"
             label="发货地"
@@ -77,18 +76,25 @@
           <el-table-column
             align="right"
             label="操作"
-            width="200"
+            width="220"
             >
             <template slot-scope="scope">
-              <el-button v-if="scope.row.fstatus == 0"
+              <el-button
                 size="mini"
                 type="danger"
-                @click="handleCancel(scope.$index, scope.row)">取消订单
+                :disabled="scope.row.fstatus != 0"
+                @click="handleCancel(scope.$index, scope.row)">取消
+              </el-button>
+              <el-button
+                size="mini"
+                type="warning"
+                :disabled="scope.row.fstatus != 0"
+                @click="getOfferList(scope.$index, scope.row)">报价
               </el-button>
               <el-button
                 size="mini"
                 type="primary"
-                @click="handleEdit(scope.$index, scope.row)">查看
+                @click="handleEdit(scope.$index, scope.row)">详情
               </el-button>
             </template>
           </el-table-column>
@@ -105,6 +111,53 @@
         </el-pagination>
       </el-col>
     </el-row>
+    <!-- 报价列表 -->
+    <el-dialog title="报价列表" :visible.sync="dialogFormVisible" width="550px">
+      <el-row>
+        <el-table
+          id="rebateSetTable"
+          ref="multipleTable"
+          height="250"
+          :data="offerList"
+          v-loading="loading"
+          tooltip-effect="dark"
+          style="width: 100%">
+          <el-table-column
+            type="index"
+            width="55">
+          </el-table-column>
+          <el-table-column
+            prop="fname"
+            label="司机">
+          </el-table-column>
+          <el-table-column
+            prop="ffee"
+            label="报价">
+          </el-table-column>
+          <el-table-column
+            prop="fmobile"
+            label="手机号">
+          </el-table-column>
+          <el-table-column
+            align="right"
+            label="操作"
+            width="100"
+            >
+            <template slot-scope="scope">
+              <el-button
+                size="mini"
+                type="primary"
+                @click="sureOffer(scope.$index, scope.row)">接受报价
+              </el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-row>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="sureOffer">确 定</el-button>
+      </div>
+    </el-dialog>
     <OrderDetail v-if="showDetail" @toggleOrderDetail='changeIfOrderDetail'/>
   </div>
 </template>
@@ -122,6 +175,7 @@ export default {
   name: 'Order',
   data () {
     return {
+      dialogFormVisible: false,
       loading: false,
       currentPage: 1,
       sum: 0,
@@ -132,6 +186,7 @@ export default {
       },
       orderList: [],
       carTypeList: [],
+      goodsTypeList: [],
       selectedOrder: [
       ],
       jsonFields: {
@@ -157,7 +212,8 @@ export default {
           value: 'utf-8'
         }]
       ],
-      positionData: [{ID: '00', Name: '123'}]
+      offerList: []
+      // positionData: [{ID: '00', Name: '123'}]
     }
   },
   computed: {
@@ -171,6 +227,7 @@ export default {
   created () {
     this.getOrderList()
     this.getCarType()
+    this.getGoodsType()
   },
   components: {
     // 'downloadExcel': JsonExcel,
@@ -187,7 +244,8 @@ export default {
         let obj = {
           order_no: Order.order_no,
           fstatusTxt: Order.fstatusTxt,
-          goods_name: Order.goods_name,
+          // goods_name: Order.goods_name,
+          goods_name: this.checkGoodsType(Order.goods_name),
           fh_name: Order.fh_name,
           fh_telephone: Order.fh_telephone,
           origin: Order.origin,
@@ -212,6 +270,49 @@ export default {
     handleEdit (idx, row) {
       this.changeShowDetail(true)
       this.changeSearchOrderId(row.id)
+    },
+    // 查看报价
+    getOfferList (idx, row) {
+      send({
+        name: '/orderController/driverPriceList?order_id=' + row.id,
+        method: 'GET',
+        data: {}
+      }).then(res => {
+        if (res.data.code === 1) {
+          this.dialogFormVisible = true
+          this.offerList = res.data.driverPriceList
+        } else {
+          this.$message({
+            message: res.data.message + '！',
+            type: 'error'
+          })
+        }
+      }).catch((res) => {
+        console.log(res)
+      })
+    },
+    // 确认报价
+    sureOffer (idx, row) {
+      send({
+        name: '/orderController/confirmOrder?driver_id=' + row.driver_id + '&order_id=' + row.order_id + '&ffee=' + row.ffee,
+        method: 'GET'
+      }).then(res => {
+        if (res.data.code === 1) {
+          this.dialogFormVisible = false
+          this.$message({
+            message: '确认成功！',
+            type: 'success'
+          })
+          this.getOrderList()
+        } else {
+          this.$message({
+            message: res.data.message + '！',
+            type: 'error'
+          })
+        }
+      }).catch((res) => {
+        console.log(res)
+      })
     },
     handleCancel (idx, row) {
       this.$confirm('此操作将取消该订单, 是否继续?', '提示', {
@@ -288,9 +389,39 @@ export default {
         this.loading = false
       })
     },
-    getCarType (carType) {
+    getGoodsType () {
       send({
-        name: '/zCarTypeController/list/1/10',
+        name: '/typeController/list',
+        method: 'GET',
+        data: {
+        }
+      }).then(res => {
+        if (res.data.respCode === '0') {
+          this.goodsTypeList = res.data.data
+        }
+      }).catch((res) => {
+        console.log(res)
+      })
+    },
+    checkCarType (carTypeId) {
+      let len = this.carTypeList.length
+      for (let i = 0; i < len; i++) {
+        if (this.carTypeList[i].id === carTypeId) {
+          return this.carTypeList[i].typeName
+        }
+      }
+    },
+    checkGoodsType (goodsTypeId) {
+      let len = this.goodsTypeList.length
+      for (let i = 0; i < len; i++) {
+        if (this.goodsTypeList[i].id === goodsTypeId) {
+          return this.goodsTypeList[i].name
+        }
+      }
+    },
+    getCarType () {
+      send({
+        name: '/zCarTypeController/list',
         method: 'GET',
         data: {
         }
@@ -302,14 +433,6 @@ export default {
         console.log(res)
       })
     },
-    checkCarType (carType) {
-      let len = this.carTypeList.length
-      for (let i = 0; i < len; i++) {
-        if (this.carTypeList[i].typeValue === carType) {
-          return this.carTypeList[i].typeName
-        }
-      }
-    },
     exportExcell () {
       if (this.selectedOrder.length === 0) {
         this.$message({
@@ -320,7 +443,7 @@ export default {
       }
       require.ensure([], () => {
         const { exportJsonToExcel } = require('@/vendor/Export2Excel.js')
-        const tHeader = ['订单号', '订单状态', '货物类型', '发货人', '手机号', '发货地', '街道', '发货人', '手机号', '收货地', '街道', '车型', '装货日期', '开具发票', '预估费用']
+        const tHeader = ['订单号', '订单状态', '货物类型', '发货人', '手机号', '发货地', '街道', '发货人', '手机号', '收货地', '街道', '车型', '装货日期', '开具发票', '报价']
         const filterVal = ['order_no', 'fstatusTxt', 'goods_name', 'fh_name', 'fh_telephone', 'origin', 'fh_address', 'sh_name', 'sh_telephone', 'destination', 'sh_address', 'carType', 'zhTime', 'isFapiao', 'ffee']
         const data = this.formatJson(filterVal, this.selectedOrder)
         exportJsonToExcel(tHeader, data, '订单')

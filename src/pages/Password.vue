@@ -155,7 +155,7 @@ export default {
     },
     getCode () {
       send({
-        name: '/tokens/SMScode?fmobile=' + this.accountName,
+        name: '/tokens/SMScode?fmobile=' + this.formPassword.accountName,
         method: 'POST',
         data: {
         }

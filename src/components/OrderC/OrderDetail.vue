@@ -11,13 +11,13 @@
             <el-row>
               <el-col :span="12">
                 <el-form-item prop="fhName" label="发货人">
-                  <el-input v-model="formAdd.fhName" clearable></el-input>
+                  <el-input v-model="formAdd.fhName" clearable disabled></el-input>
                   <!-- <span>{{formAdd.fhName}}</span> -->
                 </el-form-item>
               </el-col>
               <el-col :span="11" :offset="1">
                 <el-form-item prop="fhTelephone" label="手机号">
-                  <el-input v-model="formAdd.fhTelephone" clearable></el-input>
+                  <el-input v-model="formAdd.fhTelephone" clearable disabled></el-input>
                   <!-- <span>{{formAdd.fhTelephone}}</span> -->
                 </el-form-item>
               </el-col>
@@ -25,7 +25,7 @@
             <el-row>
               <el-col :span="7" :offset="0">
                 <el-form-item prop="fprovince" label="发货省">
-                  <el-select v-model="formAdd.fprovince" placeholder="请选择">
+                  <el-select v-model="formAdd.fprovince" placeholder="请选择"  @change="changeFprovince" disabled>
                     <el-option
                       v-for="(fprovince, idx) in fprovinceList"
                       :key="idx"
@@ -38,7 +38,7 @@
               </el-col>
               <el-col :span="7" :offset="1">
                 <el-form-item prop="fcity" label="发货市">
-                  <el-select v-model="formAdd.fcity" placeholder="请选择" @change="changeFcity">
+                  <el-select v-model="formAdd.fcity" placeholder="请选择" @change="changeFcity" disabled>
                     <el-option
                       v-for="(fcity, idx) in fcityList"
                       :key="idx"
@@ -51,7 +51,7 @@
               </el-col>
               <el-col :span="7" :offset="1">
                 <el-form-item prop="farea" label="发货区">
-                  <el-select v-model="formAdd.farea" placeholder="请选择" @change="changeFarea">
+                  <el-select v-model="formAdd.farea" placeholder="请选择" @change="changeFarea" disabled>
                     <el-option
                       v-for="(farea, idx) in fareaList"
                       :key="idx"
@@ -64,7 +64,7 @@
               </el-col>
             </el-row>
             <el-form-item prop="fhAddress" label="街道">
-              <el-input v-model="formAdd.fhAddress" clearable></el-input>
+              <el-input v-model="formAdd.fhAddress" clearable disabled></el-input>
               <!-- <span>{{formAdd.fhAddress}}</span> -->
             </el-form-item>
           </div>
@@ -78,19 +78,19 @@
             <el-row>
               <el-col :span="12">
                 <el-form-item prop="shName" label="收货人">
-                  <el-input v-model="formAdd.shName" clearable></el-input>
+                  <el-input v-model="formAdd.shName" clearable disabled></el-input>
                 </el-form-item>
               </el-col>
               <el-col :span="11" :offset="1">
                 <el-form-item prop="shTelephone" label="手机号">
-                  <el-input v-model="formAdd.shTelephone" clearable></el-input>
+                  <el-input v-model="formAdd.shTelephone" clearable disabled></el-input>
                 </el-form-item>
               </el-col>
             </el-row>
             <el-row>
               <el-col :span="7" :offset="0">
                 <el-form-item prop="sprovince" label="收货省">
-                  <el-select v-model="formAdd.sprovince" placeholder="请选择" @change="changeSprovince">
+                  <el-select v-model="formAdd.sprovince" placeholder="请选择" @change="changeSprovince" disabled>
                     <el-option
                       v-for="(sprovince, idx) in sprovinceList"
                       :key="idx"
@@ -103,7 +103,7 @@
               </el-col>
               <el-col :span="7" :offset="1">
                 <el-form-item prop="scity" label="收货市">
-                  <el-select v-model="formAdd.scity" placeholder="请选择" @change="changeScity">
+                  <el-select v-model="formAdd.scity" placeholder="请选择" @change="changeScity" disabled>
                     <el-option
                       v-for="(scity, idx) in scityList"
                       :key="idx"
@@ -116,7 +116,7 @@
               </el-col>
               <el-col :span="7" :offset="1">
                 <el-form-item prop="sarea" label="收货区">
-                  <el-select v-model="formAdd.sarea" placeholder="请选择" @change="changeSarea">
+                  <el-select v-model="formAdd.sarea" placeholder="请选择" @change="changeSarea" disabled>
                     <el-option
                       v-for="(sarea, idx) in sareaList"
                       :key="idx"
@@ -129,7 +129,7 @@
               </el-col>
             </el-row>
             <el-form-item prop="shAddress" label="街道">
-              <el-input v-model="formAdd.shAddress" clearable></el-input>
+              <el-input v-model="formAdd.shAddress" clearable disabled></el-input>
               <!-- <span>{{formAdd.shAddress}}</span> -->
             </el-form-item>
           </div>
@@ -144,17 +144,17 @@
             <el-row v-for="(Goods, idx) in formAdd.orderGoodsList" :key="idx">
               <el-col :span="8">
                 <el-form-item :prop="'orderGoodsList.' + idx + '.goodsName'" :rules="AddRules.goodsName" label="货物名称">
-                  <el-input v-model="Goods.goodsName" clearable></el-input>
+                  <el-input v-model="Goods.goodsName" clearable disabled></el-input>
                 </el-form-item>
               </el-col>
               <el-col :span="6" :offset="1">
                 <el-form-item :prop="'orderGoodsList.' + idx + '.goodsSpace'" :rules="AddRules.goodsSpace" type="number" label="货物面积(㎡)">
-                  <el-input v-model="Goods.goodsSpace" clearable></el-input>
+                  <el-input v-model="Goods.goodsSpace" clearable disabled></el-input>
                 </el-form-item>
               </el-col>
               <el-col :span="6" :offset="1">
                 <el-form-item :prop="'orderGoodsList.' + idx + '.goodsWeight'" :rules="AddRules.goodsWeight" type="number" label="货物数量(kg)">
-                  <el-input v-model="Goods.goodsWeight" clearable></el-input>
+                  <el-input v-model="Goods.goodsWeight" clearable disabled></el-input>
                 </el-form-item>
               </el-col>
               <el-col :span="2" :offset="0">
@@ -171,45 +171,57 @@
           <div>
             <!-- goods -->
             <el-form-item prop="goodsName" label="货物类型">
-              <el-input v-model="formAdd.goodsName" clearable></el-input>
+              <el-select v-model="formAdd.goodsName" placeholder="请选择" style="width: 100%" disabled>
+                <el-option
+                  v-for="(goodsType, idx) in goodsTypeList"
+                  :key="idx"
+                  :label="goodsType.name"
+                  :value="goodsType.id">
+                </el-option>
+              </el-select>
+              <!-- <el-input v-model="formAdd.goodsName" clearable></el-input> -->
             </el-form-item>
             <!-- car -->
             <el-form-item prop="carType" label="车型">
-              <el-select v-model="formAdd.carType" placeholder="请选择" style="width: 100%">
+              <el-select v-model="formAdd.carType" placeholder="请选择" style="width: 100%" disabled>
                 <el-option
                   v-for="(carType, idx) in carTypeList"
                   :key="idx"
                   :label="carType.typeName"
-                  :value="carType.typeValue">
+                  :value="carType.id">
                 </el-option>
               </el-select>
             </el-form-item>
             <!-- time -->
             <el-form-item prop="zhTime" label="装货日期">
-              <el-date-picker type="datetime" :picker-options="pickerOptionsStart" placeholder="选择装货日期" v-model="formAdd.zhTime" style="width: 100%;"></el-date-picker>
+              <el-date-picker type="datetime" :picker-options="pickerOptionsStart" placeholder="选择装货日期" v-model="formAdd.zhTime" disabled style="width: 100%;"></el-date-picker>
             </el-form-item>
             <el-form-item label="开具发票" prop="isFapiao">
               <el-radio-group v-model="formAdd.isFapiao" style="float: left">
+                <el-radio label="0" border v-if="formAdd.isFapiao == 0">不需要</el-radio>
+              <el-radio label="1" border v-if="formAdd.isFapiao == 1">需要</el-radio>
+              </el-radio-group>
+              <!-- <el-radio-group v-model="formAdd.isFapiao" disabled style="float: left">
                 <el-radio label="0" border>不需要</el-radio>
                 <el-radio label="1" border>需要</el-radio>
-              </el-radio-group>
+              </el-radio-group> -->
             </el-form-item>
           </div>
         </el-card>
         <!-- cost -->
         <el-card class="box-card MarginTB_20">
           <div slot="header" class="clearfix TextAlignL">
-            <span>预估费用</span>
+            <span>费用</span>
           </div>
           <div class="TextAlignL">
-            <h4 class="ColorWarn"><span style="display:inline-block;width:50%">合计：</span><span style="display:inline-block;width:50%;text-align:right">{{totalSum}} ¥</span></h4>
-            <p style="font-size: 12px;color: #909399;text-align:right">{{cityDistance}} (路程/km) * {{totalWeight/1000}} (重量/t) * {{unitPrice}} (单价/¥) = {{totalSum}} ¥</p>
+            <h4 class="ColorWarn"><span style="display:inline-block;width:50%">{{formAdd.fstatus == 0 ? '货主报价' : '确认报价'}}：</span><span style="display:inline-block;width:50%;text-align:right">{{formAdd.ffee}} ¥</span></h4>
+            <!-- <p style="font-size: 12px;color: #909399;text-align:right">{{cityDistance}} (路程/km) * {{totalWeight/1000}} (重量/t) * {{unitPrice}} (单价/¥) = {{totalSum}} ¥</p> -->
           </div>
         </el-card>
-        <!-- bt -->
-        <el-row v-if="formAdd.fstatus == 0">
-          <el-col :span="12" class="TextAlignC" >
-            <el-button type="primary" :loading="ifLoading" @click="Receipt">接单</el-button>
+        <!-- bt v-if="!hasOffered && formAdd.fstatus == 0"-->
+        <el-row>
+          <el-col :span="12" class="TextAlignC">
+            <el-button type="primary" :loading="ifLoading" @click="showDialog" :disabled="hasOffered">{{hasOffered ? '已报价' : '报价'}}</el-button>
           </el-col>
           <el-col :span="12" class="TextAlignC">
             <el-button @click="backOrderList" style="width: 100px;">返回</el-button>
@@ -217,6 +229,40 @@
         </el-row>
       </el-form>
     </el-row>
+    <el-dialog title="派单" :visible.sync="dialogFormVisible" width="550px">
+      <el-row>
+        <el-col :span="4">
+          <span style="line-height: 35px;">报价金额：</span>
+        </el-col>
+        <el-col :span="12" class="TextAlignL">
+          <el-input v-model='offer' placeholder='请输入您的报价金额' clearable></el-input>
+        </el-col>
+        <el-col :span="8">
+          <span style="line-height: 35px;color:red">（最高限价{{maxFee}}）</span>
+        </el-col>
+      </el-row>
+      <el-row class="MarginT_10">
+        <el-col :span="4">
+          <span style="line-height: 35px;">选择司机：</span>
+        </el-col>
+        <el-col :span="20" class="TextAlignL">
+          <el-select v-model="choosedLogistic" placeholder="请选择" style="width:100%">
+            <el-option
+              v-for="item in LogisticsList"
+              :key="item.id"
+              :label="item.fname"
+              :value="item.id">
+              <span style="float: left">{{ item.fname }}</span>
+              <span style="float: right; color: #8492a6; font-size: 13px">{{ item.company_name }} <span class="PaddingL_10">{{item.fmobile}}</span></span>
+            </el-option>
+          </el-select>
+        </el-col>
+      </el-row>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="sureOffer">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -237,6 +283,7 @@ export default {
       }
     }
     return {
+      dialogFormVisible: false,
       ifLoading: false,
       fprovinceList: [],
       fcityList: [],
@@ -259,6 +306,7 @@ export default {
       scityName: '',
       fareaName: '',
       sareaName: '',
+      hasOffered: false, // 是否报过价
       formAdd: {
         fprovince: '',
         fcity: '',
@@ -345,7 +393,12 @@ export default {
           { required: true, message: '请选择所属区!', trigger: 'change' }
         ]
       },
+      maxFee: '',
+      offer: '', // 输入的报价
       carTypeList: [],
+      goodsTypeList: [],
+      LogisticsList: [],
+      choosedLogistic: '',
       pickerOptionsStart: {
         disabledDate (time) {
           return time.getTime() < Date.now() - 8.64e7
@@ -356,6 +409,7 @@ export default {
   computed: {
     ...mapState({
       userRole: state => state.userRole,
+      userId: state => state.userId,
       userCode: state => state.userCode,
       searchOrderId: state => state.searchOrderId
     }),
@@ -392,34 +446,36 @@ export default {
     },
     getOrderDetail () {
       send({
-        name: '/orderController/' + this.searchOrderId,
+        name: '/orderController/orderDetail?id=' + this.searchOrderId + '&register_id=' + this.userId,
         method: 'GET',
         data: {}
       }).then(res => {
-        if (res.data.respCode === '0') {
-          let temp = res.data.data
-          this.totalSum = res.data.data.ffee
-          temp.fprovince = res.data.data.origin_province_id
-          temp.fcity = res.data.data.origin_city_id
-          temp.farea = res.data.data.origin_area_id
-          temp.sprovince = res.data.data.destination_province_id
-          temp.scity = res.data.data.destination_city_id
-          temp.sarea = res.data.data.destination_area_id
-          temp.zhTime = new Date(res.data.data.zh_time)
-          temp.orderGoodsList = res.data.data.ordergoods
-          temp.carType = res.data.data.car_type
-          temp.fmainId = res.data.data.fmain_id
-          temp.fsubId = res.data.data.fsub_id
-          temp.goodsName = res.data.data.goods_name
-          temp.fhName = res.data.data.fh_name
-          temp.fhTelephone = res.data.data.fh_telephone
-          temp.fhAddress = res.data.data.fh_address
-          temp.shAddress = res.data.data.sh_address
-          temp.shArea = res.data.data.sh_area
-          temp.shName = res.data.data.sh_name
-          temp.shTelephone = res.data.data.sh_telephone
-          temp.isFapiao = res.data.data.is_fapiao
+        if (res.data.code === 1) {
+          let temp = res.data.orderInfo
+          temp.ffee = res.data.orderInfo.ffee
+          temp.fprovince = res.data.orderInfo.origin_province_id
+          temp.fcity = res.data.orderInfo.origin_city_id
+          temp.farea = res.data.orderInfo.origin_area_id
+          temp.sprovince = res.data.orderInfo.destination_province_id
+          temp.scity = res.data.orderInfo.destination_city_id
+          temp.sarea = res.data.orderInfo.destination_area_id
+          temp.zhTime = new Date(res.data.orderInfo.zh_time.time)
+          temp.orderGoodsList = res.data.orderInfo.ordergoods
+          temp.carType = res.data.orderInfo.car_type
+          temp.fmainId = res.data.orderInfo.fmain_id
+          temp.fsubId = res.data.orderInfo.fsub_id
+          temp.goodsName = res.data.orderInfo.goods_name
+          temp.fhName = res.data.orderInfo.fh_name
+          temp.fhTelephone = res.data.orderInfo.fh_telephone
+          temp.fhAddress = res.data.orderInfo.fh_address
+          temp.shAddress = res.data.orderInfo.sh_address
+          temp.shArea = res.data.orderInfo.sh_area
+          temp.shName = res.data.orderInfo.sh_name
+          temp.shTelephone = res.data.orderInfo.sh_telephone
+          temp.isFapiao = res.data.orderInfo.is_fapiao
           this.formAdd = temp
+          this.maxFee = res.data.orderInfo.fmax_fee
+          this.hasOffered = res.data.flag === 1
           // 省市区
           this.getProvince()
           this.changeFprovince(temp.fprovince, 1)
@@ -429,7 +485,10 @@ export default {
           // 价格
           this.getDistanceDefault(temp.farea, temp.sarea)
           // 车型
-          this.getCarType(res.data.data.car_type)
+          this.getCarType(res.data.orderInfo.car_type)
+          this.getGoodsType()
+          // 查询最高限价
+          this.getMaxFee()
         } else {
           this.$message({
             message: res.data.message + '！',
@@ -565,7 +624,7 @@ export default {
     },
     getCarType (carType) {
       send({
-        name: '/zCarTypeController/list/1/10',
+        name: '/zCarTypeController/list',
         method: 'GET',
         data: {
         }
@@ -577,6 +636,38 @@ export default {
             if (item.typeValue === carType) {
               this.unitPrice = item.fprice
             }
+          })
+        }
+      }).catch((res) => {
+        console.log(res)
+      })
+    },
+    getGoodsType () {
+      send({
+        name: '/typeController/list',
+        method: 'GET',
+        data: {
+        }
+      }).then(res => {
+        if (res.data.respCode === '0') {
+          this.goodsTypeList = res.data.data
+        }
+      }).catch((res) => {
+        console.log(res)
+      })
+    },
+    getMaxFee () {
+      send({
+        name: '/zFareRuleController/getMaxPrice?goods_type=' + this.formAdd.goodsName + '&cartype=' + this.formAdd.carType + '&fkm=622',
+        method: 'GET',
+        data: ''
+      }).then(res => {
+        if (res.data.code === 1) {
+          this.formAdd.max_price = res.data.max_price
+        } else {
+          this.$message({
+            message: res.data.message + '！',
+            type: 'error'
           })
         }
       }).catch((res) => {
@@ -597,8 +688,66 @@ export default {
         console.log(res)
       })
     },
-    Receipt () {
-
+    showDialog () {
+      this.dialogFormVisible = true
+      this.getDriverList()
+    },
+    sureOffer () {
+      if (this.maxFee < this.offer) {
+        this.$message({
+          message: '报价超过了最高限价！',
+          type: 'error'
+        })
+        return false
+      }
+      let DATA = {
+        registerId: this.userId,
+        driverId: this.choosedLogistic,
+        orderId: this.searchOrderId,
+        orderStatus: '5',
+        ffee: this.offer,
+        createDate: new Date()
+      }
+      send({
+        name: '/driverOrderController',
+        method: 'POST',
+        data: DATA
+      }).then(res => {
+        if (res.data.respCode === '0') {
+          this.$message({
+            message: '报价成功！',
+            type: 'success'
+          })
+          this.backOrderList()
+          this.dialogFormVisible = false
+        } else {
+          this.$message({
+            message: res.data.message + '！',
+            type: 'error'
+          })
+        }
+      }).catch((res) => {
+        console.log(res)
+      })
+    },
+    getDriverList () {
+      send({
+        name: '/zRegisterController/driverListNoPage?fid=' + this.userId,
+        method: 'GET',
+        data: {
+        }
+      }).then(res => {
+        if (res.data.code === 1) {
+          this.LogisticsList = res.data.driverList
+        } else {
+          this.$message({
+            message: res.data.message + '！',
+            type: 'error'
+          })
+        }
+      }).catch((res) => {
+        console.log(res)
+      })
     }
   }
 }
