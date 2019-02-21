@@ -201,6 +201,12 @@
                 <el-radio label="1" border>需要</el-radio>
               </el-radio-group>
             </el-form-item>
+            <el-form-item label="接受拼箱" prop="isBox">
+              <el-radio-group v-model="formAdd.isBox" style="float: left">
+                <el-radio label="1" border disabled>不接受</el-radio>
+                <el-radio label="0" border disabled>接受</el-radio>
+              </el-radio-group>
+            </el-form-item>
           </div>
         </el-card>
         <!-- cost -->
@@ -233,7 +239,7 @@
         <!-- bt -->
         <el-row>
           <el-col :span="12" class="TextAlignC" >
-            <el-button type="primary" :loading="ifLoading" @click="onSubmit('formAdd')" :disabled="formAdd.fstatus !== 0">保存修改</el-button>
+            <el-button type="primary" :loading="ifLoading" @click="onSubmit('formAdd')" :disabled="formAdd.fstatus != 0">保存修改</el-button>
           </el-col>
           <el-col :span="12" class="TextAlignC">
             <el-button @click="backOrderList" style="width: 100px;">返回</el-button>
@@ -322,6 +328,8 @@ export default {
         orderGoodsList: [],
         goodsTypeList: [],
         isFapiao: '0', // 0-不要 1-要
+        isBox: '', // 0-要 1-不要
+        boxNo: '',
         payType: '0', // 0-支付宝 1-微信
         max_price: 0,
         fmaxFee: 0
@@ -365,6 +373,9 @@ export default {
         ],
         isFapiao: [
           { required: true, message: '请选择是否需要开具发票!', trigger: 'blur' }
+        ],
+        isBox: [
+          { required: true, message: '请选择是否需接受拼箱!', trigger: 'blur' }
         ],
         ffee: [
           { required: true, validator: validateFee, trigger: 'blur' }
@@ -535,7 +546,9 @@ export default {
         zhTime: this.formAdd.zhTime,
         goodsName: this.formAdd.goodsName,
         orderGoodsList: this.formAdd.orderGoodsList,
-        isFapiao: this.formAdd.isFapiao
+        isFapiao: this.formAdd.isFapiao,
+        boxNo: this.formAdd.boxNo,
+        isBox: this.formAdd.isBox
       }
 
       send({
@@ -629,6 +642,8 @@ export default {
           temp.shName = res.data.data.sh_name
           temp.shTelephone = res.data.data.sh_telephone
           temp.isFapiao = res.data.data.is_fapiao
+          temp.isBox = res.data.data.is_box
+          temp.boxNo = res.data.data.box_no
           temp.payType = res.data.data.payType ? res.data.data.payType : 0
           this.formAdd = temp
           // 省市区

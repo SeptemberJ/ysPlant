@@ -1,6 +1,10 @@
 <template>
   <div class="Order">
     <el-row v-if="!showDetail" style="background: #fff;padding: 20px;">
+      <!-- <el-col :span="24"  class="MarginTB_20 TextAlignR">
+        <el-input style='width:250px;' v-model='searOrderNo' placeholder='请输入查询的订单号' clearable></el-input>
+        <el-button type="primary" icon="el-icon-search" @click="searchOrder">查询</el-button>
+      </el-col> -->
       <el-col :span="24"  class="MarginTB_20">
         <el-row>
           <el-col :span="12" :class="{'activeTab': searchType == 1, 'normalTab': searchType == 0, 'Padding_10': true}"><span @click="changeTab(1)">指定订单</span></el-col>
@@ -122,6 +126,7 @@ export default {
     return {
       loading: false,
       dialogFormVisible: false,
+      searOrderNo: '', // 需要修改报价查询的订单号
       searchType: 1, // 0 未指定 1 指定
       orderId: '',
       currentPage: 1,
@@ -151,15 +156,13 @@ export default {
       this.getOrderList()
     }
   },
-  // watch: {
-  //   searchType: function (val) {
-  //     if (this.searchType === 0 || this.searchType === '0') {
-  //       this.getOrderListNotAppoint()
-  //     } else {
-  //       this.getOrderList()
-  //     }
-  //   }
-  // },
+  watch: {
+    searOrderNo: function (val) {
+      if (val === '') {
+        this.searchOrder()
+      }
+    }
+  },
   components: {
     OrderDetail
   },
@@ -278,10 +281,17 @@ export default {
       this.orderId = row.id
       this.changeSearchOrderId(row.id)
     },
+    searchOrder () {
+      if (this.searchType === 0) {
+        this.getOrderListNotAppoint()
+      } else {
+        this.getOrderList()
+      }
+    },
     getOrderList () {
       this.loading = true
       send({
-        name: '/orderController/list/' + this.currentPage + '/10/1' + '/{appointId}?appointId=' + this.userId,
+        name: '/orderController/list/' + this.currentPage + '/10/1' + '/{appointId}?appointId=' + this.userId + '&order_no=' + this.searOrderNo,
         method: 'GET',
         data: {}
       }).then(res => {
@@ -307,7 +317,7 @@ export default {
     getOrderListNotAppoint () {
       this.loading = true
       send({
-        name: '/orderController/list/' + this.currentPage + '/10/0' + '/{appointId}?appointId=',
+        name: '/orderController/list/' + this.currentPage + '/10/0' + '/{appointId}?appointId=' + '&order_no=' + this.searOrderNo,
         method: 'GET',
         data: {}
       }).then(res => {

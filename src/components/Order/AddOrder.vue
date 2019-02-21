@@ -241,6 +241,12 @@
               <el-radio :label="1" border>需要</el-radio>
             </el-radio-group>
           </el-form-item>
+          <el-form-item label="接受拼箱" prop="isBox">
+            <el-radio-group v-model="formAdd.isBox" style="float: left">
+              <el-radio :label="1" border>不接受</el-radio>
+              <el-radio :label="0" border>接受</el-radio>
+            </el-radio-group>
+          </el-form-item>
         </div>
       </el-card>
       <!-- cost -->
@@ -262,8 +268,10 @@
               <template slot="append">¥</template>
             </el-input>
           </el-form-item>
-          <el-form-item label="" v-if="formAdd.max_price > 0">
-            <span style="float:right;margin-left: 10px;color: red">（最高限价 {{formAdd.max_price}}¥）</span>
+          <el-form-item label="">
+            <span style="float:right;margin-left: 10px;color: red" v-if="formAdd.max_price > 0">（最高限价 {{formAdd.max_price}}¥）</span>
+            <!-- v-if="formAdd.max_price >= 0" -->
+            <span style="float:right;margin-left: 10px;color: red" v-if="formAdd.max_price == '' || formAdd.max_price == 0">（最高限价 信息不未填完整或运输距离太近）</span>
           </el-form-item>
           <!-- <h4 class="ColorWarn"><span style="display:inline-block;width:50%">合计：</span><span style="display:inline-block;width:50%;text-align:right">{{totalSum}} ¥</span></h4> -->
           <!-- <p style="font-size: 12px;color: #909399;text-align:right">{{cityDistance}} (路程/km) * {{totalWeight/1000}} (重量/t) * {{unitPrice}} (单价/¥) = {{totalSum}} ¥</p> -->
@@ -348,7 +356,7 @@ export default {
       appointType: 0, // 指派类型 0承运商 1个体司机
       appointName: '',
       appointPhone: '', // 13734567890
-      formAdd2: {
+      formAdd: {
         appointId: '', // 指派司机id
         fprovince: '',
         fcity: '',
@@ -375,9 +383,13 @@ export default {
         goodsName: '',
         orderGoodsList: [],
         isFapiao: 0, // 0-不要 1-要
-        payType: 0 // 0-支付宝 1-微信
+        isBox: 0, // 0-要 1-不要
+        boxNo: '',
+        payType: 0, // 0-支付宝 1-微信
+        ffee: '',
+        max_price: 0
       },
-      formAdd: {
+      formAdd2: {
         appointId: '', // 指派司机id
         fprovince: '',
         fcity: '',
@@ -419,6 +431,8 @@ export default {
           }
         ],
         isFapiao: 0, // 0-不要 1-要
+        isBox: 0, // 0-要 1-不要
+        boxNo: '',
         payType: 0, // 0-支付宝 1-微信
         ffee: '',
         max_price: 0
@@ -462,6 +476,9 @@ export default {
         ],
         isFapiao: [
           { required: true, message: '请选择是否需要开具发票!', trigger: 'blur' }
+        ],
+        isBox: [
+          { required: true, message: '请选择是否需接受拼箱!', trigger: 'blur' }
         ],
         ffee: [
           { required: true, validator: validateFee, trigger: 'blur' }
@@ -519,6 +536,7 @@ export default {
     unitPrice: function (value) {
       this.totalSum = (this.cityDistance * this.totalWeight / 1000 * value).toFixed(2)
     }
+
   },
   created () {
     this.getProvince()
@@ -548,7 +566,7 @@ export default {
       this.carTypeList.map(item => {
         if (item.id === typeId) {
           this.unitPrice = item.fprice
-          if (this.formAdd.goodsName !== '') {
+          if (this.formAdd.goodsName !== '' && this.formAdd.farea !== '' && this.formAdd.sarea !== '') {
             this.getMaxFee()
           }
         }
@@ -557,7 +575,7 @@ export default {
     changeGoodsType (typeId) {
       this.goodsTypeList.map(item => {
         if (item.id === typeId) {
-          if (this.formAdd.carType !== '') {
+          if (this.formAdd.carType !== '' && this.formAdd.farea !== '' && this.formAdd.sarea !== '') {
             this.getMaxFee()
           }
         }
@@ -655,7 +673,9 @@ export default {
         zhTime: this.formAdd.zhTime,
         goodsName: this.formAdd.goodsName,
         orderGoodsList: this.formAdd.orderGoodsList,
-        isFapiao: this.formAdd.isFapiao
+        isFapiao: this.formAdd.isFapiao,
+        boxNo: this.formAdd.boxNo,
+        isBox: this.formAdd.isBox
       }
       console.log(DATA)
       this.ifLoading = true
@@ -722,11 +742,13 @@ export default {
       this.getCity(id, 'fcityList')
       this.formAdd.fcity = ''
       this.formAdd.farea = ''
+      this.formAdd.max_price = ''
     },
     changeFcity (id) {
       console.log(id)
       this.getArea(id, 'fareaList')
       this.formAdd.farea = ''
+      this.formAdd.max_price = ''
     },
     changeFarea (id) {
       console.log(id)
@@ -738,10 +760,12 @@ export default {
       this.getCity(id, 'scityList')
       this.formAdd.scity = ''
       this.formAdd.sarea = ''
+      this.formAdd.max_price = ''
     },
     changeScity (id) {
       this.getArea(id, 'sareaList')
       this.formAdd.sarea = ''
+      this.formAdd.max_price = ''
     },
     changeSarea (id) {
       console.log(id)
@@ -829,6 +853,9 @@ export default {
       }).then(res => {
         if (res.data.code === 1) {
           this.cityDistance = res.data.cityDistance
+          if (this.formAdd.goodsName !== '' && this.formAdd.carType !== '') {
+            this.getMaxFee()
+          }
         }
       }).catch((res) => {
         console.log(res)

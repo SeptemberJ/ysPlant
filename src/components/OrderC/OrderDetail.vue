@@ -206,6 +206,12 @@
                 <el-radio label="1" border>需要</el-radio>
               </el-radio-group> -->
             </el-form-item>
+            <el-form-item label="接受拼箱" prop="isBox">
+              <el-radio-group v-model="formAdd.isBox" style="float: left">
+                <el-radio label="1" border disabled>不接受</el-radio>
+                <el-radio label="0" border disabled>接受</el-radio>
+              </el-radio-group>
+            </el-form-item>
           </div>
         </el-card>
         <!-- cost -->
@@ -222,6 +228,7 @@
         <el-row>
           <el-col :span="12" class="TextAlignC">
             <el-button type="primary" :loading="ifLoading" @click="showDialog" :disabled="hasOffered">{{hasOffered ? '已报价' : '报价'}}</el-button>
+            <!-- <el-button v-if="formAdd.fstatus != 0" type="primary" disabled>{{hasOffered ? '修改报价' : '报价'}}</el-button> -->
           </el-col>
           <el-col :span="12" class="TextAlignC">
             <el-button @click="backOrderList" style="width: 100px;">返回</el-button>
@@ -260,7 +267,7 @@
       </el-row>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="sureOffer">确 定</el-button>
+        <el-button type="primary" @click="sureOperation">确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -332,7 +339,9 @@ export default {
         zhTime: '',
         goodsName: '',
         orderGoodsList: [],
-        isFapiao: '0' // 0-不要 1-要
+        isFapiao: '0', // 0-不要 1-要
+        isBox: '', // 0-要 1-不要
+        boxNo: ''
       },
       AddRules: {
         fhName: [
@@ -373,6 +382,9 @@ export default {
         ],
         isFapiao: [
           { required: true, message: '请选择是否需要开具发票!', trigger: 'blur' }
+        ],
+        isBox: [
+          { required: true, message: '请选择是否需接受拼箱!', trigger: 'blur' }
         ],
         fprovince: [
           { required: true, message: '请选择所属省份!', trigger: 'change' }
@@ -473,6 +485,8 @@ export default {
           temp.shName = res.data.orderInfo.sh_name
           temp.shTelephone = res.data.orderInfo.sh_telephone
           temp.isFapiao = res.data.orderInfo.is_fapiao
+          temp.isBox = res.data.orderInfo.is_box
+          temp.boxNo = res.data.orderInfo.box_no
           this.formAdd = temp
           this.maxFee = res.data.orderInfo.fmax_fee
           this.hasOffered = res.data.flag === 1
@@ -692,6 +706,14 @@ export default {
       this.dialogFormVisible = true
       this.getDriverList()
     },
+    sureOperation () {
+      this.sureOffer()
+      // if (this.hasOffered) {
+      //   this.changeOffer()
+      // } else {
+      //   this.sureOffer()
+      // }
+    },
     sureOffer () {
       if (this.maxFee < this.offer) {
         this.$message({
@@ -726,6 +748,31 @@ export default {
             type: 'error'
           })
         }
+      }).catch((res) => {
+        console.log(res)
+      })
+    },
+    changeOffer () {
+      send({
+        name: '/driverOrderController/modifyDriverOrderFfee?id=' + this.searchOrderId + '&ffee=' + this.offer,
+        method: 'GET',
+        data: {
+        }
+      }).then(res => {
+        this.$message({
+          message: '修改报价成功！',
+          type: 'success'
+        })
+        this.backOrderList()
+        this.dialogFormVisible = false
+        // if (res.data.code === 1) {
+        //   this.LogisticsList = res.data.driverList
+        // } else {
+        //   this.$message({
+        //     message: res.data.message + '！',
+        //     type: 'error'
+        //   })
+        // }
       }).catch((res) => {
         console.log(res)
       })

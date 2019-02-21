@@ -7,37 +7,37 @@
 <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=i958ho3aKFiiVfxOIwAZOO05sHDDsAGK"></script>
 <script>
 import {setZoom} from '../../util/utils'
-// import {send} from '../../util/send'
+import {send} from '../../util/send'
 export default {
   name: 'Car',
   data () {
     return {
-			pointArray: [
-	      {lng: 108.112917, lat: 24.435153, kind: 0, tips: '37'},
-	      {lng: 119.532937, lat: 31.435183, kind: 0, tips: '38'},
-	      {lng: 121.122987, lat: 28.435173, kind: 1, tips: '23'},
-	      {lng: 119.212917, lat: 25.535153, kind: 1, tips: '24'},
-	      {lng: 115.122987, lat: 28.435173, kind: 2, tips: '18'},
-	      {lng: 117.212917, lat: 25.535153, kind: 2, tips: '14'},
-	      {lng: 107.212917, lat: 29.535153, kind: 3, tips: '-1'},
-	      {lng: 120.1006487, lat: 30.435153, kind: 3, tips: '-3'}
-	    ]
+			// pointArray2: [
+	  //     {lng: 108.112917, lat: 24.435153, kind: 0, tips: '37'},
+	  //     {lng: 119.532937, lat: 31.435183, kind: 0, tips: '38'},
+	  //     {lng: 121.122987, lat: 28.435173, kind: 1, tips: '23'},
+	  //     {lng: 119.212917, lat: 25.535153, kind: 1, tips: '24'},
+	  //     {lng: 115.122987, lat: 28.435173, kind: 2, tips: '18'},
+	  //     {lng: 117.212917, lat: 25.535153, kind: 2, tips: '14'},
+	  //     {lng: 107.212917, lat: 29.535153, kind: 3, tips: '-1'},
+	  //     {lng: 120.1006487, lat: 30.435153, kind: 3, tips: '-3'}
+	  //   ]
     }
   },
   mounted () {
-		this.setMap()
+		this.getData()
   },
   watch: {
-		pointArray: function (val) {
-			this.setMap()
-		}
+		// pointArray: function (val) {
+		// 	this.getData()
+		// }
   },
   created () {
   },
   methods: {
-		setMap () {
+		setMap (PointData) {
 	    var map = new BMap.Map('mapTemperature')
-	    map.centerAndZoom(new BMap.Point(118.10000, 24.46667), 11)
+	    // map.centerAndZoom(new BMap.Point(118.10000, 24.46667), 11)
 	    map.enableScrollWheelZoom(true)
 	    // 图标
 	    var IconTemperatureBlue = new BMap.Icon('../../../static/images/icon/wenduBlue.png', new BMap.Size(50,50), {anchor: new BMap.Size(20, 5)})
@@ -45,7 +45,7 @@ export default {
 	    var IconTemperatureRed = new BMap.Icon('../../../static/images/icon/wenduRed.png', new BMap.Size(50,50), {anchor: new BMap.Size(20, 5)})
 	    var IconTemperatureGreen = new BMap.Icon('../../../static/images/icon/wenduGreen.png', new BMap.Size(50,50), {anchor: new BMap.Size(20, 5)})
 	    // 放点
-	    this.pointArray.map(item => {
+	    PointData.map(item => {
 	      let marker
 	      let point = new BMap.Point(item.lng,item.lat)
 	      switch (item.kind) {
@@ -66,8 +66,8 @@ export default {
 	      // 信息框
 	      let opts = {
 	        width : 200,
-	        height: 30,
-	        title : '当前温度',
+	        height: 80,
+	        title : '地址',
 	        enableMessage:true,
 	        message: item.tips
 	      }
@@ -76,8 +76,31 @@ export default {
 	        map.openInfoWindow(infoWindow,point)
 	      })
 	    })
-	    setZoom(this.pointArray, map, BMap)
-	  }
+	    setZoom(PointData, map, BMap)
+	  },
+		getData() {
+			send({
+				name: '/tokens/serwdjs',
+				method: 'GET',
+				data: {
+				}
+			}).then(res => {
+				console.log(res.data.resultStr.NewDataSet)
+				let tempArray = []
+				res.data.resultStr.NewDataSet.map( item => {
+					let obj = {
+						lat: item.Lat,
+						lng: item.Lon,
+						kind: 0,
+						tips: item.PlaceName
+					}
+					tempArray.push(obj)
+				})
+				this.setMap(tempArray)
+			}).catch((res) => {
+				console.log(res)
+			})
+		}
   }
 }
 </script>
