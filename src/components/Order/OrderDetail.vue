@@ -1,10 +1,5 @@
 <template>
   <div class="OrderDetail">
-    <!-- <el-row class="MarginTB_20">
-      <el-col :span="24" class="TextAlignR">
-        <el-button type="text" @click="backOrderList">返回</el-button>
-      </el-col>
-    </el-row> -->
     <el-row>
       <el-form ref="formAdd" :model="formAdd" :rules="AddRules" label-width="110px" label-position="left">
         <!-- fh -->
@@ -25,9 +20,6 @@
                 </el-form-item>
               </el-col>
             </el-row>
-            <!-- <el-row>
-              <el-col :span="24" :offset="0">{{formAdd.fprovince}}-{{formAdd.fcity}}-{{formAdd.farea}}</el-col>
-            </el-row> -->
             <el-row>
               <el-col :span="7" :offset="0">
                 <el-form-item prop="fprovince" label="发货省">
@@ -162,13 +154,13 @@
             <el-button icon="el-icon-plus" class="MarginT_20" style="width: 100%;border:1px dashed #dcdfe6" @click="addOneLine">添加</el-button>
           </div>
         </el-card>
-        <!-- goods -->
+        <!-- others -->
         <el-card class="box-card MarginTB_20">
           <div slot="header" class="clearfix TextAlignL">
             <span>其它信息</span>
           </div>
           <div>
-            <!-- goods -->
+            <!-- goodsType -->
             <el-form-item prop="goodsName" label="货物类型">
               <el-select v-model="formAdd.goodsName" placeholder="请选择" style="width: 100%" @change="changeGoodsType">
                 <el-option
@@ -178,7 +170,6 @@
                   :value="goodsType.id">
                 </el-option>
               </el-select>
-              <!-- <el-input v-model="formAdd.goodsName" clearable></el-input> -->
             </el-form-item>
             <!-- car -->
             <el-form-item prop="carType" label="车型">
@@ -229,9 +220,9 @@
               </el-input>
             </el-form-item>
 
-            <el-form-item label="">
+            <!-- <el-form-item label="">
               <span style="float:right;margin-left: 10px;color: red">（最高限价 {{formAdd.fmaxFee}}¥）</span>
-            </el-form-item>
+            </el-form-item> -->
            <!--  <h4 class="ColorWarn"><span style="display:inline-block;width:50%">合计：</span><span style="display:inline-block;width:50%;text-align:right">{{totalSum}} ¥</span></h4>
             <p style="font-size: 12px;color: #909399;text-align:right">{{cityDistance}} (路程/km) * {{totalWeight/1000}} (重量/t) * {{unitPrice}} (单价/¥) = {{totalSum}} ¥</p> -->
           </div>
@@ -503,13 +494,6 @@ export default {
         return false
       }
       this.ifLoading = true
-      // if (this.userRole === '1' || this.userRole === '2') {
-      //   this.formAdd.fmainId = this.userCode
-      // }
-      // if (this.userRole === '4' || this.userRole === '5') {
-      //   this.formAdd.fsubId = this.userCode
-      // }
-      // console.log(this.formAdd)
       this.$refs[formName].validate((valid) => {
         if (valid) {
           this.sureAdd()
@@ -524,7 +508,6 @@ export default {
     },
     sureAdd () {
       let DATA = {
-        // ffee: this.totalSum,
         fmaxFee: this.formAdd.fmaxFee,
         ffee: this.formAdd.ffee,
         fweight: this.totalWeight,
@@ -684,7 +667,6 @@ export default {
       })
     },
     changeFprovince (id, type) {
-      console.log(id)
       this.getCity(id, 'fcityList')
       if (type !== 1) {
         this.formAdd.fcity = ''
@@ -692,7 +674,6 @@ export default {
       }
     },
     changeFcity (id, type) {
-      console.log(id)
       this.getArea(id, 'fareaList')
       if (type !== 1) {
         this.formAdd.farea = ''
@@ -774,9 +755,14 @@ export default {
         if (res.data.respCode === '0') {
           let carList = res.data.data
           this.carTypeList = carList
-          carList.map(item => {
-            if (item.id === carTypeId) {
-              this.unitPrice = item.fprice
+          // carList.map(item => {
+          //   if (item.id === carTypeId) {
+          //     this.unitPrice = item.fprice
+          //   }
+          // })
+          this.unitPrice = carList.find(carType => {
+            if (carType.id === carTypeId) {
+              return carType.fprice
             }
           })
         }

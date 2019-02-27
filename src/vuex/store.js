@@ -10,6 +10,7 @@ Vue.use(Vuex)
 const state = {
   locationIdx: 0, // 0 - Login 1 - Sign 2 - Home 3 - Information 4 - Password
   siderIdx: '1-1', // 1 - 运单管理 2 - 用户管理 3-1 - 基本信息 3-2 - 密码修改
+  addOrderType: '1-2-1', // 货主下单类型 普货 危险品 冷藏品
   menuIndex: '1',
   userId: '',
   userAccount: '',
@@ -38,6 +39,9 @@ const actions = {
   },
   changeSiderIdx ({commit, state}, IDX) {
     commit('setSiderIdx', IDX)
+  },
+  changeAddOrderType ({commit, state}, TYPE) {
+    commit('setAddOrderType', TYPE)
   },
   changeUserId ({commit, state}, ID) {
     commit('setUserId', ID)
@@ -81,6 +85,9 @@ const mutations = {
   },
   setSiderIdx (state, IDX) {
     state.siderIdx = IDX
+  },
+  setAddOrderType (state, TYPE) {
+    state.addOrderType = TYPE
   },
   setUserId (state, ID) {
     state.userId = ID

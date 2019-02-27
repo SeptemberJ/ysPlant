@@ -1,13 +1,87 @@
 <template>
   <div class="Center">
-    <!-- :rules="CenterRules" -->
-    <el-form class="CenterForm MarginT_40" :model="formInfo" ref="formInfo" label-width="120px">
-      <!-- <el-form-item
-        class="TextAlignR"
-        label="账号"
-      >
-        <el-input v-model="userAccount" placeholder="请输入注册的手机号" disabled clearable></el-input>
-      </el-form-item> -->
+    <el-row v-if="userRole == 1 || userRole == 2">
+      <el-col :span="8" class="TextAlignL">
+        <div class="MarginT_10">
+          <span class="LeftTit">企业名称：</span>
+          <span>{{formInfo.company}}</span>
+        </div>
+        <div class="MarginT_10">
+          <span class="LeftTit">账户余额：</span>
+          <span>{{12000}}</span>
+        </div>
+        <div class="MarginT_10">
+          <span class="LeftTit">联系人：</span>
+          <span>{{formInfo.contact}}</span>
+        </div>
+        <div class="MarginT_10">
+          <span class="LeftTit">联系电话：</span>
+          <span>{{formInfo.tel}}</span>
+        </div>
+      </el-col>
+      <el-col :span="16" class="TextAlignL MarginT_10">
+        <div class="MarginT_10">
+          <span class="LeftTit">抬头：</span>
+          <span>{{formInfo.taitou}}</span>
+        </div>
+        <div class="MarginT_10">
+          <span class="LeftTit">开户行：</span>
+          <span>{{formInfo.bank}}</span>
+        </div>
+        <div class="MarginT_10">
+          <span class="LeftTit">银行账号：</span>
+          <span>{{formInfo.bankNo}}</span>
+        </div>
+      </el-col>
+    </el-row>
+    <div style="width:100%;height:1px;background:#efefef;margin:20px 0;"></div>
+    <el-row class="MarginT_40">
+      <span class="PaddingR_10">操作时间</span>
+      <el-date-picker
+        v-model="startDate"
+        type="date"
+        placeholder="选择开始日期">
+      </el-date-picker>
+      --
+      <el-date-picker
+        v-model="endDate"
+        type="date"
+        placeholder="选择结束日期">
+      </el-date-picker>
+      <el-button type="primary" icon="el-icon-search">搜索</el-button>
+    </el-row>
+    <el-row class="MarginT_40">
+      <el-table
+      :data="accountData"
+      style="width: 100%">
+        <el-table-column
+          prop="accountS"
+          label="期初账户余额"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="accountRecharge"
+          label="充值金额"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="accountPayed"
+          label="支付金额">
+        </el-table-column>
+        <el-table-column
+          prop="accountS"
+          label="期末账户余额">
+        </el-table-column>
+        <el-table-column label="操作">
+          <template slot-scope="scope">
+            <el-button
+              size="mini"
+              @click="seeAccountDetail(scope.$index, scope.row)">查看明细</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-row>
+    <!-- <el-form class="CenterForm MarginT_40" :model="formInfo" ref="formInfo" label-width="120px">
       <el-form-item
         v-if="userRole == 1 || userRole == 2"
         class="TextAlignR"
@@ -114,14 +188,6 @@
             <img style="float: right" :src="formInfo.license" class="avatar">
           </el-col>
         </el-row>
-        <!-- <el-upload
-          class="avatar-uploader"
-          action=""
-          :show-file-list="false"
-          :before-upload="beforeAvatarUpload">
-          <img v-if="formInfo.license" :src="formInfo.license" class="avatar">
-          <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-        </el-upload> -->
       </el-form-item>
       <el-form-item
         class="TextAlignR"
@@ -134,10 +200,7 @@
           </el-col>
         </el-row>
       </el-form-item>
-      <!-- <el-form-item class="TextAlignR">
-        <el-button class="MarginT_40" type="primary" @click="onSubmit('formInfo')">保存修改</el-button>
-      </el-form-item> -->
-   </el-form>
+   </el-form> -->
   </div>
 </template>
 
@@ -148,6 +211,16 @@ export default {
   name: 'Center',
   data () {
     return {
+      startDate: '',
+      endDate: '',
+      accountData: [
+        {
+          accountS: 15000,
+          accountE: 12000,
+          accountPayed: 3000,
+          accountRecharge: 0
+        }
+      ],
       formInfo: {
         phone: '',
         bank: '',
@@ -223,6 +296,8 @@ export default {
         }
       })
     },
+    seeAccountDetail (index, row) {
+    },
     // 获取基本信息
     getBasicInfo () {
       send({
@@ -280,5 +355,12 @@ export default {
   background: #fff;
   margin: 20px 20px 60px 20px;
   padding: 20px;
+  .LeftTit{
+    width: 100px;
+    text-align: right;
+    color: #909399;
+    font-weight: bold;
+    display: inline-block;
+  }
 }
 </style>

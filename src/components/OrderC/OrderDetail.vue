@@ -244,9 +244,9 @@
         <el-col :span="12" class="TextAlignL">
           <el-input v-model='offer' placeholder='请输入您的报价金额' clearable></el-input>
         </el-col>
-        <el-col :span="8">
+        <!-- <el-col :span="8">
           <span style="line-height: 35px;color:red">（最高限价{{maxFee}}）</span>
-        </el-col>
+        </el-col> -->
       </el-row>
       <el-row class="MarginT_10">
         <el-col :span="4">
@@ -540,7 +540,6 @@ export default {
       }
     },
     changeFcity (id, type) {
-      console.log(id)
       this.getArea(id, 'fareaList')
       if (type !== 1) {
         this.formAdd.farea = ''

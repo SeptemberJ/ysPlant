@@ -158,6 +158,9 @@ form{
 .PaddingL_20{
   padding-left: 20px !important;
 }
+.PaddingR_10{
+  padding-right: 10px !important;
+}
 .PaddingL_10{
   padding-left: 10px !important;
 }
@@ -199,6 +202,10 @@ form{
   width: 178px;
   height: 178px;
   display: block;
+}
+.SpanInlineBlock{
+  width: 100%;
+  display: inline-block;
 }
 .el-menu{
 	border-right: 0px !important;

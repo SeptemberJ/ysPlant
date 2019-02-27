@@ -66,8 +66,8 @@ export default {
 	      // 信息框
 	      let opts = {
 	        width : 200,
-	        height: 80,
-	        title : '地址',
+	        height: 50,
+	        title : '温度',
 	        enableMessage:true,
 	        message: item.tips
 	      }
@@ -92,7 +92,7 @@ export default {
 						lat: item.Lat,
 						lng: item.Lon,
 						kind: 0,
-						tips: item.PlaceName
+						tips: item.tmp1
 					}
 					tempArray.push(obj)
 				})

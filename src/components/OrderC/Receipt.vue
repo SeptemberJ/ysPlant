@@ -52,11 +52,6 @@
             width="200"
             >
             <template slot-scope="scope">
-              <!-- <el-button v-if="scope.row.fstatus == 0"
-                size="mini"
-                type="danger"
-                @click="Receipt(scope.$index, scope.row)"> {{searchType == 0 ? '报价' : '接单'}}
-              </el-button> -->
               <el-button
                 size="mini"
                 type="primary"
@@ -185,7 +180,6 @@ export default {
     Receipt (idx, row) {
       this.orderIdReceipt = row.id
       this.maxFee = row.fmaxFee
-      // this.fee = row.ffee
       this.dialogFormVisible = true
       this.getDriverList()
     },
@@ -231,33 +225,6 @@ export default {
         console.log(res)
       })
     },
-    // 货主
-    // Assignment () {
-    //   send({
-    //     name: '/orderController/confirmOrder?driver_id=' + this.choosedLogistic + '&order_id=' + this.orderIdReceipt + '&ffee=' + this.fee,
-    //     method: 'GET'
-    //   }).then(res => {
-    //     if (res.data.code === 1) {
-    //       this.$message({
-    //         message: '报价成功！',
-    //         type: 'success'
-    //       })
-    //       if (this.searchType === 0 || this.searchType === '0') {
-    //         this.getOrderListNotAppoint()
-    //       } else {
-    //         this.getOrderList()
-    //       }
-    //       this.dialogFormVisible = false
-    //     } else {
-    //       this.$message({
-    //         message: res.data.message + '！',
-    //         type: 'error'
-    //       })
-    //     }
-    //   }).catch((res) => {
-    //     console.log(res)
-    //   })
-    // },
     changeTab (type) {
       this.searchType = type
       this.currentPage = 1
@@ -326,7 +293,6 @@ export default {
           temp.map(item => {
             item.ZHTime = secondToFormat(item.zhTime.time)
           })
-          console.log(temp)
           this.OrderList = temp
           this.sum = res.data.pageSize
         } else {

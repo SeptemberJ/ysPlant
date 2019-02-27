@@ -17,7 +17,16 @@
                 </template>
                 <el-menu-item-group>
                   <el-menu-item index="1-1" v-if="userRole == 2 || userRole == 5 || userRole == 3">订单列表</el-menu-item>
-                  <el-menu-item index="1-2" v-if="userRole == 2 || userRole == 5  || userRole == 3">订单新增</el-menu-item>
+                  <!-- add -->
+                  <!-- <el-menu-item index="1-2" v-if="userRole == 2 || userRole == 5  || userRole == 3">订单新增</el-menu-item> -->
+                  <el-submenu index="1-2" v-if="userRole == 2 || userRole == 5  || userRole == 3">
+                    <template slot="title">订单新增</template>
+                    <el-menu-item index="1-2-1">普货</el-menu-item>
+                    <el-menu-item index="1-2-2">危险品</el-menu-item>
+                    <el-menu-item index="1-2-3">冷藏品</el-menu-item>
+                  </el-submenu>
+
+                  <!-- add -->
                   <el-menu-item index="1-3" v-if="userRole == 1 || userRole == 4">订单查询</el-menu-item>
                   <el-menu-item index="1-4" v-if="userRole == 1 || userRole == 4">接单</el-menu-item>
                   <el-menu-item index="1-5" v-if="userRole == 2 || userRole == 5  || userRole == 3">实况查询</el-menu-item>
@@ -27,13 +36,17 @@
                 <i class="fa fa-users"></i>
                 <span slot="title">用户管理</span>
               </el-menu-item>
+              <el-menu-item index="4" v-if="userRole == 1 || userRole == 4">
+                <i class="fa fa-ticket"></i>
+                <span slot="title">开票订单</span>
+              </el-menu-item>
               <el-submenu index="3" v-if="userRole == 1 || userRole == 2 || userRole == 3">
                 <template slot="title">
                   <i class="fa fa-user-circle-o"></i>
                   <span>个人中心</span>
                 </template>
                 <el-menu-item-group>
-                  <el-menu-item index="3-1">基本信息</el-menu-item>
+                  <el-menu-item index="3-1">账户信息</el-menu-item>
                   <el-menu-item index="3-2">密码修改</el-menu-item>
                 </el-menu-item-group>
               </el-submenu>
@@ -48,23 +61,24 @@
                 <el-breadcrumb-item v-if="siderIdx == '1-4'"><span @click="backOrderList" class="CursorPointer">接单</span></el-breadcrumb-item>
                 <el-breadcrumb-item v-if="siderIdx == '1-3' && (userRole == 1 || userRole == 4)"><span @click="backOrderList" class="CursorPointer">订单查询</span></el-breadcrumb-item>
                 <el-breadcrumb-item v-if="ifSJOrderSearch && siderIdx == '1-3' && (userRole == 1 || userRole == 4)"><span @click="backSjList" class="CursorPointer">司机订单列表</span></el-breadcrumb-item>
-                <el-breadcrumb-item v-if="siderIdx == '1-2'">订单新增</el-breadcrumb-item>
+                <el-breadcrumb-item v-if="siderIdx == '1-2-1' || siderIdx == '1-2-2' || siderIdx == '1-2-3'">{{siderIdx == '1-2-1' ? '普货' : (siderIdx == '1-2-2' ? '危险品' : '冷藏品')}}订单新增</el-breadcrumb-item>
                 <el-breadcrumb-item v-if="showDetail && (siderIdx == '1-1' || siderIdx == '1-3' || siderIdx == '1-4')">订单详情</el-breadcrumb-item>
                 <el-breadcrumb-item v-if="siderIdx == '1-5' && (userRole == 2 || userRole == 5 || userRole == 3)">实况查询</el-breadcrumb-item>
                 <!-- 用户管理导航 -->
                 <el-breadcrumb-item v-if="siderIdx == '2'">用户管理</el-breadcrumb-item>
                 <!-- 个人中心导航 -->
                 <el-breadcrumb-item v-if="siderIdx == '3' || siderIdx == '3-1' || siderIdx == '3-2'">个人中心</el-breadcrumb-item>
-                <el-breadcrumb-item v-if="siderIdx == '3-1'">基本信息</el-breadcrumb-item>
+                <el-breadcrumb-item v-if="siderIdx == '3-1'">账户信息</el-breadcrumb-item>
                 <el-breadcrumb-item v-if="siderIdx == '3-2'">密码修改</el-breadcrumb-item>
               </el-breadcrumb>
             </div>
             <section>
               <Order v-if="siderIdx == '1-1'"/>
-              <AddOrder v-if="siderIdx == '1-2'"/>
+              <AddOrder v-if="siderIdx == '1-2-1' || siderIdx == '1-2-2' || siderIdx == '1-2-3'" :orderType="siderIdx"/>
               <OrderC v-if="siderIdx == '1-3'"/>
               <Receipt v-if="siderIdx == '1-4'"/>
               <Map v-if="siderIdx == '1-5'"/>
+              <Ticket v-if="siderIdx == '4'"/>
               <User v-if="siderIdx == '2'"/>
               <Center v-if="siderIdx == '3-1'"/>
               <Safe v-if="siderIdx == '3-2'"/>
@@ -86,6 +100,7 @@ import Receipt from '../components/OrderC/Receipt.vue'
 import Map from '../components/Map/Map.vue'
 import OrderC from '../components/OrderC/Order.vue'
 import AddOrder from '../components/Order/AddOrder.vue'
+import Ticket from '../components/Ticket/Ticket.vue'
 import Center from '../components/Center.vue'
 import User from '../components/User.vue'
 import Safe from '../components/Safe.vue'
@@ -102,6 +117,7 @@ export default {
     Receipt,
     Map,
     OrderC,
+    Ticket,
     Center,
     Safe
   },
@@ -109,6 +125,7 @@ export default {
     ...mapState({
       locationIdx: state => state.locationIdx,
       siderIdx: state => state.siderIdx,
+      addOrderType: state => state.addOrderType,
       showDetail: state => state.showDetail,
       ifSJOrderSearch: state => state.ifSJOrderSearch,
       userRole: state => state.userRole // 1-承运商主 2-货主主 4-承运商子 5-货主子 3-个人 searchOrderId: state => state.searchOrderId,
@@ -117,6 +134,7 @@ export default {
   methods: {
     ...mapActions([
       'changeSiderIdx',
+      'changeAddOrderType',
       'changeShowDetail',
       'changeIfSJOrderSearch'
     ]),
@@ -130,10 +148,16 @@ export default {
       this.changeShowDetail(false)
     },
     changeSideMenu (index, keyPath) {
-      if (keyPath.length > 1) {
-        this.changeSiderIdx(keyPath[1])
+      // console.log(index)
+      // console.log(keyPath)
+      let levelCount = keyPath.length
+      if (levelCount > 1) {
+        this.changeSiderIdx(keyPath[levelCount - 1])
         this.changeIfSJOrderSearch(false)
         this.changeShowDetail(false)
+        // if (levelCount === 3) {
+        //   this.changeAddOrderType(index)
+        // }
       } else {
         this.changeSiderIdx(keyPath[0])
         this.changeIfSJOrderSearch(false)
@@ -141,10 +165,10 @@ export default {
       }
     },
     handleOpen (key, keyPath) {
-      console.log(key, keyPath)
+      // console.log(key, keyPath)
     },
     handleClose (key, keyPath) {
-      console.log(key, keyPath)
+      // console.log(key, keyPath)
     }
   }
 }

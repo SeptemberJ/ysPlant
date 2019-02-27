@@ -14,16 +14,16 @@
       <el-form-item v-if="userRole == 1 || userRole == 2" label="联系电话" prop="tel">
         <el-input v-model="formInfo.tel" placeholder="请输入联系人手机号" clearable></el-input>
       </el-form-item>
-      <el-form-item v-if="userRole == 2" label="抬头" prop="taitou">
+      <el-form-item v-if="userRole == 1 || userRole == 2" label="抬头" prop="taitou">
         <el-input v-model="formInfo.taitou" placeholder="请输入抬头" clearable></el-input>
       </el-form-item>
-      <el-form-item v-if="userRole == 2" label="开户行" prop="bank">
+      <el-form-item v-if="userRole == 1 || userRole == 2" label="开户行" prop="bank">
         <el-input v-model="formInfo.bank" placeholder="请输入开户行" clearable></el-input>
       </el-form-item>
-      <el-form-item v-if="userRole == 2" label="银行账号" prop="bankNo">
+      <el-form-item v-if="userRole == 1 || userRole == 2" label="银行账号" prop="bankNo">
         <el-input v-model="formInfo.bankNo" placeholder="请输入银行账号" clearable></el-input>
       </el-form-item>
-      <el-form-item v-if="userRole == 2" label="税号" prop="tax">
+      <el-form-item v-if="userRole == 1 || userRole == 2" label="税号" prop="tax">
         <el-input v-model="formInfo.tax" placeholder="请输入税号" clearable></el-input>
       </el-form-item>
       <!-- ID -->
@@ -356,6 +356,10 @@ export default {
         company_licence: this.licenseImgName,
         company_contract: this.contractImgName,
         company_phone: this.formInfo.tel
+        // tai_tou: this.formInfo.taitou,
+        // f_bank: this.formInfo.bank,
+        // f_bank_no: this.formInfo.bankNo,
+        // tax_number: this.formInfo.tax
       }
       let stObg = JSON.stringify(DATA)
       this.ifLoading = true

@@ -132,7 +132,7 @@
           </el-table-column>
           <el-table-column
             prop="ffee"
-            label="报价">
+            label="报价(¥)">
           </el-table-column>
           <el-table-column
             prop="fmobile"
@@ -186,31 +186,30 @@ export default {
       orderList: [],
       carTypeList: [],
       goodsTypeList: [],
-      selectedOrder: [
-      ],
-      jsonFields: {
-        order_no: 'String',
-        fstatusTxt: 'String',
-        goods_name: 'String',
-        fh_name: 'String',
-        fh_telephone: 'String',
-        origin: 'String',
-        fh_address: 'String',
-        sh_name: 'String',
-        sh_telephone: 'String',
-        destination: 'String',
-        sh_address: 'String',
-        carType: 'String',
-        zhTime: 'String',
-        isFapiao: 'String',
-        ffee: 'String'
-      },
-      json_meta: [
-        [{
-          key: 'charset',
-          value: 'utf-8'
-        }]
-      ],
+      selectedOrder: [],
+      // jsonFields: {
+      //   order_no: 'String',
+      //   fstatusTxt: 'String',
+      //   goods_name: 'String',
+      //   fh_name: 'String',
+      //   fh_telephone: 'String',
+      //   origin: 'String',
+      //   fh_address: 'String',
+      //   sh_name: 'String',
+      //   sh_telephone: 'String',
+      //   destination: 'String',
+      //   sh_address: 'String',
+      //   carType: 'String',
+      //   zhTime: 'String',
+      //   isFapiao: 'String',
+      //   ffee: 'String'
+      // },
+      // json_meta: [
+      //   [{
+      //     key: 'charset',
+      //     value: 'utf-8'
+      //   }]
+      // ],
       offerList: []
       // positionData: [{ID: '00', Name: '123'}]
     }
@@ -229,7 +228,6 @@ export default {
     this.getGoodsType()
   },
   components: {
-    // 'downloadExcel': JsonExcel,
     OrderDetail
   },
   methods: {
@@ -243,7 +241,6 @@ export default {
         let obj = {
           order_no: Order.order_no,
           fstatusTxt: Order.fstatusTxt,
-          // goods_name: Order.goods_name,
           goods_name: this.checkGoodsType(Order.goods_name),
           fh_name: Order.fh_name,
           fh_telephone: Order.fh_telephone,
@@ -410,6 +407,7 @@ export default {
         }
       }
     },
+    // 根据货物id返回中文名称
     checkGoodsType (goodsTypeId) {
       let len = this.goodsTypeList.length
       for (let i = 0; i < len; i++) {
@@ -442,7 +440,7 @@ export default {
       }
       require.ensure([], () => {
         const { exportJsonToExcel } = require('@/vendor/Export2Excel.js')
-        const tHeader = ['订单号', '订单状态', '货物类型', '发货人', '手机号', '发货地', '街道', '发货人', '手机号', '收货地', '街道', '车型', '装货日期', '开具发票', '报价']
+        const tHeader = ['订单号', '订单状态', '货物类型', '发货人', '手机号', '发货地', '街道', '发货人', '手机号', '收货地', '街道', '车型', '装货日期', '开具发票', '报价(¥)']
         const filterVal = ['order_no', 'fstatusTxt', 'goods_name', 'fh_name', 'fh_telephone', 'origin', 'fh_address', 'sh_name', 'sh_telephone', 'destination', 'sh_address', 'carType', 'zhTime', 'isFapiao', 'ffee']
         const data = this.formatJson(filterVal, this.selectedOrder)
         exportJsonToExcel(tHeader, data, '订单')
@@ -455,7 +453,6 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="less" scoped>
 .Order{
   margin: 20px 20px 60px 20px;
