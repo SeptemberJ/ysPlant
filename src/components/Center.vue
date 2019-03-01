@@ -1,6 +1,6 @@
 <template>
   <div class="Center">
-    <el-row v-if="userRole == 1 || userRole == 2">
+    <!-- <el-row v-if="userRole == 1 || userRole == 2">
       <el-col :span="8" class="TextAlignL">
         <div class="MarginT_10">
           <span class="LeftTit">企业名称：</span>
@@ -80,8 +80,8 @@
           </template>
         </el-table-column>
       </el-table>
-    </el-row>
-    <!-- <el-form class="CenterForm MarginT_40" :model="formInfo" ref="formInfo" label-width="120px">
+    </el-row> -->
+    <el-form class="CenterForm MarginT_40" :model="formInfo" ref="formInfo" label-width="120px">
       <el-form-item
         v-if="userRole == 1 || userRole == 2"
         class="TextAlignR"
@@ -200,7 +200,7 @@
           </el-col>
         </el-row>
       </el-form-item>
-   </el-form> -->
+   </el-form>
   </div>
 </template>
 
@@ -266,36 +266,36 @@ export default {
     this.getBasicInfo()
   },
   methods: {
-    beforeAvatarUpload (file) {
-      console.log('-------------------')
-      console.log(file)
-      var _this = this
-      var reader = new FileReader()
-      reader.readAsDataURL(file)
-      if (file.size > 1024000 * 2) {
-        this.$message({
-          message: '您上传的图片太大了, 请不要超过2M!',
-          type: 'warning'
-        })
-        return false
-      }
-      reader.onload = function (e) {
-        _this.formInfo.license = this.result
-      }
-    },
-    onSubmit (formName) {
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
+    // beforeAvatarUpload (file) {
+    //   console.log('-------------------')
+    //   console.log(file)
+    //   var _this = this
+    //   var reader = new FileReader()
+    //   reader.readAsDataURL(file)
+    //   if (file.size > 1024000 * 2) {
+    //     this.$message({
+    //       message: '您上传的图片太大了, 请不要超过2M!',
+    //       type: 'warning'
+    //     })
+    //     return false
+    //   }
+    //   reader.onload = function (e) {
+    //     _this.formInfo.license = this.result
+    //   }
+    // },
+    // onSubmit (formName) {
+    //   this.$refs[formName].validate((valid) => {
+    //     if (valid) {
 
-        } else {
-          this.$message({
-            message: '请将信息填写完整！',
-            type: 'warning'
-          })
-          return false
-        }
-      })
-    },
+    //     } else {
+    //       this.$message({
+    //         message: '请将信息填写完整！',
+    //         type: 'warning'
+    //       })
+    //       return false
+    //     }
+    //   })
+    // },
     seeAccountDetail (index, row) {
     },
     // 获取基本信息

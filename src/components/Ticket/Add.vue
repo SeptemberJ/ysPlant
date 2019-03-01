@@ -92,12 +92,10 @@
             :label="item.fname"
             :value="item.id">
             <span style="float: left">{{ item.fname }}</span>
-            <!-- <span style="float: right; color: #8492a6; font-size: 13px">{{ item.fcarno }} <span class="PaddingL_10">{{item.fmobile}}</span></span> -->
           </el-option>
         </el-select>
         <span style="width: 150px;display:inline-block">手机号：{{sjPhone}}</span>
         <span style="width: 150px;display:inline-block">牌照：{{sjLicensePlate}}</span>
-        <!-- <el-input v-model="formAdd.fdriverId" clearable></el-input> -->
       </el-form-item>
       <el-form-item prop="floadingTime" label="装货时间">
         <el-date-picker
@@ -232,7 +230,7 @@
       </el-row>
 
       <el-form-item prop="fremarks" label="备注">
-        <el-input type="textarea" v-model="formAdd.fremarks" clearable></el-input>
+        <el-input type="textarea" v-model="formAdd.fremarks" :maxlength="50" placeholder="最多输入50个字"></el-input>
       </el-form-item>
       <el-row>
         <el-col :span="24" class="TextAlignC">
@@ -363,9 +361,7 @@ export default {
     this.getDriverList()
   },
   methods: {
-    changedate () {
-      console.log(this.value1)
-    },
+    // 获取货物类型下拉
     getGoodsType () {
       send({
         name: '/typeController/list',
@@ -380,6 +376,7 @@ export default {
         console.log(res)
       })
     },
+    // 选择司机
     changeDriver (id) {
       this.LogisticsList.find(Logistic => {
         if (Logistic.id === id) {
@@ -398,6 +395,7 @@ export default {
         }
       })
     },
+    // 新增开票订单
     onSubmit (formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
@@ -411,8 +409,8 @@ export default {
         }
       })
     },
+    // 数据清空初始化
     clearDataABack () {
-      // clear data
       this.formAdd = {
         fdestination: '',
         fdriverId: '',
@@ -447,6 +445,7 @@ export default {
         sarea: ''
       }
     },
+    // 提交开票订单
     sureAdd () {
       let DATA = {
         fdestination: this.formAdd.sarea,
@@ -473,9 +472,9 @@ export default {
         ftransportCount: this.formAdd.ftransportCount,
         ftransportPrice: this.formAdd.ftransportPrice,
         // id: this.formAdd.,
-        zregisterId: this.userId
+        fregisterId: this.userId
       }
-      console.log(DATA)
+      // console.log(DATA)
       this.ifLoading = true
       send({
         name: '/zInvoiceOrderController',
@@ -502,27 +501,29 @@ export default {
         this.ifLoading = false
       })
     },
+    // 改变发货地省
     changeFprovince (id) {
-      console.log(id)
       this.getCity(id, 'fcityList')
       this.formAdd.fcity = ''
       this.formAdd.farea = ''
       this.formAdd.max_price = ''
     },
+    // 改变发货地区
     changeFcity (id) {
-      console.log(id)
       this.getArea(id, 'fareaList')
       this.formAdd.farea = ''
       this.formAdd.max_price = ''
     },
     changeFarea (id) {
     },
+    // 改变收货地省
     changeSprovince (id) {
       this.getCity(id, 'scityList')
       this.formAdd.scity = ''
       this.formAdd.sarea = ''
       this.formAdd.max_price = ''
     },
+    // 改变收货地区
     changeScity (id) {
       this.getArea(id, 'sareaList')
       this.formAdd.sarea = ''
@@ -530,6 +531,7 @@ export default {
     },
     changeSarea (id) {
     },
+    // 获取省下拉
     getProvince () {
       send({
         name: '/registerDriverController/regionSelect?pid=' + this.fProvincePid,
@@ -545,6 +547,7 @@ export default {
         console.log(res)
       })
     },
+    // 获取市下拉
     getCity (id, property) {
       send({
         name: '/registerDriverController/regionSelect?pid=' + id,
@@ -559,6 +562,7 @@ export default {
         console.log(res)
       })
     },
+    // 获取区下拉
     getArea (id, property) {
       send({
         name: '/registerDriverController/regionSelect?pid=' + id,
@@ -573,6 +577,7 @@ export default {
         console.log(res)
       })
     },
+    // 获取司机下拉
     getDriverList () {
       send({
         name: '/zRegisterController/driverListNoPage?fid=' + this.userId,
@@ -596,7 +601,6 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="less" scoped>
 .Order{
   background: #fff;

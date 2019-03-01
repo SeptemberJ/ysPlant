@@ -5,7 +5,6 @@
         <img src="../../static/images/Strongth_1.jpg" class="leftImg">
       </el-col>
       <el-col :span="12">
-     <!--  <el-col :span="12" :offset="10"> -->
         <el-form class="FormBox" :model="formSign" :rules="SignRules" ref="formSign" label-width="80px">
           <el-form-item label="账户类型" prop="role">
             <el-radio-group v-model="formSign.role">
@@ -35,9 +34,7 @@
           <el-form-item>
             <el-button type="primary" @click="onSubmit('formSign')" :loading="ifLoading" style="width: 100px;">确认</el-button>
             <el-button @click="backLogin" style="width: 100px;">返回登陆</el-button>
-            <!-- <el-button  @click="onSubmit" style="background: #e0b32b !important;">确认</el-button> -->
           </el-form-item>
-          <!-- <div class="BgBlock"></div> -->
         </el-form>
       </el-col>
     </el-row>
@@ -68,15 +65,6 @@ export default {
         callback()
       }
     }
-    // var validateRecommenderPhone = (rule, value, callback) => {
-    //   if (value.trim() === '') {
-    //     callback(new Error('请输入推荐人手机号！'))
-    //   } else if (!(/^1[34578]\d{9}$/.test(value))) {
-    //     callback(new Error('推荐人手机号格式不正确!'))
-    //   } else {
-    //     callback()
-    //   }
-    // }
     return {
       ifLoading: false,
       formSign: {
@@ -112,21 +100,12 @@ export default {
     }
   },
   created () {
-    // send({
-    //   name: '/device2',
-    //   method: 'POST',
-    //   authToken: '123321',
-    //   data: {
-    //   }
-    // }).then(_res => {
-    // }).catch((_res) => {
-    //   console.log(_res)
-    // })
   },
   methods: {
     ...mapActions([
       'changeLocationIdx'
     ]),
+    // 提交注册
     onSubmit (formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
@@ -178,10 +157,12 @@ export default {
         }
       })
     },
+    // 返回登陆
     backLogin () {
       this.$router.push({name: 'Login'})
       this.changeLocationIdx(0)
     },
+    // 获取验证码
     toGetCode () {
       if (this.formSign.accountName.trim() === '') {
         this.$message({
@@ -201,6 +182,7 @@ export default {
         this.getCode()
       }
     },
+    // 发送验证码
     getCode () {
       send({
         name: '/tokens/SMScode?fmobile=' + this.formSign.accountName,
@@ -221,6 +203,7 @@ export default {
         console.log(res)
       })
     },
+    // 倒计时
     CountDownFN () {
       let Timer = setTimeout(() => {
         this.CountDownFN()
@@ -240,7 +223,6 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="less" scoped>
 .Sign{
   width:90%;

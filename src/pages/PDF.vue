@@ -23,9 +23,6 @@
       <p>帐号联系人签字：</p>
       <P style="text-align: right;">日期：____年____月____日</P>
     </div>
-    <!-- <div class="TextAlignC" style="width: 100%;background:#fff;position:absolute;bottom: -100px;">
-      <el-button class="MarginT_20" type="primary" @click="SavePdf">下载</el-button>
-    </div> -->
   </div>
 </template>
 <script src="https://cdn.bootcss.com/bluebird/3.5.3/bluebird.min.js"></script>
@@ -34,7 +31,6 @@
 <script>
 import { mapState } from 'vuex'
 import {send} from '../util/send'
-// import {setCookie, Encrypt, Decrypt} from '../util/utils'
 export default {
   name: 'Login',
   data () {
@@ -49,6 +45,7 @@ export default {
   created () {
   },
   methods: {
+    // PDF保存
     SavePdf() {
       html2canvas(document.getElementById("page"), {
         scale: 0,
@@ -78,7 +75,6 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="less" scoped>
 .PDF{
   min-width: 1024px;

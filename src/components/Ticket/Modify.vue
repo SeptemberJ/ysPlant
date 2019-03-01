@@ -5,7 +5,6 @@
         <el-col :span="24">
           <el-form-item prop="forderNo" label="订单号">
             <span class="TextAlignL SpanInlineBlock">{{formAdd.forderNo}}</span>
-            <!-- <el-input v-model="formAdd.forderNo" disabled></el-input> -->
           </el-form-item>
         </el-col>
         <el-col :span="12">
@@ -98,12 +97,10 @@
             :label="item.fname"
             :value="item.id">
             <span style="float: left">{{ item.fname }}</span>
-            <!-- <span style="float: right; color: #8492a6; font-size: 13px">{{ item.fcarno }} <span class="PaddingL_10">{{item.fmobile}}</span></span> -->
           </el-option>
         </el-select>
         <span style="width: 150px;display:inline-block">手机号：{{sjPhone}}</span>
         <span style="width: 150px;display:inline-block">牌照：{{sjLicensePlate}}</span>
-        <!-- <el-input v-model="formAdd.fdriverId" clearable></el-input> -->
       </el-form-item>
       <el-form-item prop="floadingTime" label="装货时间">
         <el-date-picker
@@ -238,7 +235,7 @@
       </el-row>
 
       <el-form-item prop="fremarks" label="备注">
-        <el-input type="textarea" v-model="formAdd.fremarks" clearable></el-input>
+        <el-input type="textarea" v-model="formAdd.fremarks" :maxlength="50" placeholder="最多输入50个字"></el-input>
       </el-form-item>
       <el-row>
         <el-col :span="24" class="TextAlignC">
@@ -372,6 +369,7 @@ export default {
     this.getDriverList()
   },
   methods: {
+    // 获取货物类型下拉
     getGoodsType () {
       send({
         name: '/typeController/list',
@@ -386,6 +384,7 @@ export default {
         console.log(res)
       })
     },
+    // 选择司机
     changeDriver (id) {
       this.LogisticsList.find(Logistic => {
         if (Logistic.id === id) {
@@ -404,6 +403,7 @@ export default {
         }
       })
     },
+    // 提交修改
     onSubmit (formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
@@ -417,8 +417,8 @@ export default {
         }
       })
     },
+    // 数据清空初始化
     clearDataABack () {
-      // clear data
       this.formAdd = {
         fdestination: '',
         fdriverId: '',
@@ -453,6 +453,7 @@ export default {
         sarea: ''
       }
     },
+    // 开票订单修改
     sureModify () {
       let DATA = {
         fdestination: this.formAdd.sarea,
@@ -479,9 +480,9 @@ export default {
         ftransportCount: this.formAdd.ftransportCount,
         ftransportPrice: this.formAdd.ftransportPrice,
         id: this.orderId,
-        zregisterId: this.userId
+        fregisterId: this.userId
       }
-      console.log(DATA)
+      // console.log(DATA)
       this.ifLoading = true
       send({
         name: '/zInvoiceOrderController/' + this.orderId,
@@ -508,6 +509,7 @@ export default {
         this.ifLoading = false
       })
     },
+    // 改变发货地省
     changeFprovince (id, type) {
       this.getCity(id, 'fcityList')
       if (type !== 1) {
@@ -515,8 +517,8 @@ export default {
         this.formAdd.farea = ''
       }
     },
+    // 改变发货地区
     changeFcity (id, type) {
-      console.log(id)
       this.getArea(id, 'fareaList')
       if (type !== 1) {
         this.formAdd.farea = ''
@@ -524,6 +526,7 @@ export default {
     },
     changeFarea (id) {
     },
+    // 改变收货地省
     changeSprovince (id, type) {
       this.getCity(id, 'scityList')
       if (type !== 1) {
@@ -531,6 +534,7 @@ export default {
         this.formAdd.sarea = ''
       }
     },
+    // 改变收货地区
     changeScity (id, type) {
       this.getArea(id, 'sareaList')
       if (type !== 1) {
@@ -539,6 +543,7 @@ export default {
     },
     changeSarea (id) {
     },
+    // 获取省下拉
     getProvince () {
       send({
         name: '/registerDriverController/regionSelect?pid=' + this.fProvincePid,
@@ -554,6 +559,7 @@ export default {
         console.log(res)
       })
     },
+    // 获取市下拉
     getCity (id, property) {
       send({
         name: '/registerDriverController/regionSelect?pid=' + id,
@@ -568,6 +574,7 @@ export default {
         console.log(res)
       })
     },
+    // 获取区下拉
     getArea (id, property) {
       send({
         name: '/registerDriverController/regionSelect?pid=' + id,
@@ -582,6 +589,7 @@ export default {
         console.log(res)
       })
     },
+    // 获取司机下拉
     getDriverList () {
       send({
         name: '/zRegisterController/driverListNoPage?fid=' + this.userId,
@@ -601,6 +609,7 @@ export default {
         console.log(res)
       })
     },
+    // 获取开票订单详情
     getOrderDetail () {
       send({
         name: '/zInvoiceOrderController/invoiceDetail?id=' + this.orderId,
@@ -665,7 +674,6 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="less" scoped>
 .Order{
   background: #fff;

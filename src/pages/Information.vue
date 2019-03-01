@@ -2,31 +2,34 @@
   <div class="InfoBox">
     <p class="ColorYellow">{{checkStatus == -1 ? '请填写您的信息！' : (checkStatus == 0 ? '您的信息正在等待审核！' : '您的信息未通过审核，请重新填写！')}}</p>
     <el-form class="FormBox" :model="formInfo" :rules="InfoRules" ref="formInfo" label-width="200px">
+      <!-- 货主和承运商 -->
       <el-form-item v-if="userRole == 1 || userRole == 2" label="公司名称" prop="company">
         <el-input v-model="formInfo.company" placeholder="请输入公司名称" clearable></el-input>
       </el-form-item>
       <el-form-item v-if="userRole == 1 || userRole == 2" label="联系人" prop="contact">
         <el-input v-model="formInfo.contact" placeholder="请输入联系人" clearable></el-input>
       </el-form-item>
+      <!-- 个体司机 -->
       <el-form-item v-if="userRole == 3" label="身份证" prop="ID">
         <el-input v-model="formInfo.ID" placeholder="请输入身份证号" clearable></el-input>
       </el-form-item>
       <el-form-item v-if="userRole == 1 || userRole == 2" label="联系电话" prop="tel">
         <el-input v-model="formInfo.tel" placeholder="请输入联系人手机号" clearable></el-input>
       </el-form-item>
-      <el-form-item v-if="userRole == 1 || userRole == 2" label="抬头" prop="taitou">
+      <!-- 货主 -->
+      <el-form-item v-if="userRole == 2" label="抬头" prop="taitou">
         <el-input v-model="formInfo.taitou" placeholder="请输入抬头" clearable></el-input>
       </el-form-item>
-      <el-form-item v-if="userRole == 1 || userRole == 2" label="开户行" prop="bank">
+      <el-form-item v-if="userRole == 2" label="开户行" prop="bank">
         <el-input v-model="formInfo.bank" placeholder="请输入开户行" clearable></el-input>
       </el-form-item>
-      <el-form-item v-if="userRole == 1 || userRole == 2" label="银行账号" prop="bankNo">
+      <el-form-item v-if="userRole == 2" label="银行账号" prop="bankNo">
         <el-input v-model="formInfo.bankNo" placeholder="请输入银行账号" clearable></el-input>
       </el-form-item>
-      <el-form-item v-if="userRole == 1 || userRole == 2" label="税号" prop="tax">
+      <el-form-item v-if="userRole == 2" label="税号" prop="tax">
         <el-input v-model="formInfo.tax" placeholder="请输入税号" clearable></el-input>
       </el-form-item>
-      <!-- ID -->
+      <!-- 个体司机 -->
       <el-form-item v-if="userRole == 3" label="身份证正面" prop="license">
         <el-upload
           class="avatar-uploader"
@@ -49,7 +52,7 @@
           <i v-else class="el-icon-plus avatar-uploader-icon"></i>
         </el-upload>
       </el-form-item>
-      <!-- ID -->
+      <!-- 货主和承运商 -->
       <el-form-item v-if="userRole == 1 || userRole == 2" label="营业执照" prop="license">
         <el-upload
           class="avatar-uploader"
@@ -102,7 +105,6 @@ export default {
       }
     }
     return {
-      // ImgURL_PREFIX: 'http://116.62.171.244:8082/yingsu/',
       agreed: false,
       ifLoading: false,
       checkStatus: 0,
@@ -171,19 +173,16 @@ export default {
       'changPDFCompany'
     ]),
     handleAvatarSuccess (res, file) {
-      // this.formInfo.license = URL.createObjectURL(file.raw)
     },
+    // 同意协议勾选
     showAgreement () {
       this.$alert('<div style="height: 300px;overflow-y:scroll;"><h5>一 服务条款确认</h5><p>在接受本服务条款之前，请您仔细阅读本服务条款的全部内容。如果您对本服务条款的条款有疑问的，无车承运将向您解释条款内容。如果您不同意本服务条款的任意内容，或者无法准确理解条款的解释，请不要进行后续操作。 本服务条款的效力范围及于无车承运的一切产品和服务，用户在享受无车承运任何单项服务时，应当受本服务条款的约束。当用户使用无车承运各单项服务时，用户的使用行为视为其对该单项服务的服务条款以及无车承运在该单项服务中发出的各类公告的同意。 用户通过进入注册程序使用服务，即表示用户与无车承运已达成协议，自愿接受本服务条款的所有内容。[1]</p><h5>二 声明及承诺 </h5><p>1 您以任何方式使用本公司所提供的服务，即表示您已充分阅读、理解并接受本协议的全部内容，一旦您使用本服务，即表示您同意遵循本协议之所有约定。</p><p>2 本公司可随时自行全权决定更改“条款”。如“条款”有任何变更，本公司将在其网站上刊载公告，无需另行单独通知您。公告后，一旦您继续使用“服务”，则表示您已接受经修订的“条款”，如您不同意相关变更，必须停止使用“服务”。</p><p>3 在您完成注册程序或以其他无车承运允许的方式实际使用无车承运服务时，您应当是具备完全民事行为权利和完全民事能力的自然人、法人或其他组织。若您不具备前述主体资格，则您及您的监护人应承担因此而导致的一切后果，且无车承运有权注销或永久冻结您的账户，并向您及您的监护人索偿相应损失。</p><h5>三 收费及续费</h5><p>1 无车承运保留在服务条款确认后，收取服务费用或者是改变服务费用的权利。本公司保留在无须发出书面通知，仅在无车承运官网网站公示的情况下，暂时或永久地更改或停止部分或全部“服务”的权利。</p><p>2 服务期满双方愿意继续合作的，您至少应在服务期满前7天内支付续费款项，以使服务得以继续进行。如续费时无车承运对无车承运服务体系、名称或价格进行调整的，双方同意按照届时有效的新的服务体系、名称或价格履行，但调整前您已经支付的款项不受影响。</p><p>3 延期续费 服务到期后，如果未续费，则视为服务终止。本公司没有义务替您保留账号及与之相关的数据，如果您超过60日没有支付相关费用，这些数据有可能被永久删除，本公司对此不承担任何责任。如果您延期续费，则需补全拖欠费用期间的与之相对应的服务费用。</p><p>4 无车承运保留在您未按照约定支付全部费用之前不向您提供服务和技术支持，或者终止服务和技术支持的权利。</p></div>', '使用许可及服务协议', {
         dangerouslyUseHTMLString: true,
         confirmButtonText: '关闭'
       })
     },
+    // 查看合同PDF
     ToPdf () {
-      // let routeData = this.$router.resolve({
-      //   name: 'PDF',
-      //   params:{name: this.formInfo.company}
-      // })
       this.changPDFCompany(this.formInfo.company)
       let routeData = this.$router.resolve({name: 'PDF', params: {name: this.formInfo.company}})
       window.open(routeData.href, '_blank')
@@ -258,44 +257,6 @@ export default {
               this.submitGR()
               break
           }
-          // let DATA = {
-          //   id: this.userId,
-          //   company_name: this.formInfo.company,
-          //   company_lxr: this.formInfo.contact,
-          //   company_licence: this.licenseImgName,
-          //   company_contract: this.contractImgName,
-          //   company_phone: this.formInfo.tel,
-          //   tai_tou: this.formInfo.taitou,
-          //   f_bank: this.formInfo.bank,
-          //   f_bank_no: this.formInfo.bankNo,
-          //   tax_number: this.formInfo.tax
-          // }
-          // let stObg = JSON.stringify(DATA)
-          // this.ifLoading = true
-          // send({
-          //   name: '/zRegisterController/doUpdateHZ?jsonHZ=' + stObg,
-          //   method: 'POST',
-          //   data: {
-          //   }
-          // }).then(res => {
-          //   if (res.data.code === 1) {
-          //     this.checkStatus = 0
-          //     this.$message({
-          //       message: '信息提交成功，等待审核！',
-          //       type: 'success'
-          //     })
-          //     this.ifLoading = false
-          //   } else {
-          //     this.$message({
-          //       message: res.data.message + '！',
-          //       type: 'error'
-          //     })
-          //     this.ifLoading = false
-          //   }
-          // }).catch((res) => {
-          //   console.log(res)
-          //   this.ifLoading = false
-          // })
         } else {
           this.$message({
             message: '请将信息填写完整！',
@@ -426,7 +387,6 @@ export default {
     // 获取基本信息
     getBasicInfo () {
       send({
-        // name: '/zRegisterController/registerInfo?id=' + this.userId,
         name: '/zRegisterController/' + this.userId,
         method: 'GET',
         data: {
@@ -443,7 +403,6 @@ export default {
           this.formInfo.company = Info.companyName
           this.formInfo.contact = Info.companyLxr
           this.formInfo.tel = Info.companyPhone
-          // this.formInfo.role = (Info.ftype === '1' ? '承运商' : '货主')
 
           this.formInfo.tax = Info.taxNumber
           this.formInfo.taitou = Info.taiTou
@@ -479,7 +438,6 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="less" scoped>
 .InfoBox{
   width: 600px;

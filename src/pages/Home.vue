@@ -17,16 +17,14 @@
                 </template>
                 <el-menu-item-group>
                   <el-menu-item index="1-1" v-if="userRole == 2 || userRole == 5 || userRole == 3">订单列表</el-menu-item>
-                  <!-- add -->
-                  <!-- <el-menu-item index="1-2" v-if="userRole == 2 || userRole == 5  || userRole == 3">订单新增</el-menu-item> -->
+                  <!-- 货主add -->
                   <el-submenu index="1-2" v-if="userRole == 2 || userRole == 5  || userRole == 3">
                     <template slot="title">订单新增</template>
                     <el-menu-item index="1-2-1">普货</el-menu-item>
                     <el-menu-item index="1-2-2">危险品</el-menu-item>
                     <el-menu-item index="1-2-3">冷藏品</el-menu-item>
                   </el-submenu>
-
-                  <!-- add -->
+                  <!-- 承运商add -->
                   <el-menu-item index="1-3" v-if="userRole == 1 || userRole == 4">订单查询</el-menu-item>
                   <el-menu-item index="1-4" v-if="userRole == 1 || userRole == 4">接单</el-menu-item>
                   <el-menu-item index="1-5" v-if="userRole == 2 || userRole == 5  || userRole == 3">实况查询</el-menu-item>

@@ -1,7 +1,8 @@
 <template>
   <div class="Order">
     <el-row v-if="!showDetail" style="background: #fff;padding: 20px;">
-      <!-- <el-col :span="24"  class="MarginTB_20 TextAlignR">
+      <!-- 原本可根据订单号查询某条订单
+      <el-col :span="24"  class="MarginTB_20 TextAlignR">
         <el-input style='width:250px;' v-model='searOrderNo' placeholder='请输入查询的订单号' clearable></el-input>
         <el-button type="primary" icon="el-icon-search" @click="searchOrder">查询</el-button>
       </el-col> -->
@@ -33,11 +34,6 @@
             width="170"
             label="装货日期">
           </el-table-column>
-          <!-- <el-table-column
-            prop="goodsName"
-            label="货物名称"
-            show-overflow-tooltip>
-          </el-table-column> -->
           <el-table-column
             prop="fhName"
             label="发货人">
@@ -73,7 +69,7 @@
       </el-col>
     </el-row>
     <OrderDetail v-if="showDetail" :orderId="orderId" :searchType="searchType" @toggleOrderDetail='changeIfOrderDetail'/>
-    <el-dialog title="派单" :visible.sync="dialogFormVisible" width="550px">
+    <!-- <el-dialog title="派单" :visible.sync="dialogFormVisible" width="550px">
       <el-row>
         <el-col :span="4">
           <span style="line-height: 35px;">报价金额：</span>
@@ -106,7 +102,7 @@
         <el-button @click="dialogFormVisible = false">取 消</el-button>
         <el-button type="primary" @click="sureOffer">确 定</el-button>
       </div>
-    </el-dialog>
+    </el-dialog> -->
   </div>
 </template>
 
@@ -152,11 +148,11 @@ export default {
     }
   },
   watch: {
-    searOrderNo: function (val) {
-      if (val === '') {
-        this.searchOrder()
-      }
-    }
+    // searOrderNo: function (val) { // 若订单清空则查询当前类型的待接单
+    //   if (val === '') {
+    //     this.searchOrder()
+    //   }
+    // }
   },
   components: {
     OrderDetail
@@ -170,6 +166,7 @@ export default {
     },
     handleSizeChange () {
     },
+    // 页码改变重新获取订单列表
     handleCurrentChange () {
       if (this.searchType === 0) {
         this.getOrderListNotAppoint()
@@ -177,54 +174,55 @@ export default {
         this.getOrderList()
       }
     },
-    Receipt (idx, row) {
-      this.orderIdReceipt = row.id
-      this.maxFee = row.fmaxFee
-      this.dialogFormVisible = true
-      this.getDriverList()
-    },
-    sureOffer () {
-      if (this.maxFee < this.ffee) {
-        this.$message({
-          message: '报价超过了最高限价！',
-          type: 'error'
-        })
-        return false
-      }
-      let DATA = {
-        registerId: this.userId,
-        driverId: this.choosedLogistic,
-        orderId: this.orderIdReceipt,
-        orderStatus: '5',
-        ffee: this.offer,
-        createDate: new Date()
-      }
-      send({
-        name: '/driverOrderController',
-        method: 'POST',
-        data: DATA
-      }).then(res => {
-        if (res.data.respCode === '0') {
-          this.$message({
-            message: '报价成功！',
-            type: 'success'
-          })
-          if (this.searchType === 0 || this.searchType === '0') {
-            this.getOrderListNotAppoint()
-          } else {
-            this.getOrderList()
-          }
-          this.dialogFormVisible = false
-        } else {
-          this.$message({
-            message: res.data.message + '！',
-            type: 'error'
-          })
-        }
-      }).catch((res) => {
-        console.log(res)
-      })
-    },
+    // Receipt (idx, row) {
+    //   this.orderIdReceipt = row.id
+    //   this.maxFee = row.fmaxFee
+    //   this.dialogFormVisible = true
+    //   this.getDriverList()
+    // },
+    // sureOffer () {
+    //   if (this.maxFee < this.ffee) {
+    //     this.$message({
+    //       message: '报价超过了最高限价！',
+    //       type: 'error'
+    //     })
+    //     return false
+    //   }
+    //   let DATA = {
+    //     registerId: this.userId,
+    //     driverId: this.choosedLogistic,
+    //     orderId: this.orderIdReceipt,
+    //     orderStatus: '5',
+    //     ffee: this.offer,
+    //     createDate: new Date()
+    //   }
+    //   send({
+    //     name: '/driverOrderController',
+    //     method: 'POST',
+    //     data: DATA
+    //   }).then(res => {
+    //     if (res.data.respCode === '0') {
+    //       this.$message({
+    //         message: '报价成功！',
+    //         type: 'success'
+    //       })
+    //       if (this.searchType === 0 || this.searchType === '0') {
+    //         this.getOrderListNotAppoint()
+    //       } else {
+    //         this.getOrderList()
+    //       }
+    //       this.dialogFormVisible = false
+    //     } else {
+    //       this.$message({
+    //         message: res.data.message + '！',
+    //         type: 'error'
+    //       })
+    //     }
+    //   }).catch((res) => {
+    //     console.log(res)
+    //   })
+    // },
+    // Tab事件
     changeTab (type) {
       this.searchType = type
       this.currentPage = 1
@@ -234,6 +232,7 @@ export default {
         this.getOrderList()
       }
     },
+    // 查看详情
     changeIfOrderDetail (searchType) {
       this.searchType = searchType
       if (searchType === 0 || searchType === '0') {
@@ -243,18 +242,21 @@ export default {
       }
       this.changeShowDetail(false)
     },
+    // 显示详情页
     ToDetail (idx, row) {
       this.changeShowDetail(true)
       this.orderId = row.id
       this.changeSearchOrderId(row.id)
     },
-    searchOrder () {
-      if (this.searchType === 0) {
-        this.getOrderListNotAppoint()
-      } else {
-        this.getOrderList()
-      }
-    },
+    // 根据订单号查询订单
+    // searchOrder () {
+    //   if (this.searchType === 0) {
+    //     this.getOrderListNotAppoint()
+    //   } else {
+    //     this.getOrderList()
+    //   }
+    // },
+    // 获取指定的订单列表
     getOrderList () {
       this.loading = true
       send({
@@ -281,6 +283,7 @@ export default {
         this.loading = false
       })
     },
+    // 获取未指定的订单列表
     getOrderListNotAppoint () {
       this.loading = true
       send({
@@ -306,31 +309,31 @@ export default {
         console.log(res)
         this.loading = false
       })
-    },
-    getDriverList () {
-      send({
-        name: '/zRegisterController/driverListNoPage?fid=' + this.userId,
-        method: 'GET',
-        data: {
-        }
-      }).then(res => {
-        if (res.data.code === 1) {
-          this.LogisticsList = res.data.driverList
-        } else {
-          this.$message({
-            message: res.data.message + '！',
-            type: 'error'
-          })
-        }
-      }).catch((res) => {
-        console.log(res)
-      })
     }
+    // 获取司机下拉
+    // getDriverList () {
+    //   send({
+    //     name: '/zRegisterController/driverListNoPage?fid=' + this.userId,
+    //     method: 'GET',
+    //     data: {
+    //     }
+    //   }).then(res => {
+    //     if (res.data.code === 1) {
+    //       this.LogisticsList = res.data.driverList
+    //     } else {
+    //       this.$message({
+    //         message: res.data.message + '！',
+    //         type: 'error'
+    //       })
+    //     }
+    //   }).catch((res) => {
+    //     console.log(res)
+    //   })
+    // }
   }
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="less" scoped>
 .Order{
   margin: 20px 20px 60px 20px;

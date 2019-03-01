@@ -21,10 +21,6 @@
           tooltip-effect="dark"
           style="width: 100%"
           @selection-change="handleSelectionChange">
-          <!-- <el-table-column
-            type="selection"
-            width="55">
-          </el-table-column> -->
           <el-table-column
             type="index"
             width="50">
@@ -174,9 +170,6 @@ export default {
         LogisticPhone: [
           { required: true, validator: validateAccountPhone, trigger: 'blur' }
         ],
-        // LogisticPhone: [
-        //   { required: true, message: '请输入手机号！', trigger: 'blur' }
-        // ],
         LogisticName: [
           { required: true, message: '请输入司机姓名！', trigger: 'blur' }
         ],
@@ -210,6 +203,7 @@ export default {
     ]),
     handleSelectionChange () {
     },
+    // Tab事件
     changeTab (type) {
       this.changeAccountKind(type)
       this.currentPage = 1
@@ -219,6 +213,7 @@ export default {
         this.getLogisticsList()
       }
     },
+    // 添加用户
     addUser () {
       if (this.userType === 0) {
         this.modalUser()
@@ -226,8 +221,9 @@ export default {
         this.dialogFormVisible = true
       }
     },
+    // 添加子账户
     modalUser () {
-      this.$prompt('请输入初始密码', '新增用户', {
+      this.$prompt('请输入初始密码', '新增子账户', {
         distinguishCancelAndClose: true,
         confirmButtonText: '确定',
         cancelButtonText: '取消'
@@ -236,6 +232,7 @@ export default {
       }).catch(() => {
       })
     },
+    // 添加司机
     addLogistic (formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
@@ -278,15 +275,19 @@ export default {
         }
       })
     },
+    // 输入司机手机号
     changePhone (item) {
       this.LogisticPhone = item.target.value
     },
+    // 输入司机密码
     changePsd (item) {
       this.LogisticPsd = item.target.value
     },
+    // 输入司机公司
     changeCompany (item) {
       this.LogisticCompany = item.target.value
     },
+    // 获取子账户用户名并添加
     async sureAdd (PSD) {
       const userName = await this.getUserName()
       let DATA = {
@@ -304,7 +305,7 @@ export default {
       }).then(res => {
         if (res.data.code === 1) {
           this.$message({
-            message: '新增用户成功！',
+            message: '子账户新增成功！',
             type: 'success'
           })
           this.getUserList()
@@ -318,6 +319,7 @@ export default {
         console.log(res)
       })
     },
+    // 重置密码
     handleReset (index, row) {
       this.$prompt('请输入新密码', '重置密码', {
         distinguishCancelAndClose: true,
@@ -347,6 +349,7 @@ export default {
       }).catch(() => {
       })
     },
+    // 删除
     handleDelete (idx, row, type) {
       this.$confirm('此操作将删除该用户, 是否继续?', '提示', {
         confirmButtonText: '确定',
@@ -361,6 +364,7 @@ export default {
       }).catch(() => {
       })
     },
+    // 删除子账户
     sureDeleteUser (id) {
       send({
         name: '/zRegisterController/subAccountDel?id=' + id,
@@ -369,11 +373,11 @@ export default {
         }
       }).then(res => {
         if (res.data.code === 1) {
-          this.getUserList()
           this.$message({
             message: '用户删除成功！',
             type: 'success'
           })
+          this.getUserList()
         } else {
           this.$message({
             message: res.data.message + '！',
@@ -384,6 +388,7 @@ export default {
         console.log(res)
       })
     },
+    // 删除司机
     sureDeleteLogistic (id) {
       send({
         name: '/zRegisterController/delDriver?id=' + id,
@@ -407,6 +412,7 @@ export default {
         console.log(res)
       })
     },
+    // 获取子账户账户名
     getUserName () {
       return new Promise((resolve, reject) => {
         send({
@@ -428,6 +434,7 @@ export default {
         })
       })
     },
+    // 获取子账户列表
     getUserList () {
       this.loading = true
       send({
@@ -451,6 +458,7 @@ export default {
         this.loading = false
       })
     },
+    // 获取司机列表
     getLogisticsList () {
       this.loading = true
       send({
@@ -476,6 +484,7 @@ export default {
     },
     handleSizeChange () {
     },
+    // 页码改变重新获取列表
     handleCurrentChange () {
       if (this.userType === 0) {
         this.getUserList()
@@ -487,7 +496,6 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="less" scoped>
 .User{
   background: #fff;

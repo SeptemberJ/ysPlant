@@ -12,13 +12,11 @@
               <el-col :span="12">
                 <el-form-item prop="fhName" label="发货人">
                   <el-input v-model="formAdd.fhName" clearable disabled></el-input>
-                  <!-- <span>{{formAdd.fhName}}</span> -->
                 </el-form-item>
               </el-col>
               <el-col :span="11" :offset="1">
                 <el-form-item prop="fhTelephone" label="手机号">
                   <el-input v-model="formAdd.fhTelephone" clearable disabled></el-input>
-                  <!-- <span>{{formAdd.fhTelephone}}</span> -->
                 </el-form-item>
               </el-col>
             </el-row>
@@ -33,7 +31,6 @@
                       :value="fprovince.id">
                     </el-option>
                   </el-select>
-                  <!-- <span>{{fprovinceName}}</span> -->
                 </el-form-item>
               </el-col>
               <el-col :span="7" :offset="1">
@@ -46,7 +43,6 @@
                       :value="fcity.id">
                     </el-option>
                   </el-select>
-                  <!-- <span>{{fcityName}}</span> -->
                 </el-form-item>
               </el-col>
               <el-col :span="7" :offset="1">
@@ -59,13 +55,11 @@
                       :value="farea.id">
                     </el-option>
                   </el-select>
-                  <!-- <span>{{fareaName}}</span> -->
                 </el-form-item>
               </el-col>
             </el-row>
             <el-form-item prop="fhAddress" label="街道">
               <el-input v-model="formAdd.fhAddress" clearable disabled></el-input>
-              <!-- <span>{{formAdd.fhAddress}}</span> -->
             </el-form-item>
           </div>
         </el-card>
@@ -98,7 +92,6 @@
                       :value="sprovince.id">
                     </el-option>
                   </el-select>
-                  <!-- <span>{{sprovinceName}}</span> -->
                 </el-form-item>
               </el-col>
               <el-col :span="7" :offset="1">
@@ -111,7 +104,6 @@
                       :value="scity.id">
                     </el-option>
                   </el-select>
-                  <!-- <span>{{scityName}}</span> -->
                 </el-form-item>
               </el-col>
               <el-col :span="7" :offset="1">
@@ -124,13 +116,11 @@
                       :value="sarea.id">
                     </el-option>
                   </el-select>
-                  <!-- <span>{{sareaName}}</span> -->
                 </el-form-item>
               </el-col>
             </el-row>
             <el-form-item prop="shAddress" label="街道">
               <el-input v-model="formAdd.shAddress" clearable disabled></el-input>
-              <!-- <span>{{formAdd.shAddress}}</span> -->
             </el-form-item>
           </div>
         </el-card>
@@ -158,7 +148,7 @@
                 </el-form-item>
               </el-col>
               <el-col :span="2" :offset="0">
-                <el-button icon="el-icon-delete" style="border: 0px;" @click="deleteOneLine(idx)"></el-button>
+                <el-button icon="el-icon-delete" style="border: 0px;" @click="deleteOneLine(idx)" disabled></el-button>
               </el-col>
             </el-row>
           </div>
@@ -179,7 +169,6 @@
                   :value="goodsType.id">
                 </el-option>
               </el-select>
-              <!-- <el-input v-model="formAdd.goodsName" clearable></el-input> -->
             </el-form-item>
             <!-- car -->
             <el-form-item prop="carType" label="车型">
@@ -197,14 +186,14 @@
               <el-date-picker type="datetime" :picker-options="pickerOptionsStart" placeholder="选择装货日期" v-model="formAdd.zhTime" disabled style="width: 100%;"></el-date-picker>
             </el-form-item>
             <el-form-item label="开具发票" prop="isFapiao">
-              <el-radio-group v-model="formAdd.isFapiao" style="float: left">
+              <!-- <el-radio-group v-model="formAdd.isFapiao" style="float: left">
                 <el-radio label="0" border v-if="formAdd.isFapiao == 0">不需要</el-radio>
-              <el-radio label="1" border v-if="formAdd.isFapiao == 1">需要</el-radio>
-              </el-radio-group>
-              <!-- <el-radio-group v-model="formAdd.isFapiao" disabled style="float: left">
+                <el-radio label="1" border v-if="formAdd.isFapiao == 1">需要</el-radio>
+              </el-radio-group> -->
+              <el-radio-group v-model="formAdd.isFapiao" disabled style="float: left">
                 <el-radio label="0" border>不需要</el-radio>
                 <el-radio label="1" border>需要</el-radio>
-              </el-radio-group> -->
+              </el-radio-group>
             </el-form-item>
             <el-form-item label="接受拼箱" prop="isBox">
               <el-radio-group v-model="formAdd.isBox" style="float: left">
@@ -221,14 +210,13 @@
           </div>
           <div class="TextAlignL">
             <h4 class="ColorWarn"><span style="display:inline-block;width:50%">{{formAdd.fstatus == 0 ? '货主报价' : '确认报价'}}：</span><span style="display:inline-block;width:50%;text-align:right">{{formAdd.ffee}} ¥</span></h4>
-            <!-- <p style="font-size: 12px;color: #909399;text-align:right">{{cityDistance}} (路程/km) * {{totalWeight/1000}} (重量/t) * {{unitPrice}} (单价/¥) = {{totalSum}} ¥</p> -->
+            <!-- 原本计算的合计
+            <p style="font-size: 12px;color: #909399;text-align:right">{{cityDistance}} (路程/km) * {{totalWeight/1000}} (重量/t) * {{unitPrice}} (单价/¥) = {{totalSum}} ¥</p> -->
           </div>
         </el-card>
-        <!-- bt v-if="!hasOffered && formAdd.fstatus == 0"-->
         <el-row>
           <el-col :span="12" class="TextAlignC">
             <el-button type="primary" :loading="ifLoading" @click="showDialog" :disabled="hasOffered">{{hasOffered ? '已报价' : '报价'}}</el-button>
-            <!-- <el-button v-if="formAdd.fstatus != 0" type="primary" disabled>{{hasOffered ? '修改报价' : '报价'}}</el-button> -->
           </el-col>
           <el-col :span="12" class="TextAlignC">
             <el-button @click="backOrderList" style="width: 100px;">返回</el-button>
@@ -244,7 +232,8 @@
         <el-col :span="12" class="TextAlignL">
           <el-input v-model='offer' placeholder='请输入您的报价金额' clearable></el-input>
         </el-col>
-        <!-- <el-col :span="8">
+        <!-- 原本显示最高限价
+        <el-col :span="8">
           <span style="line-height: 35px;color:red">（最高限价{{maxFee}}）</span>
         </el-col> -->
       </el-row>
@@ -307,12 +296,12 @@ export default {
       cityDistance: 0,
       unitPrice: 0,
       totalSum: 0,
-      fprovinceName: '',
-      sprovinceName: '',
-      fcityName: '',
-      scityName: '',
-      fareaName: '',
-      sareaName: '',
+      // fprovinceName: '',
+      // sprovinceName: '',
+      // fcityName: '',
+      // scityName: '',
+      // fareaName: '',
+      // sareaName: '',
       hasOffered: false, // 是否报过价
       formAdd: {
         fprovince: '',
@@ -453,9 +442,11 @@ export default {
     ...mapActions([
       'changeSiderIdx'
     ]),
+    // 返回订单列表页
     backOrderList () {
       this.$emit('toggleOrderDetail', this.searchType)
     },
+    // 获取订单详情
     getOrderDetail () {
       send({
         name: '/orderController/orderDetail?id=' + this.searchOrderId + '&register_id=' + this.userId,
@@ -463,32 +454,33 @@ export default {
         data: {}
       }).then(res => {
         if (res.data.code === 1) {
-          let temp = res.data.orderInfo
-          temp.ffee = res.data.orderInfo.ffee
-          temp.fprovince = res.data.orderInfo.origin_province_id
-          temp.fcity = res.data.orderInfo.origin_city_id
-          temp.farea = res.data.orderInfo.origin_area_id
-          temp.sprovince = res.data.orderInfo.destination_province_id
-          temp.scity = res.data.orderInfo.destination_city_id
-          temp.sarea = res.data.orderInfo.destination_area_id
-          temp.zhTime = new Date(res.data.orderInfo.zh_time.time)
-          temp.orderGoodsList = res.data.orderInfo.ordergoods
-          temp.carType = res.data.orderInfo.car_type
-          temp.fmainId = res.data.orderInfo.fmain_id
-          temp.fsubId = res.data.orderInfo.fsub_id
-          temp.goodsName = res.data.orderInfo.goods_name
-          temp.fhName = res.data.orderInfo.fh_name
-          temp.fhTelephone = res.data.orderInfo.fh_telephone
-          temp.fhAddress = res.data.orderInfo.fh_address
-          temp.shAddress = res.data.orderInfo.sh_address
-          temp.shArea = res.data.orderInfo.sh_area
-          temp.shName = res.data.orderInfo.sh_name
-          temp.shTelephone = res.data.orderInfo.sh_telephone
-          temp.isFapiao = res.data.orderInfo.is_fapiao
-          temp.isBox = res.data.orderInfo.is_box
-          temp.boxNo = res.data.orderInfo.box_no
+          let Info = res.data.orderInfo
+          let temp = Info
+          temp.ffee = Info.ffee
+          temp.fprovince = Info.origin_province_id
+          temp.fcity = Info.origin_city_id
+          temp.farea = Info.origin_area_id
+          temp.sprovince = Info.destination_province_id
+          temp.scity = Info.destination_city_id
+          temp.sarea = Info.destination_area_id
+          temp.zhTime = new Date(Info.zh_time.time)
+          temp.orderGoodsList = Info.ordergoods
+          temp.carType = Info.car_type
+          temp.fmainId = Info.fmain_id
+          temp.fsubId = Info.fsub_id
+          temp.goodsName = Info.goods_name
+          temp.fhName = Info.fh_name
+          temp.fhTelephone = Info.fh_telephone
+          temp.fhAddress = Info.fh_address
+          temp.shAddress = Info.sh_address
+          temp.shArea = Info.sh_area
+          temp.shName = Info.sh_name
+          temp.shTelephone = Info.sh_telephone
+          temp.isFapiao = Info.is_fapiao
+          temp.isBox = Info.is_box
+          temp.boxNo = Info.box_no
           this.formAdd = temp
-          this.maxFee = res.data.orderInfo.fmax_fee
+          this.maxFee = Info.fmax_fee
           this.hasOffered = res.data.flag === 1
           // 省市区
           this.getProvince()
@@ -499,7 +491,7 @@ export default {
           // 价格
           this.getDistanceDefault(temp.farea, temp.sarea)
           // 车型
-          this.getCarType(res.data.orderInfo.car_type)
+          this.getCarType(Info.car_type)
           this.getGoodsType()
           // 查询最高限价
           this.getMaxFee()
@@ -513,11 +505,7 @@ export default {
         console.log(res)
       })
     },
-    // filterName () {
-    //   const name = state.cart.find(content=> {
-
-    //   })
-    // },
+    // 获取初始发货地与收货地的距离
     getDistanceDefault (fh, sh) {
       send({
         name: '/orderController/cityDistance?fh=' + fh + '&sh=' + sh,
@@ -532,6 +520,7 @@ export default {
         console.log(res)
       })
     },
+    // 改变发货地省
     changeFprovince (id, type) {
       this.getCity(id, 'fcityList')
       if (type !== 1) {
@@ -539,17 +528,20 @@ export default {
         this.formAdd.farea = ''
       }
     },
+    // 改变发货地市
     changeFcity (id, type) {
       this.getArea(id, 'fareaList')
       if (type !== 1) {
         this.formAdd.farea = ''
       }
     },
+    // 改变发货地区
     changeFarea (id) {
       if (this.formAdd.scity !== '') {
         this.getDistance()
       }
     },
+    // 改变收货地省
     changeSprovince (id, type) {
       this.getCity(id, 'scityList')
       if (type !== 1) {
@@ -557,17 +549,20 @@ export default {
         this.formAdd.sarea = ''
       }
     },
+    // 改变收货地市
     changeScity (id, type) {
       this.getArea(id, 'sareaList')
       if (type !== 1) {
         this.formAdd.sarea = ''
       }
     },
+    // 改变收货地区
     changeSarea (id) {
       if (this.formAdd.fcity !== '') {
         this.getDistance()
       }
     },
+    // 获取省下拉
     getProvince () {
       send({
         name: '/registerDriverController/regionSelect?pid=1',
@@ -578,19 +573,20 @@ export default {
         if (res.data.respCode === '0') {
           this.fprovinceList = res.data.data
           this.sprovinceList = res.data.data
-          res.data.data.find(item => {
-            if (item.id === this.formAdd.fprovince) {
-              this.fprovinceName = item.name
-            }
-            if (item.id === this.formAdd.sprovince) {
-              this.sprovinceName = item.name
-            }
-          })
+          // res.data.data.find(item => {
+          //   if (item.id === this.formAdd.fprovince) {
+          //     this.fprovinceName = item.name
+          //   }
+          //   if (item.id === this.formAdd.sprovince) {
+          //     this.sprovinceName = item.name
+          //   }
+          // })
         }
       }).catch((res) => {
         console.log(res)
       })
     },
+    // 获取市下拉
     getCity (id, property) {
       send({
         name: '/registerDriverController/regionSelect?pid=' + id,
@@ -600,19 +596,20 @@ export default {
       }).then(res => {
         if (res.data.respCode === '0') {
           this[property] = res.data.data
-          res.data.data.find(item => {
-            if (item.id === this.formAdd.fcity) {
-              this.fcityName = item.name
-            }
-            if (item.id === this.formAdd.scity) {
-              this.scityName = item.name
-            }
-          })
+          // res.data.data.find(item => {
+          //   if (item.id === this.formAdd.fcity) {
+          //     this.fcityName = item.name
+          //   }
+          //   if (item.id === this.formAdd.scity) {
+          //     this.scityName = item.name
+          //   }
+          // })
         }
       }).catch((res) => {
         console.log(res)
       })
     },
+    // 获取区下拉
     getArea (id, property) {
       send({
         name: '/registerDriverController/regionSelect?pid=' + id,
@@ -622,19 +619,20 @@ export default {
       }).then(res => {
         if (res.data.respCode === '0') {
           this[property] = res.data.data
-          res.data.data.find(item => {
-            if (item.id === this.formAdd.farea) {
-              this.fareaName = item.name
-            }
-            if (item.id === this.formAdd.sarea) {
-              this.sareaName = item.name
-            }
-          })
+          // res.data.data.find(item => {
+          //   if (item.id === this.formAdd.farea) {
+          //     this.fareaName = item.name
+          //   }
+          //   if (item.id === this.formAdd.sarea) {
+          //     this.sareaName = item.name
+          //   }
+          // })
         }
       }).catch((res) => {
         console.log(res)
       })
     },
+    // 获取车型下拉
     getCarType (carType) {
       send({
         name: '/zCarTypeController/list',
@@ -655,6 +653,7 @@ export default {
         console.log(res)
       })
     },
+    // 获取货物类型下拉
     getGoodsType () {
       send({
         name: '/typeController/list',
@@ -669,6 +668,7 @@ export default {
         console.log(res)
       })
     },
+    // 获取最高限价
     getMaxFee () {
       send({
         name: '/zFareRuleController/getMaxPrice?goods_type=' + this.formAdd.goodsName + '&cartype=' + this.formAdd.carType + '&fkm=622',
@@ -687,6 +687,7 @@ export default {
         console.log(res)
       })
     },
+    // 获取发货地与收货地的距离
     getDistance () {
       send({
         name: '/orderController/cityDistance?fh=' + this.formAdd.farea + '&sh=' + this.formAdd.sarea,
@@ -713,6 +714,7 @@ export default {
       //   this.sureOffer()
       // }
     },
+    // 报价
     sureOffer () {
       if (this.maxFee < this.offer) {
         this.$message({
@@ -751,6 +753,7 @@ export default {
         console.log(res)
       })
     },
+    // 修改报价
     changeOffer () {
       send({
         name: '/driverOrderController/modifyDriverOrderFfee?id=' + this.searchOrderId + '&ffee=' + this.offer,
@@ -776,6 +779,7 @@ export default {
         console.log(res)
       })
     },
+    // 获取司机下拉
     getDriverList () {
       send({
         name: '/zRegisterController/driverListNoPage?fid=' + this.userId,

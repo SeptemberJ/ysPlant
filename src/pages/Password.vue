@@ -85,6 +85,7 @@ export default {
     ...mapActions([
       'changeLocationIdx'
     ]),
+    // 提交
     onSubmit (formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
@@ -130,10 +131,12 @@ export default {
         }
       })
     },
+    // 返回登陆
     backLogin () {
       this.$router.push({name: 'Login'})
       this.changeLocationIdx(0)
     },
+    // 获取验证码
     toGetCode () {
       if (this.formPassword.accountName.trim() === '') {
         this.$message({
@@ -153,6 +156,7 @@ export default {
         this.getCode()
       }
     },
+    // 发送方验证码
     getCode () {
       send({
         name: '/tokens/SMScode?fmobile=' + this.formPassword.accountName,
@@ -173,6 +177,7 @@ export default {
         console.log(res)
       })
     },
+    // 倒计时
     CountDownFN () {
       let Timer = setTimeout(() => {
         this.CountDownFN()
@@ -192,7 +197,6 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="less" scoped>
 .Password{
   width: 400px;

@@ -173,6 +173,9 @@ form{
 .PaddingT_20{
   padding-top: 20px !important;
 }
+.colorRed{
+  color: red;
+}
 /**/
 /*.Sign .el-input__inner{
   width: 300px !important;

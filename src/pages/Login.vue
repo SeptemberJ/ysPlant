@@ -79,14 +79,17 @@ export default {
       temp.submit()
       return temp
     },
+    // 前往注册
     ToSign () {
       this.$router.push({name: 'Sign'})
       this.changeLocationIdx(1)
     },
+    // 前往密码修改
     ToModityPsd () {
       this.$router.push({name: 'Password'})
       this.changeLocationIdx(4)
     },
+    // 登陆
     Login () {
       if (this.phone.trim() === '') {
         this.$message({
@@ -105,7 +108,6 @@ export default {
       this.ifLoading = true
       send({
         name: '/tokens/registerLogin?fmobile=' + this.phone + '&password=' + this.password,
-        // name: '/userLoginPC?mobile=18234567890&fpassword=111',
         method: 'POST',
         data: {
         }

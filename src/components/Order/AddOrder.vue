@@ -10,12 +10,12 @@
           <el-row>
             <el-col :span="12">
               <el-form-item prop="fhName" label="发货人">
-                <el-input v-model="formAdd.fhName" clearable></el-input>
+                <el-input v-model="formAdd.fhName" clearable placeholder="请输入发货人姓名"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="11" :offset="1">
               <el-form-item prop="fhTelephone" label="发货人手机">
-                <el-input v-model="formAdd.fhTelephone" clearable></el-input>
+                <el-input v-model="formAdd.fhTelephone" clearable placeholder="请输入发货人手机"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
@@ -58,7 +58,7 @@
             </el-col>
           </el-row>
           <el-form-item prop="fhAddress" label="街道">
-            <el-input v-model="formAdd.fhAddress" clearable></el-input>
+            <el-input v-model="formAdd.fhAddress" clearable placeholder="请输入发货地街道信息"></el-input>
           </el-form-item>
         </div>
       </el-card>
@@ -71,12 +71,12 @@
           <el-row>
             <el-col :span="12">
               <el-form-item prop="shName" label="收货人">
-                <el-input v-model="formAdd.shName" clearable></el-input>
+                <el-input v-model="formAdd.shName" clearable placeholder="请输入收货人姓名"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="11" :offset="1">
               <el-form-item prop="shTelephone" label="收货人手机">
-                <el-input v-model="formAdd.shTelephone" clearable></el-input>
+                <el-input v-model="formAdd.shTelephone" clearable placeholder="请输入收货人手机"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
@@ -119,7 +119,7 @@
             </el-col>
           </el-row>
           <el-form-item prop="shAddress" label="街道">
-            <el-input v-model="formAdd.shAddress" clearable></el-input>
+            <el-input v-model="formAdd.shAddress" clearable placeholder="请输入收货地街道信息"></el-input>
           </el-form-item>
         </div>
       </el-card>
@@ -133,17 +133,17 @@
           <el-row v-for="(Goods, idx) in formAdd.orderGoodsList" :key="idx">
             <el-col :span="8">
               <el-form-item :prop="'orderGoodsList.' + idx + '.goodsName'" :rules="AddRules.goodsName" label="货物名称">
-                <el-input v-model="Goods.goodsName" clearable></el-input>
+                <el-input v-model="Goods.goodsName" clearable placeholder=""></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="6" :offset="1">
               <el-form-item :prop="'orderGoodsList.' + idx + '.goodsSpace'" :rules="AddRules.goodsSpace"  label="货物面积(㎡)">
-                <el-input v-model="Goods.goodsSpace" clearable></el-input>
+                <el-input v-model="Goods.goodsSpace" clearable placeholder=""></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="6" :offset="1">
               <el-form-item :prop="'orderGoodsList.' + idx + '.goodsWeight'" :rules="AddRules.goodsWeight"  label="货物数量(kg)">
-                <el-input v-model="Goods.goodsWeight" clearable></el-input>
+                <el-input v-model="Goods.goodsWeight" clearable placeholder=""></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="2" :offset="0">
@@ -190,8 +190,9 @@
           </el-form-item>
           <el-form-item prop="appointId" label="指派人员" class="TextAlignL">
             <span class="MarginR_10" v-if="appointName">{{appointName}}</span>
-            <el-button type="text" size="small" @click="chooseSJ">选择<i class="el-icon-d-arrow-right el-icon--right"></i></el-button>
-            <!-- <el-tooltip class="item" effect="dark" content="可以选择指定的承运商或司机来接受您的订单" placement="bottom">
+            <el-button type="text" size="small" @click="chooseSJ">去选择<i class="el-icon-d-arrow-right el-icon--right"></i></el-button>
+            <!-- 提示框
+            <el-tooltip class="item" effect="dark" content="可以选择指定的承运商或司机来接受您的订单" placement="bottom">
               <i class="el-icon-question"></i>
             </el-tooltip> -->
           </el-form-item>
@@ -223,7 +224,7 @@
               <el-col :span="1"><img src="../../../static/images/icon/wx.png" style="width: 35px;margin-top:5px;"></el-col>
             </el-row>
           </el-form-item>
-          <el-form-item prop="ffee" label="是否使用油卡">
+          <el-form-item prop="oilCard" label="是否使用油卡">
             <span style="color: red">(油卡部分的金额无法开票)</span>
             <el-input v-model="formAdd.oilCard" clearable v-if="formAdd.ifUseOilCard == 1" style="width: 200px;float:right;margin-left:20px;">
               <template slot="append">¥</template>
@@ -234,7 +235,7 @@
             </el-radio-group>
           </el-form-item>
           <el-form-item prop="ffee" label="可接受最高价">
-            <el-input v-model="formAdd.ffee" clearable>
+            <el-input v-model="formAdd.ffee" clearable placeholder="请输入您的报价">
               <template slot="append">¥</template>
             </el-input>
           </el-form-item>
@@ -268,30 +269,90 @@
           </el-radio-group>
         </el-col>
       </el-row>
+      <p class="TextAlignL MarginB_20 colorRed" >请选择输入一个查询条件进行查询</p>
+      <!-- 承运商 -->
       <el-row class="MarginTB_20" v-if="appointType == 0">
-        <el-col :span="4" class="TextAlignL">
-          <span style="padding-top: 10px;display: block;">公司名称：</span>
+        <el-col :span="12" class="TextAlignL">
+          <span>公司名称：</span>
+          <el-input class="MarginT_10" v-model="appointCompany" placeholder="" clearable></el-input>
         </el-col>
-         <el-col :span="19" :offset="1">
-          <el-input v-model="appointCompany" placeholder="请输入指派的承运商公司名称" clearable></el-input>
+        <el-col :span="11" :offset="1" class="TextAlignL">
+          <span>承运商手机号：</span>
+          <el-input class="MarginT_10" v-model="appointCompanyPhone" placeholder="" clearable></el-input>
         </el-col>
       </el-row>
+      <!-- 司机 -->
       <el-row class="MarginTB_20" v-if="appointType == 1">
         <el-col :span="7" class="TextAlignL">
           <span>司机手机号：</span>
-          <el-input class="MarginT_10" v-model="appointPhoneSJ" placeholder="请输入司机手机号" clearable></el-input>
+          <el-input class="MarginT_10" v-model="appointPhoneSJ" placeholder="" clearable></el-input>
         </el-col>
         <el-col :span="7" :offset="1" class="TextAlignL">
           <span>司机姓名：</span>
-          <el-input class="MarginT_10" v-model="appointNameSJ" placeholder="请输入司机姓名" clearable></el-input>
+          <el-input class="MarginT_10" v-model="appointNameSJ" placeholder="" clearable></el-input>
         </el-col>
         <el-col :span="8" :offset="1" class="TextAlignL">
           <span>司机身份证：</span>
-          <el-input class="MarginT_10" v-model="appointIDSJ" placeholder="请输入司机身份证" clearable></el-input>
+          <el-input class="MarginT_10" v-model="appointIDSJ" placeholder="" clearable></el-input>
         </el-col>
       </el-row>
+      <!-- result -->
+      <h4 v-if="appointSearchResultC.length > 0 && appointType == 0">查询结果</h4>
+      <el-row class="MarginTB_20" v-if="appointSearchResultC.length > 0 && appointType == 0">
+        <el-table
+          :data="appointSearchResultC"
+          height="250"
+          border
+          style="width: 100%">
+          <el-table-column
+            prop="fname"
+            label="公司名称">
+          </el-table-column>
+          <el-table-column
+            prop="fmobile"
+            label="手机号">
+          </el-table-column>
+          <el-table-column label="操作" width="100" align="center">
+          <template slot-scope="scope">
+            <el-button
+              size="mini"
+              type="primary"
+              @click="sureChoose(scope.$index, scope.row)">指定</el-button>
+          </template>
+        </el-table-column>
+        </el-table>
+      </el-row>
+      <h4 v-if="appointSearchResultG.length > 0 && appointType == 1">查询结果</h4>
+      <el-row class="MarginTB_20" v-if="appointSearchResultG.length > 0 && appointType == 1">
+        <el-table
+          :data="appointSearchResultG"
+          height="250"
+          border
+          style="width: 100%">
+          <el-table-column
+            prop="fname"
+            label="司机名称">
+          </el-table-column>
+          <el-table-column
+            prop="fmobile"
+            label="手机号">
+          </el-table-column>
+          <el-table-column
+            prop="id_number"
+            label="身份证号">
+          </el-table-column>
+          <el-table-column label="操作" width="100" align="center">
+          <template slot-scope="scope">
+            <el-button
+              size="mini"
+              type="primary"
+              @click="sureChoose(scope.$index, scope.row)">指定</el-button>
+          </template>
+        </el-table-column>
+        </el-table>
+      </el-row>
       <el-row>
-        <el-button type="primary">查询</el-button>
+        <el-button type="primary" @click="searchAppoint">查询</el-button>
       </el-row>
       <!-- 原本输入手机号查询指派人员
       <el-row class="MarginTB_20">
@@ -329,6 +390,8 @@ export default {
     var validateFee = (rule, value, callback) => {
       if (value > this.formAdd.max_price) {
         callback(new Error('超出了最高限价！'))
+      } else if (value.trim() === '' || value === 0) {
+        callback(new Error('请输入可接受的最高价！'))
       } else {
         callback()
       }
@@ -355,9 +418,12 @@ export default {
       appointName: '',
       appointPhone: '', // 13734567890
       appointCompany: '', // 承运商公司名称
+      appointCompanyPhone: '', // 承运商公司手机号
       appointNameSJ: '', // 司机姓名
       appointPhoneSJ: '', // 司机手机号
       appointIDSJ: '', // 司机身份证号
+      appointSearchResultC: [],
+      appointSearchResultG: [],
       formAdd: {
         appointId: '', // 指派司机id
         fprovince: '',
@@ -542,8 +608,22 @@ export default {
     },
     orderType: function (value) {
       this.diffOrderType(value)
+    },
+    appointCompany: function (value) {
+      this.appointSearchResultC = []
+    },
+    appointCompanyPhone: function (value) {
+      this.appointSearchResultC = []
+    },
+    appointNameSJ: function (value) {
+      this.appointSearchResultG = []
+    },
+    appointPhoneSJ: function (value) {
+      this.appointSearchResultG = []
+    },
+    appointIDSJ: function (value) {
+      this.appointSearchResultG = []
     }
-
   },
   created () {
     this.getProvince()
@@ -558,6 +638,7 @@ export default {
     ...mapActions([
       'changeSiderIdx'
     ]),
+    // 添加一行货物信息
     addOneLine () {
       let tempGoods = {
         goodsName: '',
@@ -568,9 +649,11 @@ export default {
       }
       this.formAdd.orderGoodsList.push(tempGoods)
     },
+    // 删除一行货物信息
     deleteOneLine (idx) {
       this.formAdd.orderGoodsList.splice(idx, 1)
     },
+    // 改变车型
     changeCarType (typeId) {
       this.carTypeList.map(item => {
         if (item.id === typeId) {
@@ -581,6 +664,7 @@ export default {
         }
       })
     },
+    // 改变货物类型
     changeGoodsType (typeId) {
       this.goodsTypeList.map(item => {
         if (item.id === typeId) {
@@ -590,6 +674,7 @@ export default {
         }
       })
     },
+    // 获取最高限价
     getMaxFee () {
       send({
         name: '/zFareRuleController/getMaxPrice?goods_type=' + this.formAdd.goodsName + '&cartype=' + this.formAdd.carType + '&fkm=' + parseInt(this.cityDistance),
@@ -608,9 +693,11 @@ export default {
         console.log(res)
       })
     },
+    // 选择指定人员后关闭弹窗
     chooseSJ () {
       this.dialogVisible = true
     },
+    // 区分新增的订单类型
     diffOrderType (type) {
       switch (type) {
         case '1-2-1':
@@ -624,19 +711,50 @@ export default {
           break
       }
     },
+    // 查询指定承运商或个体司机
     searchAppoint () {
+      if (this.appointType === 0) {
+        // 承运商
+        if (!this.appointCompany && !this.appointCompanyPhone) {
+          this.$message({
+            message: '请至少输入一个查询项！',
+            type: 'warning'
+          })
+          return false
+        }
+        this.searchCYS()
+      } else {
+        // 个体司机
+        if (!this.appointNameSJ && !this.appointPhoneSJ && !this.appointIDSJ) {
+          this.$message({
+            message: '请至少输入一个查询项！',
+            type: 'warning'
+          })
+          return false
+        }
+        this.searchSJ()
+      }
+    },
+    // 承运商查询
+    searchCYS () {
+      if (this.appointCompany && this.appointCompanyPhone) {
+        this.$message({
+          message: '请输入一个查询项！',
+          type: 'warning'
+        })
+        return false
+      }
       send({
-        name: '/zRegisterController/appointDriver?fmobile=' + this.appointPhone + '&ftype=' + this.appointType,
+        name: (this.appointCompany && !this.appointCompanyPhone ? '/zRegisterController/appointDriver?ftype=0&company_name=' + this.appointCompany : '/zRegisterController/appointDriver?ftype=0&fmobile_carrier=' + this.appointCompanyPhone),
         method: 'GET',
         data: ''
       }).then(res => {
         if (res.data.code === 1) {
-          this.formAdd.appointId = res.data.user.id
-          this.appointName = res.data.user.fname
-          this.dialogVisible = false
+          this.appointSearchResultC = res.data.userList
         } else {
+          this.appointSearchResultC = []
           this.$message({
-            message: '该司机或承运商不存在，请检查所选的类型和手机号是否匹配！',
+            message: '该承运商不存在，请检查所填的信息是否匹配！',
             type: 'error'
           })
         }
@@ -644,6 +762,54 @@ export default {
         console.log(res)
       })
     },
+    // 个体司机查询
+    searchSJ () {
+      let url = ''
+      let cd1 = this.appointNameSJ && this.appointPhoneSJ && this.appointIDSJ
+      let cd2 = this.appointNameSJ && this.appointPhoneSJ
+      let cd3 = this.appointNameSJ && this.appointIDSJ
+      let cd4 = this.appointPhoneSJ && this.appointIDSJ
+      if (cd1 || cd2 || cd3 || cd4) {
+        this.$message({
+          message: '请输入一个查询项！',
+          type: 'warning'
+        })
+        return false
+      }
+      if (this.appointNameSJ && !this.appointPhoneSJ && !this.appointIDSJ) {
+        url = '/zRegisterController/appointDriver?ftype=1&fname_individual=' + this.appointNameSJ
+      }
+      if (!this.appointNameSJ && this.appointPhoneSJ && !this.appointIDSJ) {
+        url = '/zRegisterController/appointDriver?ftype=1&fmobile_individual=' + this.appointPhoneSJ
+      }
+      if (!this.appointNameSJ && !this.appointPhoneSJ && this.appointIDSJ) {
+        url = '/zRegisterController/appointDriver?ftype=1&carNO_individual=' + this.appointIDSJ
+      }
+      send({
+        name: url,
+        method: 'GET',
+        data: ''
+      }).then(res => {
+        if (res.data.code === 1) {
+          this.appointSearchResultG = res.data.userList
+        } else {
+          this.appointSearchResultG = []
+          this.$message({
+            message: '该承运商不存在，请检查所填的信息是否匹配！',
+            type: 'error'
+          })
+        }
+      }).catch((res) => {
+        console.log(res)
+      })
+    },
+    // 确定指定人员
+    sureChoose (index, row) {
+      this.formAdd.appointId = row.id
+      this.appointName = row.fname
+      this.dialogVisible = false
+    },
+    // 新增订单
     onSubmit (formName) {
       if (this.formAdd.orderGoodsList.length === 0) {
         this.$message({
@@ -725,8 +891,8 @@ export default {
         this.ifLoading = false
       })
     },
+    // 数据清空初始化
     clearDataABack () {
-      // clear data
       this.formAdd = {
         id: '',
         fstatus: '0',
@@ -759,38 +925,45 @@ export default {
       // 返回列表页面
       this.changeSiderIdx('1-1')
     },
+    // 改变发货地省
     changeFprovince (id) {
       this.getCity(id, 'fcityList')
       this.formAdd.fcity = ''
       this.formAdd.farea = ''
       this.formAdd.max_price = ''
     },
+    // 改变发货地市
     changeFcity (id) {
       this.getArea(id, 'fareaList')
       this.formAdd.farea = ''
       this.formAdd.max_price = ''
     },
+    // 改变发货地区
     changeFarea (id) {
       if (this.formAdd.scity !== '') {
         this.getDistance()
       }
     },
+    // 改变收货地省
     changeSprovince (id) {
       this.getCity(id, 'scityList')
       this.formAdd.scity = ''
       this.formAdd.sarea = ''
       this.formAdd.max_price = ''
     },
+    // 改变收货地市
     changeScity (id) {
       this.getArea(id, 'sareaList')
       this.formAdd.sarea = ''
       this.formAdd.max_price = ''
     },
+    // 改变收货地区
     changeSarea (id) {
       if (this.formAdd.fcity !== '') {
         this.getDistance()
       }
     },
+    // 获取省下拉
     getProvince () {
       send({
         name: '/registerDriverController/regionSelect?pid=' + this.fProvincePid,
@@ -806,6 +979,7 @@ export default {
         console.log(res)
       })
     },
+    // 获取市下拉
     getCity (id, property) {
       send({
         name: '/registerDriverController/regionSelect?pid=' + id,
@@ -820,6 +994,7 @@ export default {
         console.log(res)
       })
     },
+    // 获取区下拉
     getArea (id, property) {
       send({
         name: '/registerDriverController/regionSelect?pid=' + id,
@@ -834,6 +1009,7 @@ export default {
         console.log(res)
       })
     },
+    // 或许车型下拉
     getCarType () {
       send({
         name: '/zCarTypeController/list',
@@ -848,6 +1024,7 @@ export default {
         console.log(res)
       })
     },
+    // 获取货物类型下拉
     getGoodsType () {
       send({
         name: '/typeController/list',
@@ -862,6 +1039,7 @@ export default {
         console.log(res)
       })
     },
+    // 获取发货地与收货地的距离
     getDistance () {
       send({
         name: '/orderController/cityDistance?fh=' + this.formAdd.farea + '&sh=' + this.formAdd.sarea,

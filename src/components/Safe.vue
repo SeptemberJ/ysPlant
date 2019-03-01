@@ -7,18 +7,6 @@
       >
         <el-input v-model="userAccount" :disabled="true" placeholder="请输入注册的手机号" clearable></el-input>
       </el-form-item>
-      <!-- <el-form-item
-        class="TextAlignR"
-        prop="code"
-        label="验证码"
-      >
-        <el-col :span="10">
-          <el-input v-model="formSafe.code" placeholder="请输入注册的手机号" clearable></el-input>
-        </el-col>
-        <el-col :span="10">
-          <span @click="toGetCode" class="ColorYellow">{{haGetCode?CountDown + 's 后重新获取':'获取验证码'}}</span>
-        </el-col>
-      </el-form-item> -->
       <el-form-item
         class="TextAlignR"
         prop="code"
@@ -119,24 +107,11 @@ export default {
       'changeLocationIdx'
     ]),
     toGetCode () {
-      // if (this.formSafe.phone.trim() === '') {
-      //   this.$message({
-      //     message: '请输入手机号！',
-      //     type: 'warning'
-      //   })
-      //   return false
-      // }
-      // if (!(/^1[34578]\d{9}$/.test(this.formSafe.phone))) {
-      //   this.$message({
-      //     message: '手机号格式不正确！',
-      //     type: 'warning'
-      //   })
-      //   return false
-      // }
       if (!this.haGetCode) {
         this.getCode()
       }
     },
+    // 发送验证码
     getCode () {
       send({
         name: '/tokens/SMScode?fmobile=' + this.userAccount,
@@ -157,6 +132,7 @@ export default {
         console.log(res)
       })
     },
+    // 倒计时
     CountDownFN () {
       let Timer = setTimeout(() => {
         this.CountDownFN()
@@ -172,6 +148,7 @@ export default {
         this.haGetCode = true
       }
     },
+    // 保存修改
     onSubmit (formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
@@ -222,7 +199,6 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="less" scoped>
 .Safe{
   background: #fff;

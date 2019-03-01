@@ -56,9 +56,6 @@
     <el-row v-if="ifSJOrderSearch && !showDetail" style="background: #fff;padding: 20px;">
       <el-col :span="24" class="BgWhite TextAlignR">
         <el-form :inline="true" :model="formCondition" class="demo-form-inline">
-          <!-- <el-form-item label="订单号">
-            <el-input v-model="formCondition.orderNo" placeholder="订单号" clearable></el-input>
-          </el-form-item> -->
           <el-form-item label="订单状态">
             <el-select v-model="formCondition.status" placeholder="订单状态" @change="searchOrder">
               <el-option label="预接单" value="5"></el-option>
@@ -69,9 +66,6 @@
               <el-option label="签收" value="4"></el-option>
             </el-select>
           </el-form-item>
-          <!-- <el-form-item>
-            <el-button type="primary" icon="el-icon-search" @click="searchOrder">查询</el-button>
-          </el-form-item> -->
           <el-form-item>
             <el-button type="success" icon="el-icon-printer" @click="exportExcell">导出</el-button>
           </el-form-item>
@@ -106,11 +100,6 @@
             width="120"
             label="发货人">
           </el-table-column>
-          <!-- <el-table-column
-            prop="goods_name"
-            label="货物类型"
-            show-overflow-tooltip>
-          </el-table-column> -->
           <el-table-column
             prop="ffee"
             label="报价"
@@ -135,7 +124,7 @@
               <el-button
                 size="mini"
                 type="primary"
-                @click="handleEdit(scope.$index, scope.row)">查看
+                @click="handleSeeSjOrderDetail(scope.$index, scope.row)">查看
               </el-button>
             </template>
           </el-table-column>
@@ -159,9 +148,7 @@
 <script>
 import { mapState, mapActions } from 'vuex'
 import {send} from '../../util/send'
-// import {secondToFormat} from '../../util/utils'
 import OrderDetail from './OrderDetail.vue'
-// import JsonExcel from 'vue-json-to-excel'
 export default {
   name: 'Order',
   data () {
@@ -172,37 +159,11 @@ export default {
       sum: 0,
       sumOrder: 0,
       formCondition: {
-        // orderNo: '',
-        // startDate: '',
-        // endDate: '',
         status: '5'
       },
       LogisticsList: [],
       orderList: [],
       selectedOrder: [],
-      jsonFields: {
-        order_no: 'String',
-        fstatusTxt: 'String',
-        goods_name: 'String',
-        fh_name: 'String',
-        fh_telephone: 'String',
-        origin: 'String',
-        fh_address: 'String',
-        sh_name: 'String',
-        sh_telephone: 'String',
-        destination: 'String',
-        sh_address: 'String',
-        carType: 'String',
-        zhTime: 'String',
-        isFapiao: 'String',
-        ffee: 'String'
-      },
-      json_meta: [
-        [{
-          key: 'charset',
-          value: 'utf-8'
-        }]
-      ],
       carTypeList: [],
       goodsTypeList: []
     }
@@ -236,7 +197,6 @@ export default {
     }
   },
   components: {
-    // 'downloadExcel': JsonExcel,
     OrderDetail
   },
   methods: {
@@ -248,6 +208,7 @@ export default {
     ]),
     handleSelectionChange () {
     },
+    // 选中记录改变
     handleSelectionChangeOrder (selection) {
       let tempChoosed = []
       selection.map((Order, idx) => {
@@ -274,12 +235,15 @@ export default {
     },
     handleSizeChange () {
     },
+    // 页码改变获取司机列表
     handleCurrentChangeDriver () {
       this.getLogisticsList()
     },
+    // 页码改变获取司机列订单表
     handleCurrentChangeOrder () {
       this.getStatusOrderList()
     },
+    // 获取司机列表
     getLogisticsList () {
       this.loading = true
       let oldPage = this.currentPage
@@ -305,22 +269,27 @@ export default {
         this.loading = false
       })
     },
-    handleEdit (idx, row) {
+    // 查看司机订单详情
+    handleSeeSjOrderDetail (idx, row) {
       this.changeShowDetail(true)
       this.changeSearchOrderId(row.id)
     },
+    // 关闭详情
     changeIfOrderDetail () {
       this.changeShowDetail(false)
     },
+    // 查看某司机某类订单列表
     seeDriverOrder (idx, row) {
       this.changeSearchSjId(row.id)
       this.changeIfSJOrderSearch(true)
       this.getStatusOrderList()
     },
+    // 改变查看的司机订单类型
     searchOrder () {
       this.currentPageOrder = 1
       this.getStatusOrderList()
     },
+    // 获取某司机某类订单列表
     getStatusOrderList () {
       this.loading = true
       send({
@@ -352,6 +321,7 @@ export default {
         this.loading = false
       })
     },
+    // 获取车型下拉
     getCarType (carType) {
       send({
         name: '/zCarTypeController/list',
@@ -366,6 +336,7 @@ export default {
         console.log(res)
       })
     },
+    // 获取车型名称
     checkCarType (carTypeId) {
       let len = this.carTypeList.length
       for (let i = 0; i < len; i++) {
@@ -374,6 +345,7 @@ export default {
         }
       }
     },
+    // 获取货物类型下拉
     getGoodsType () {
       send({
         name: '/typeController/list',
@@ -388,6 +360,7 @@ export default {
         console.log(res)
       })
     },
+    // 获取货物类型名称
     checkGoodsType (goodsTypeId) {
       let len = this.goodsTypeList.length
       for (let i = 0; i < len; i++) {
@@ -396,6 +369,7 @@ export default {
         }
       }
     },
+    // 导出记录
     exportExcell () {
       if (this.selectedOrder.length === 0) {
         this.$message({
@@ -412,6 +386,7 @@ export default {
         exportJsonToExcel(tHeader, data, '订单')
       })
     },
+    // json格式化
     formatJson (filterVal, jsonData) {
       return jsonData.map(v => filterVal.map(j => v[j]))
     }
@@ -419,7 +394,6 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="less" scoped>
 .Order{
   margin: 20px 20px 60px 20px;

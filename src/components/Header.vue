@@ -33,6 +33,7 @@ export default {
       'changeLocationIdx',
       'changeSiderIdx'
     ]),
+    // 退出登陆
     LogOut () {
       // localStorage.clear('vuex-along')
       this.$router.push({name: 'Login'})
@@ -44,7 +45,6 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="less" scoped>
 .HeaderBar{
   width: 100%;
