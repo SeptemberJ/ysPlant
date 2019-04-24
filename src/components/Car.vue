@@ -7,7 +7,6 @@
 <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=i958ho3aKFiiVfxOIwAZOO05sHDDsAGK"></script>
 <script>
 import {setZoom} from '../util/utils'
-// import {send} from '../../util/send'
 export default {
   name: 'Car',
   data () {
