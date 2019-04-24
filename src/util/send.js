@@ -6,8 +6,9 @@ import { Message } from 'element-ui'
 import store from '../vuex/store'
 // import _ from 'underscore'
 
-const URL_PREFIX = 'http://172.16.52.99:8083/yingsu/rest'
+// const URL_PREFIX = 'http://172.16.52.227:8083/rest' // zhaosongsong
 // const URL_PREFIX = 'http://116.62.171.244:8082/yingsu/rest'
+const URL_PREFIX = 'http://172.16.52.63/rest' // qianpeiyuan
 
 export function send (options) {
   // if (!options.name) {

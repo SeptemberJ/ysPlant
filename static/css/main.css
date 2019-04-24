@@ -4,10 +4,15 @@ html body{
   min-height: 100% !important;
 	padding: 0 !important;
 	margin: 0 !important;
+  /*background: #65c294;*/
+  /*background: #e0b32b;*/
 }
 form{
   box-sizing: initial !important;
 }
+.anchorBL{
+  display:none;
+} 
 .OrderDetail .el-input.is-disabled .el-input__inner{
   color: #666 !important;
   background-color: #fff !important;
@@ -104,6 +109,12 @@ form{
 .ColorWarn{
   color: #f56c6c !important;
 }
+.ColorWhite{
+  color: #fff !important;
+}
+.ColorGray{
+  color: #666 !important;
+}
 .CursorPointer{
 	cursor: pointer;
 }
@@ -145,6 +156,9 @@ form{
 }
 .MarginR_10{
   margin-right: 10px;
+}
+.MarginL_10{
+  margin-left: 10px;
 }
 .TextAlignC{
 	text-align: center !important;
@@ -229,3 +243,18 @@ form{
   font-weight: bold;
   margin-bottom: 5px;
 }
+/*sider menu bg and color*/
+.el-icon-arrow-down:before{
+  color: #fff !important;
+}
+.el-menu-item.is-active {
+  color: #fff;
+  background: rgb(81, 155, 118) !important;
+}
+.el-submenu__title .fa:before{
+  color: #fff;
+}
+.el-menu-item .fa:before{
+  color: #fff;
+}
+.el-table td, .el-table th.is-leaf{}

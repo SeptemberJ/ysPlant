@@ -3,10 +3,10 @@
     <!-- 司机列表 -->
     <el-row>
       <el-col :span="24" class="BgWhite MarginTB_10 TextAlignR">
-       <el-button type="primary" icon="el-icon-plus" size="small" @click="toAddOrderC">新增</el-button>
+       <el-button type="primary" icon="el-icon-plus" @click="toAddOrderC">新增</el-button>
        <el-button type="success" icon="el-icon-printer" @click="exportExcell">导出</el-button>
       </el-col>
-      <el-col :span="24"  class="MarginB_20">
+      <el-col :span="24"  class="MarginB_20 MarginT_20">
         <el-table
           ref="multipleTable"
           :data="ticketList"

@@ -184,7 +184,11 @@
             </el-form-item>
             <!-- time -->
             <el-form-item prop="zhTime" label="装货日期">
-              <el-date-picker type="datetime" :picker-options="pickerOptionsStart" placeholder="选择装货日期" v-model="formAdd.zhTime" style="width: 100%;" :disabled="formAdd.fstatus != 0"></el-date-picker>
+              <el-date-picker type="date" :picker-options="pickerOptionsStart" placeholder="选择装货日期" v-model="formAdd.zhTime" style="width: 100%;" :disabled="formAdd.fstatus != 0"></el-date-picker>
+            </el-form-item>
+            <el-form-item prop="appointId" label="指派人员" class="TextAlignL">
+              <span class="MarginR_10" v-if="appointName">{{appointName}}</span>
+              <!-- <el-button type="text" size="small" @click="chooseSJ">去选择<i class="el-icon-d-arrow-right el-icon--right"></i></el-button> -->
             </el-form-item>
             <el-form-item label="开具发票" prop="isFapiao">
               <el-radio-group v-model="formAdd.isFapiao" style="float: left">
@@ -215,6 +219,16 @@
                 <el-col :span="1"><img src="../../../static/images/icon/wx.png" style="width: 35px;margin-top:5px;"></el-col>
               </el-row>
             </el-form-item> -->
+            <el-form-item prop="oilCard" label="是否使用油卡">
+            <span style="color: red">(油卡部分的金额无法开票)</span>
+            <el-input v-model="formAdd.oilCard" clearable v-if="formAdd.ifUseOilCard == 1" style="width: 200px;float:right;margin-left:20px;">
+              <template slot="append">¥</template>
+            </el-input>
+            <el-radio-group v-model="formAdd.ifUseOilCard" style="float: right">
+              <el-radio :label="0" border :disabled="formAdd.fstatus != 0">不使用</el-radio>
+              <el-radio :label="1" border :disabled="formAdd.fstatus != 0">使用</el-radio>
+            </el-radio-group>
+          </el-form-item>
             <el-form-item prop="ffee" :label="formAdd.fstatus == 0 ? '可接受最高价' : '确认报价'">
               <el-input v-model="formAdd.ffee" clearable placeholder="请输入您的报价" :disabled="formAdd.fstatus != 0">
                 <template slot="append">¥</template>
@@ -232,9 +246,10 @@
         <!-- bt -->
         <el-row>
           <el-col :span="12" class="TextAlignC" >
-            <el-button type="primary" :loading="ifLoading" @click="onSubmit('formAdd')" :disabled="formAdd.fstatus != 0">保存修改</el-button>
+            <el-button type="primary" :loading="ifLoading" @click="onSubmit('formAdd')" v-if="formAdd.fstatus == 0">保存修改</el-button>
+            <el-button type="primary" :loading="ifLoading" @click="payment" v-if="formAdd.fstatus == 5">确认付款</el-button>
           </el-col>
-          <el-col :span="12" class="TextAlignC">
+          <el-col :span="12" class="TextAlignC" style="float:right;">
             <el-button @click="backOrderList" style="width: 100px;">返回</el-button>
           </el-col>
         </el-row>
@@ -269,6 +284,7 @@ export default {
     }
     return {
       ifLoading: false,
+      order_no: '', // 订单号
       fprovinceList: [],
       fcityList: [],
       fareaList: [],
@@ -284,6 +300,7 @@ export default {
       cityDistance: 0,
       unitPrice: 0,
       totalSum: 0,
+      appointName: '',
       formAdd: {
         fprovince: '',
         fcity: '',
@@ -315,6 +332,8 @@ export default {
         boxNo: '',
         payType: '0', // 0-支付宝 1-微信
         max_price: 0,
+        ifUseOilCard: 0, // 0 不使用 1 使用
+        oilCard: 0, // 油卡金额
         fmaxFee: 0
       },
       AddRules: {
@@ -395,6 +414,7 @@ export default {
     ...mapState({
       userRole: state => state.userRole,
       userCode: state => state.userCode,
+      userId: state => state.userId,
       searchOrderId: state => state.searchOrderId
     }),
     totalWeight: function () {
@@ -419,6 +439,11 @@ export default {
     },
     unitPrice: function (value) {
       this.totalSum = (this.cityDistance * this.totalWeight / 1000 * value).toFixed(2)
+    },
+    'formAdd.ifUseOilCard': function (value) {
+      if (value === 0) {
+        this.formAdd.oilCard = 0
+      }
     }
   },
   components: {
@@ -507,6 +532,7 @@ export default {
       let DATA = {
         fmaxFee: this.formAdd.fmaxFee,
         ffee: this.formAdd.ffee,
+        foilCard: this.formAdd.oilCard,
         fweight: this.totalWeight,
         id: this.formAdd.id,
         fstatus: this.formAdd.fstatus,
@@ -554,6 +580,41 @@ export default {
         this.ifLoading = false
       })
     },
+    // 付款
+    payment () {
+      this.$confirm('确认支付该订单的金额?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.surePay()
+      }).catch(() => {
+      })
+    },
+    surePay () {
+      send({
+        name: '/zPayAccountRegisterController',
+        method: 'POST',
+        data: {
+          fmoney: this.formAdd.ffee,
+          payType: 1,
+          orderNo: this.order_no,
+          registerId: this.userId
+        }
+      }).then(res => {
+        if (res.data.respCode === '0') {
+          this.$message({
+            message: '支付成功!',
+            type: 'success'
+          })
+          // this.dialogVisibleCharge = false
+          // this.getBasicInfo()
+          // this.getCapitalFlow()
+        }
+      }).catch((res) => {
+        console.log(res)
+      })
+    },
     // 数据清空恢复初始化
     clearDataABack () {
       this.formAdd = {
@@ -583,7 +644,9 @@ export default {
             orderId: ''
           }
         ],
-        isFapiao: 0
+        isFapiao: 0,
+        ifUseOilCard: 0,
+        oilCard: 0
       }
       // tolist
       this.changeSiderIdx('1-1')
@@ -601,9 +664,12 @@ export default {
       }).then(res => {
         if (res.data.respCode === '0') {
           let Info = res.data.data
+          this.order_no = Info.order_no
           let temp = Info
           temp.fmaxFee = Info.fmax_fee
           temp.ffee = Info.ffee
+          temp.ifUseOilCard = (temp.foil_card === 0 ? 0 : 1) // 0 不使用 1 使用
+          temp.oilCard = Info.foil_card
           temp.fprovince = Info.origin_province_id
           temp.fcity = Info.origin_city_id
           temp.farea = Info.origin_area_id
@@ -627,6 +693,7 @@ export default {
           temp.isBox = Info.is_box
           temp.boxNo = Info.box_no
           temp.payType = Info.payType ? Info.payType : 0
+          this.appointName = Info.appoint_name ? Info.appoint_name : '未指定'
           this.formAdd = temp
           // 省市区
           this.getProvince()

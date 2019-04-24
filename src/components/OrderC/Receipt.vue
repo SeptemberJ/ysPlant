@@ -6,12 +6,13 @@
         <el-input style='width:250px;' v-model='searOrderNo' placeholder='请输入查询的订单号' clearable></el-input>
         <el-button type="primary" icon="el-icon-search" @click="searchOrder">查询</el-button>
       </el-col> -->
+      <!-- 原本未指定和指定在同一页面
       <el-col :span="24"  class="MarginTB_20">
         <el-row>
           <el-col :span="12" :class="{'activeTab': searchType == 1, 'normalTab': searchType == 0, 'Padding_10': true}"><span @click="changeTab(1)">指定订单</span></el-col>
           <el-col :span="12" :class="{'activeTab': searchType == 0, 'normalTab': searchType == 1, 'Padding_10': true}"><span @click="changeTab(0)">未指定订单</span></el-col>
         </el-row>
-      </el-col>
+      </el-col> -->
       <el-col :span="24"  class="MarginTB_20">
         <el-table
           ref="multipleTable"
@@ -136,18 +137,28 @@ export default {
       userRole: state => state.userRole,
       userCode: state => state.userCode,
       userId: state => state.userId,
-      showDetail: state => state.showDetail
+      showDetail: state => state.showDetail,
+      siderIdx: state => state.siderIdx
     })
   },
   created () {
     this.changeShowDetail(false)
-    if (this.searchType === 0 || this.searchType === '0') {
+    if (this.siderIdx === '1-6') {
       this.getOrderListNotAppoint()
     } else {
       this.getOrderList()
     }
   },
   watch: {
+    // 指定和未指定拆分后通过监听siderIdx的变化获取相应数据
+    siderIdx: function (newVal) {
+      if (newVal === '1-4') {
+        this.getOrderList()
+      }
+      if (newVal === '1-6') {
+        this.getOrderListNotAppoint()
+      }
+    }
     // searOrderNo: function (val) { // 若订单清空则查询当前类型的待接单
     //   if (val === '') {
     //     this.searchOrder()
@@ -235,11 +246,16 @@ export default {
     // 查看详情
     changeIfOrderDetail (searchType) {
       this.searchType = searchType
-      if (searchType === 0 || searchType === '0') {
+      if (this.siderIdx === '1-6') {
         this.getOrderListNotAppoint()
       } else {
         this.getOrderList()
       }
+      // if (searchType === 0 || searchType === '0') {
+      //   this.getOrderListNotAppoint()
+      // } else {
+      //   this.getOrderList()
+      // }
       this.changeShowDetail(false)
     },
     // 显示详情页

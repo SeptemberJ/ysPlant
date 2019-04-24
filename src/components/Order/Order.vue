@@ -1,6 +1,6 @@
 <template>
   <div class="Order">
-    <el-row v-if="!showDetail" style="background: #fff;padding: 20px;">
+    <el-row v-if="!showDetail && !showMap" style="background: #fff;padding: 20px;">
       <el-col :span="24" class="BgWhite MarginT_10 TextAlignR">
         <!-- <el-button type="primary" icon="el-icon-plus" size="small">新增</el-button> -->
         <el-form :inline="true" :model="formCondition" class="demo-form-inline">
@@ -47,10 +47,11 @@
           </el-table-column>
           <el-table-column
             label="订单状态"
-            width="120"
+            width="100"
             >
             <template slot-scope="scope">
-              <span>{{scope.row.fstatus == 0 ? '待接单' : (scope.row.fstatus == 1 ? '已接单' : (scope.row.fstatus == 2 ? '已撤单' : (scope.row.fstatus == 3 ? '运输中' : (scope.row.fstatus == 4 ? '已签收' : '已取消'))))}}</span>
+              <span>{{scope.row.fstatusTxt}}</span>
+              <!-- <span>{{scope.row.fstatus == 0 ? '待接单' : (scope.row.fstatus == 1 ? '已接单' : (scope.row.fstatus == 2 ? '已撤单' : (scope.row.fstatus == 3 ? '运输中' : (scope.row.fstatus == 4 ? '已签收' : '已取消'))))}}</span> -->
             </template>
           </el-table-column>
           <!-- <el-table-column
@@ -76,7 +77,7 @@
           <el-table-column
             align="right"
             label="操作"
-            width="220"
+            width="300"
             >
             <template slot-scope="scope">
               <el-button
@@ -88,13 +89,19 @@
               <el-button
                 size="mini"
                 type="warning"
-                :disabled="scope.row.fstatus != 0"
+                :disabled="scope.row.fstatus != 1"
                 @click="getOfferList(scope.$index, scope.row)">报价
               </el-button>
               <el-button
                 size="mini"
                 type="primary"
                 @click="handleEdit(scope.$index, scope.row)">详情
+              </el-button>
+              <el-button
+                size="mini"
+                type="success"
+                :disabled="scope.row.fstatus == 0 || scope.row.fstatus == 1 || scope.row.fstatus == 2"
+                @click="viewingPath(scope.$index, scope.row)">轨迹
               </el-button>
             </template>
           </el-table-column>
@@ -112,7 +119,7 @@
       </el-col>
     </el-row>
     <!-- 报价列表 -->
-    <el-dialog title="报价列表" :visible.sync="dialogFormVisible" width="550px">
+    <el-dialog title="报价列表" :visible.sync="dialogFormVisible" width="650px">
       <el-row>
         <el-table
           id="rebateSetTable"
@@ -124,19 +131,25 @@
           style="width: 100%">
           <el-table-column
             type="index"
-            width="55">
+            width="50">
           </el-table-column>
           <el-table-column
             prop="fname"
+            width="100"
             label="司机">
           </el-table-column>
           <el-table-column
             prop="ffee"
+            width="100"
             label="报价(¥)">
           </el-table-column>
           <el-table-column
             prop="fmobile"
             label="手机号">
+          </el-table-column>
+          <el-table-column
+            prop="fnote"
+            label="备注">
           </el-table-column>
           <el-table-column
             align="right"
@@ -157,7 +170,8 @@
         <el-button @click="dialogFormVisible = false">关闭</el-button>
       </div>
     </el-dialog>
-    <OrderDetail v-if="showDetail" @toggleOrderDetail='changeIfOrderDetail'/>
+    <OrderDetail v-if="showDetail && !showMap" @toggleOrderDetail='changeIfOrderDetail'/>
+    <Map v-if="!showDetail && showMap"/>
   </div>
 </template>
 
@@ -166,6 +180,7 @@ import { mapState, mapActions } from 'vuex'
 import {send} from '../../util/send'
 import {secondToFormat} from '../../util/utils'
 import OrderDetail from './OrderDetail.vue'
+import Map from '../Map/Map.vue'
 // import FileSaver from 'file-saver'
 // import XLSX from 'xlsx'
 // import expandRow from './TableExpand.vue'
@@ -219,6 +234,7 @@ export default {
       userRole: state => state.userRole,
       userCode: state => state.userCode,
       showDetail: state => state.showDetail,
+      showMap: state => state.showMap,
       searchOrderId: state => state.searchOrderId
     })
   },
@@ -228,11 +244,13 @@ export default {
     this.getGoodsType()
   },
   components: {
-    OrderDetail
+    OrderDetail,
+    Map
   },
   methods: {
     ...mapActions([
       'changeShowDetail',
+      'changeShowMap',
       'changeSearchOrderId'
     ]),
     handleSelectionChange (selection) {
@@ -266,6 +284,19 @@ export default {
     handleEdit (idx, row) {
       this.changeShowDetail(true)
       this.changeSearchOrderId(row.id)
+    },
+    // 查看轨迹
+    viewingPath (index, row) {
+      this.changeShowMap(true)
+      localStorage['MapId'] = row.id
+      // send({
+      //   name: '/orderController/trail/2c979074687943f3016879727bc70001/0',
+      //   method: 'GET',
+      //   data: {}
+      // }).then(res => {
+      // }).catch((res) => {
+      //   console.log(res)
+      // })
     },
     // 查看报价
     getOfferList (idx, row) {
@@ -368,11 +399,13 @@ export default {
       }).then(res => {
         if (res.data.code === 1) {
           this.sum = res.data.sum_number
-          res.data.orderList.map(order => {
+          this.orderList = res.data.orderList.map(order => {
             order.zhDate = secondToFormat(order.zh_time.time)
-            order.fstatusTxt = (order.fstatus === '0' ? '待接单' : (order.fstatus === '1' ? '已接单' : (order.fstatus === '2' ? '已撤单' : (order.fstatus === '3' ? '运输中' : (order.fstatus === '4' ? '已签收' : '已取消')))))
+            order.fstatusTxt = (order.fstatus === '0' ? '待接单' : (order.fstatus === '1' ? '已接单' : (order.fstatus === '2' ? '已撤单' : (order.fstatus === '3' ? '运输中' : (order.fstatus === '4' ? '已签收待确认' : (order.fstatus === '5' ? '待付款' : (order.fstatus === '7' ? '已结单' : ('已取消2'))))))))
+            return order
+            // order.fstatusTxt = (order.fstatus === '0' ? '待接单' : (order.fstatus === '1' ? '已接单' : (order.fstatus === '2' ? '已撤单' : (order.fstatus === '3' ? '运输中' : (order.fstatus === '4' ? '已签收待确认' : (order.fstatus === '5' ? '待付款' : (order.fstatus === '7' ? '已结单' : '已取消')))))))
           })
-          this.orderList = res.data.orderList
+          // this.orderList = res.data.orderList
         } else {
           this.$message({
             message: res.data.message + '！',

@@ -6,10 +6,10 @@
       <div class='InnerBox'>
         <el-row>
           <el-col :span='24' class='MarginTB_20'>
-            <el-input style='width:250px;' v-model='phone' placeholder='请输入您的账户名' clearable></el-input>
+            <el-input style='width:250px;' v-model='phone' placeholder='请输入您的账户名' clearable @keyup.enter.native='enterEvent'></el-input>
           </el-col>
           <el-col :span='24' class=''>
-            <el-input style='width:250px;' type='password' v-model='password' placeholder='请输入您的密码' clearable></el-input>
+            <el-input style='width:250px;' type='password' v-model='password' placeholder='请输入您的密码' clearable @keyup.enter.native='enterEvent'></el-input>
           </el-col>
           <el-col :span='24' class='MarginTB_20 TextAlignC'>
             <el-button class='loginBt CursorPointer' @click='Login' :loading='ifLoading'>登陆</el-button>
@@ -36,7 +36,7 @@ export default {
   data () {
     return {
       ifLoading: false,
-      phone: '18734567890', // 货主 18534567899 18734567890 承运商 13734567890  17734567890 个人 18834567890
+      phone: '18734567890', // 货主 18534567899 18734567890 承运商 13734567890  17734567890  SHZ 13783948780 个人 18834567890
       password: '111111'
     }
   },
@@ -88,6 +88,12 @@ export default {
     ToModityPsd () {
       this.$router.push({name: 'Password'})
       this.changeLocationIdx(4)
+    },
+    enterEvent () {
+      let keyCode = event.keyCode ? event.keyCode : event.which ? event.which : event.charCode
+      if (keyCode === 13) {
+        this.Login()
+      }
     },
     // 登陆
     Login () {

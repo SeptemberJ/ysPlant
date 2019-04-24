@@ -85,7 +85,7 @@ export default {
 				data: {
 				}
 			}).then(res => {
-				console.log(res.data.resultStr.NewDataSet)
+				// console.log(res.data.resultStr.NewDataSet)
 				let tempArray = []
 				res.data.resultStr.NewDataSet.map( item => {
 					let obj = {

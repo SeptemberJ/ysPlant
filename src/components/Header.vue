@@ -1,6 +1,6 @@
 <template>
   <div class="HeaderBar">
-    <el-row>
+    <el-row style="background: #65c294;color: #fff">
       <el-col :span="12" class="block">
         <!-- <img class="Logo" style="width: 140px;height: 66px;" src="../../static/images/Logo.png"> -->
         <img class="Logo" style="width: 140px;height: 66px;" src="../../static/images/Partner_10.png">
@@ -49,8 +49,9 @@ export default {
 .HeaderBar{
   width: 100%;
   height: 66px;
-  border-bottom: 1px solid #efefef;
+  border-bottom: 1px solid #fff;
   text-align: left;
+  overflow: hidden;
   .block{
     padding: 0 20px;
   }

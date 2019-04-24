@@ -11,6 +11,7 @@ const state = {
   locationIdx: 0, // 0 - Login 1 - Sign 2 - Home 3 - Information 4 - Password
   siderIdx: '1-1', // 1 - 运单管理 2 - 用户管理 3-1 - 基本信息 3-2 - 密码修改
   addOrderType: '1-2-1', // 货主下单类型 普货 危险品 冷藏品
+  mapSearchId: '', // 地图轨迹id 订单id或货主id
   menuIndex: '1',
   userId: '',
   userAccount: '',
@@ -19,6 +20,7 @@ const state = {
   ImgURL_PREFIX: 'http://116.62.171.244:8082/yingsu',
   // ImgURL_PREFIX: 'http://172.16.52.99:8083/yingsu',
   showDetail: false, // 是否显示订单详情页
+  showMap: false, // 是否显示轨迹 货主
   ifSJOrderSearch: '', // 是否显示查询司机订单页面
   searchOrderId: '',
   searchSjId: '',
@@ -64,6 +66,9 @@ const actions = {
   changeShowDetail ({commit, state}, STATUS) {
     commit('toggleShowDetail', STATUS)
   },
+  changeShowMap ({commit, state}, STATUS) {
+    commit('toggleShowMap', STATUS)
+  },
   changeIfSJOrderSearch ({commit, state}, STATUS) {
     commit('toggleIfSJOrderSearch', STATUS)
   },
@@ -72,6 +77,9 @@ const actions = {
   },
   changPDFCompany ({commit, state}, NAME) {
     commit('setPDFCompany', NAME)
+  },
+  changeMapId ({commit, state}, ID) {
+    commit('setMapId', ID)
   }
 }
 
@@ -111,6 +119,9 @@ const mutations = {
   toggleShowDetail (state, STATUS) {
     state.showDetail = STATUS
   },
+  toggleShowMap (state, STATUS) {
+    state.showMap = STATUS
+  },
   toggleIfSJOrderSearch (state, STATUS) {
     state.ifSJOrderSearch = STATUS
   },
@@ -119,6 +130,9 @@ const mutations = {
   },
   setPDFCompany (state, NAME) {
     state.PDFCompany = NAME
+  },
+  setMapId (state, ID) {
+    state.mapSearchId = ID
   }
 }
 

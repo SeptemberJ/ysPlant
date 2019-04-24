@@ -9,12 +9,16 @@
         </el-col>
         <el-col :span="12">
           <el-form-item prop="ffee" label="运费金额">
-            <el-input v-model="formAdd.ffee" clearable></el-input>
+            <el-input v-model="formAdd.ffee" clearable>
+              <template slot="append">¥</template>
+            </el-input>
           </el-form-item>
         </el-col>
         <el-col :span="11" :offset="1">
           <el-form-item prop="ftransportPrice" label="运输单价">
-            <el-input v-model="formAdd.ftransportPrice" clearable></el-input>
+            <el-input v-model="formAdd.ftransportPrice" clearable>
+              <template slot="append">¥</template>
+            </el-input>
           </el-form-item>
         </el-col>
       </el-row>
@@ -105,16 +109,18 @@
       <el-form-item prop="floadingTime" label="装货时间">
         <el-date-picker
           v-model="formAdd.floadingTime"
-          type="datetime"
+          type="date"
           style="width: 100%"
+          :picker-options="pickerOptionsStart"
           placeholder="选择装货时间">
         </el-date-picker>
       </el-form-item>
       <el-form-item prop="fstartDate" label="起运时间">
         <el-date-picker
           v-model="formAdd.fstartDate"
-          type="datetime"
+          type="date"
           style="width: 100%"
+          :picker-options="pickerOptionsAccordingTo"
           placeholder="选择起运时间">
         </el-date-picker>
       </el-form-item>
@@ -350,17 +356,37 @@ export default {
         sarea: [
           { required: true, message: '请选择收货区!', trigger: 'change' }
         ]
+      },
+      pickerOptionsStart: {
+        disabledDate (time) {
+          return time.getTime() < Date.now() - 8.64e7
+        }
       }
     }
   },
   computed: {
     ...mapState({
       userId: state => state.userId
-    })
+    }),
+    pickerOptionsAccordingTo: function () {
+      let floadingTime = this.formAdd.floadingTime
+      let time = {
+        disabledDate (time) {
+          return time.getTime() < floadingTime
+        }
+      }
+      return time
+    }
   },
   watch: {
     orderId: function (val) {
       this.getOrderDetail()
+    },
+    'formAdd.floadingTime': function (newVal, oldVal) {
+      // 初始化数据不执行 重新选择的日期并没有大于fstartDate的不执行
+      if (oldVal !== '' && newVal.getTime() > this.formAdd.fstartDate.getTime()) {
+        this.formAdd.fstartDate = ''
+      }
     }
   },
   created () {

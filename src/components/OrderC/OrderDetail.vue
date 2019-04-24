@@ -183,7 +183,11 @@
             </el-form-item>
             <!-- time -->
             <el-form-item prop="zhTime" label="装货日期">
-              <el-date-picker type="datetime" :picker-options="pickerOptionsStart" placeholder="选择装货日期" v-model="formAdd.zhTime" disabled style="width: 100%;"></el-date-picker>
+              <el-date-picker type="date" :picker-options="pickerOptionsStart" placeholder="选择装货日期" v-model="formAdd.zhTime" disabled style="width: 100%;"></el-date-picker>
+            </el-form-item>
+            <el-form-item prop="appointId" label="指派人员" class="TextAlignL">
+              <span class="MarginR_10" v-if="appointName">{{appointName}}</span>
+              <!-- <el-button type="text" size="small" @click="chooseSJ">去选择<i class="el-icon-d-arrow-right el-icon--right"></i></el-button> -->
             </el-form-item>
             <el-form-item label="开具发票" prop="isFapiao">
               <!-- <el-radio-group v-model="formAdd.isFapiao" style="float: left">
@@ -209,6 +213,16 @@
             <span>费用</span>
           </div>
           <div class="TextAlignL">
+            <el-form-item prop="oilCard" label="是否使用油卡">
+              <span style="color: red;width: 200px;">(油卡部分的金额无法开票)</span>
+              <el-input v-model="formAdd.oilCard" clearable disabled v-if="formAdd.ifUseOilCard == 1" style="width: 200px;float:right;margin-left:20px;">
+                <template slot="append">¥</template>
+              </el-input>
+              <el-radio-group v-model="formAdd.ifUseOilCard" style="float: right">
+                <el-radio :label="0" border disabled>不使用</el-radio>
+                <el-radio :label="1" border disabled>使用</el-radio>
+              </el-radio-group>
+            </el-form-item>
             <h4 class="ColorWarn"><span style="display:inline-block;width:50%">{{formAdd.fstatus == 0 ? '货主报价' : '确认报价'}}：</span><span style="display:inline-block;width:50%;text-align:right">{{formAdd.ffee}} ¥</span></h4>
             <!-- 原本计算的合计
             <p style="font-size: 12px;color: #909399;text-align:right">{{cityDistance}} (路程/km) * {{totalWeight/1000}} (重量/t) * {{unitPrice}} (单价/¥) = {{totalSum}} ¥</p> -->
@@ -229,7 +243,7 @@
         <el-col :span="4">
           <span style="line-height: 35px;">报价金额：</span>
         </el-col>
-        <el-col :span="12" class="TextAlignL">
+        <el-col :span="20" class="TextAlignL">
           <el-input v-model='offer' placeholder='请输入您的报价金额' clearable></el-input>
         </el-col>
         <!-- 原本显示最高限价
@@ -252,6 +266,14 @@
               <span style="float: right; color: #8492a6; font-size: 13px">{{ item.company_name }} <span class="PaddingL_10">{{item.fmobile}}</span></span>
             </el-option>
           </el-select>
+        </el-col>
+      </el-row>
+      <el-row class="MarginT_10">
+        <el-col :span="4">
+          <span style="line-height: 35px;">备注：</span>
+        </el-col>
+        <el-col :span="20" class="TextAlignL">
+          <el-input type="textarea" v-model='offerNote' placeholder='备注信息......'></el-input>
         </el-col>
       </el-row>
       <div slot="footer" class="dialog-footer">
@@ -296,6 +318,7 @@ export default {
       cityDistance: 0,
       unitPrice: 0,
       totalSum: 0,
+      appointName: '',
       // fprovinceName: '',
       // sprovinceName: '',
       // fcityName: '',
@@ -330,6 +353,8 @@ export default {
         orderGoodsList: [],
         isFapiao: '0', // 0-不要 1-要
         isBox: '', // 0-要 1-不要
+        ifUseOilCard: 0, // 0 不使用 1 使用
+        oilCard: 0, // 油卡金额
         boxNo: ''
       },
       AddRules: {
@@ -396,6 +421,7 @@ export default {
       },
       maxFee: '',
       offer: '', // 输入的报价
+      offerNote: '', // 报价备注
       carTypeList: [],
       goodsTypeList: [],
       LogisticsList: [],
@@ -457,6 +483,8 @@ export default {
           let Info = res.data.orderInfo
           let temp = Info
           temp.ffee = Info.ffee
+          temp.ifUseOilCard = (temp.foil_card === 0 ? 0 : 1) // 0 不使用 1 使用
+          temp.oilCard = Info.foil_card
           temp.fprovince = Info.origin_province_id
           temp.fcity = Info.origin_city_id
           temp.farea = Info.origin_area_id
@@ -479,6 +507,7 @@ export default {
           temp.isFapiao = Info.is_fapiao
           temp.isBox = Info.is_box
           temp.boxNo = Info.box_no
+          this.appointName = Info.appoint_name ? Info.appoint_name : '未指定'
           this.formAdd = temp
           this.maxFee = Info.fmax_fee
           this.hasOffered = res.data.flag === 1
@@ -729,8 +758,10 @@ export default {
         orderId: this.searchOrderId,
         orderStatus: '5',
         ffee: this.offer,
+        fnote: this.offerNote,
         createDate: new Date()
       }
+      console.log(DATA)
       send({
         name: '/driverOrderController',
         method: 'POST',

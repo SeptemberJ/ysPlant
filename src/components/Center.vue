@@ -1,17 +1,13 @@
 <template>
   <div class="Center">
-    <!-- <el-row v-if="userRole == 1 || userRole == 2">
+    <el-row v-if="userRole == 1 || userRole == 2">
       <el-col :span="8" class="TextAlignL">
         <div class="MarginT_10">
           <span class="LeftTit">企业名称：</span>
           <span>{{formInfo.company}}</span>
         </div>
         <div class="MarginT_10">
-          <span class="LeftTit">账户余额：</span>
-          <span>{{12000}}</span>
-        </div>
-        <div class="MarginT_10">
-          <span class="LeftTit">联系人：</span>
+          <span class="LeftTit">联系人员：</span>
           <span>{{formInfo.contact}}</span>
         </div>
         <div class="MarginT_10">
@@ -19,7 +15,7 @@
           <span>{{formInfo.tel}}</span>
         </div>
       </el-col>
-      <el-col :span="16" class="TextAlignL MarginT_10">
+      <el-col :span="8" class="TextAlignL">
         <div class="MarginT_10">
           <span class="LeftTit">抬头：</span>
           <span>{{formInfo.taitou}}</span>
@@ -33,9 +29,36 @@
           <span>{{formInfo.bankNo}}</span>
         </div>
       </el-col>
+      <el-col :span="8" class="TextAlignL">
+        <div class="MarginT_10">
+          <span class="LeftTit">账户余额：</span>
+          <span>{{formInfo.faccount}} (¥)</span>
+          <el-button type = 'success' size="mini" class="MarginL_10" @click="recharge">充值</el-button>
+        </div>
+      </el-col>
     </el-row>
-    <div style="width:100%;height:1px;background:#efefef;margin:20px 0;"></div>
-    <el-row class="MarginT_40">
+    <!-- 充值 -->
+    <el-dialog
+      title="账户充值"
+      :visible.sync="dialogVisibleCharge"
+      width="450px"
+      :close-on-click-modal='false'
+      :before-close="handleClose">
+      <div>
+        <el-form :model="formCharge" :rules="chargeRules" ref="formCharge" label-width="100px" class="demo-ruleForm">
+          <el-form-item label="充值金额" prop="amount">
+            <el-input style="width: 200px;float:left;margin-left: 10px;" v-model="formCharge.amount" clearable placeholder="请输入要充值的金额"></el-input>
+            <span style="float:left;margin-left: 10px;">(¥)</span>
+          </el-form-item>
+        </el-form>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisibleCharge = false">取 消</el-button>
+        <el-button type="primary" @click="onSubmit('formCharge')">确 定</el-button>
+      </span>
+    </el-dialog>
+    <div style="width:100%;height:30px;border-bottom: 1px dashed #ddd;margin:30px 0 0 0;"></div>
+    <!-- <el-row class="MarginT_40">
       <span class="PaddingR_10">操作时间</span>
       <el-date-picker
         v-model="startDate"
@@ -49,39 +72,56 @@
         placeholder="选择结束日期">
       </el-date-picker>
       <el-button type="primary" icon="el-icon-search">搜索</el-button>
-    </el-row>
-    <el-row class="MarginT_40">
-      <el-table
-      :data="accountData"
-      style="width: 100%">
-        <el-table-column
-          prop="accountS"
-          label="期初账户余额"
-          width="180">
-        </el-table-column>
-        <el-table-column
-          prop="accountRecharge"
-          label="充值金额"
-          width="180">
-        </el-table-column>
-        <el-table-column
-          prop="accountPayed"
-          label="支付金额">
-        </el-table-column>
-        <el-table-column
-          prop="accountS"
-          label="期末账户余额">
-        </el-table-column>
-        <el-table-column label="操作">
-          <template slot-scope="scope">
-            <el-button
-              size="mini"
-              @click="seeAccountDetail(scope.$index, scope.row)">查看明细</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
     </el-row> -->
-    <el-form class="CenterForm MarginT_40" :model="formInfo" ref="formInfo" label-width="120px">
+    <el-row>
+      <el-col :span="24"><h3>交易记录明细</h3></el-col>
+      <el-col :span="24">
+        <el-table
+        :data="CapitalFlowData"
+        style="width: 100%">
+          <el-table-column
+            type="index"
+            width="50">
+          </el-table-column>
+          <el-table-column
+            prop="addtime"
+            label="交易时间">
+          </el-table-column>
+          <el-table-column
+            prop="tradeSn"
+            label="交易编号">
+          </el-table-column>
+          <el-table-column
+            prop="fmoney"
+            label="交易金额(¥)">
+          </el-table-column>
+          <el-table-column
+            prop="typeTxt"
+            label="交易类型"
+            width="100">
+          </el-table-column>
+          <!-- <el-table-column label="操作" width="100">
+            <template slot-scope="scope">
+              <el-button
+                size="mini"
+                type="danger"
+                @click="deleteChargeRecord(scope.$index, scope.row)">删除</el-button>
+            </template>
+          </el-table-column> -->
+        </el-table>
+      </el-col>
+      <el-col :span="24" class="MarginTB_20 TextAlignR" v-if="CapitalFlowData.length > 0">
+        <el-pagination
+        @current-change="handleCurrentChange"
+        :current-page.sync="currentPage"
+        :page-size="pageSize"
+        layout="prev, pager, next, jumper"
+        :total="sum">
+        </el-pagination>
+      </el-col>
+    </el-row>
+
+    <!-- <el-form class="CenterForm MarginT_40" :model="formInfo" ref="formInfo" label-width="120px">
       <el-form-item
         v-if="userRole == 1 || userRole == 2"
         class="TextAlignR"
@@ -200,7 +240,7 @@
           </el-col>
         </el-row>
       </el-form-item>
-   </el-form>
+   </el-form> -->
   </div>
 </template>
 
@@ -213,19 +253,12 @@ export default {
     return {
       startDate: '',
       endDate: '',
-      accountData: [
-        {
-          accountS: 15000,
-          accountE: 12000,
-          accountPayed: 3000,
-          accountRecharge: 0
-        }
-      ],
       formInfo: {
         phone: '',
         bank: '',
         bankNo: '',
         taitou: '',
+        faccount: '',
         tax: '',
         ID: '',
         company: '',
@@ -251,7 +284,20 @@ export default {
         license: [
           { required: true, message: '请选择要上传的营业执照！', trigger: 'blur' }
         ]
-      }
+      },
+      dialogVisibleCharge: false,
+      formCharge: {
+        amount: 2000
+      },
+      chargeRules: {
+        amount: [
+          { required: true, message: '请输入要充值的金额!', trigger: 'blur' }
+        ]
+      },
+      CapitalFlowData: [],
+      currentPage: 1,
+      pageSize: 15,
+      sum: 0
     }
   },
   computed: {
@@ -264,39 +310,57 @@ export default {
   },
   created () {
     this.getBasicInfo()
+    this.getCapitalFlow()
   },
   methods: {
-    // beforeAvatarUpload (file) {
-    //   console.log('-------------------')
-    //   console.log(file)
-    //   var _this = this
-    //   var reader = new FileReader()
-    //   reader.readAsDataURL(file)
-    //   if (file.size > 1024000 * 2) {
-    //     this.$message({
-    //       message: '您上传的图片太大了, 请不要超过2M!',
-    //       type: 'warning'
-    //     })
-    //     return false
-    //   }
-    //   reader.onload = function (e) {
-    //     _this.formInfo.license = this.result
-    //   }
-    // },
-    // onSubmit (formName) {
-    //   this.$refs[formName].validate((valid) => {
-    //     if (valid) {
+    // 充值
+    recharge () {
+      this.dialogVisibleCharge = true
+    },
+    handleClose (done) {
+      this.$confirm('确认取消充值？').then(_ => {
+        done()
+      }).catch(_ => {})
+    },
+    onSubmit (formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          this.sureRecharge()
+        } else {
+          this.$message({
+            message: '请将信息填写完整！',
+            type: 'warning'
+          })
+          return false
+        }
+      })
+    },
+    sureRecharge () {
+      send({
+        name: '/zPayAccountRegisterController',
+        method: 'POST',
+        data: {
+          fmoney: this.formCharge.amount,
+          payType: 0,
+          registerId: this.userId
+        }
+      }).then(res => {
+        if (res.data.respCode === '0') {
+          this.$message({
+            message: '充值成功!',
+            type: 'success'
+          })
+          this.dialogVisibleCharge = false
+          this.getBasicInfo()
+          this.getCapitalFlow()
+        }
+      }).catch((res) => {
+        console.log(res)
+      })
+    },
+    // 查看明细
+    deleteChargeRecord (index, row) {
 
-    //     } else {
-    //       this.$message({
-    //         message: '请将信息填写完整！',
-    //         type: 'warning'
-    //       })
-    //       return false
-    //     }
-    //   })
-    // },
-    seeAccountDetail (index, row) {
     },
     // 获取基本信息
     getBasicInfo () {
@@ -323,6 +387,7 @@ export default {
           this.formInfo.taitou = Info.taiTou
           this.formInfo.bank = Info.fBank
           this.formInfo.bankNo = Info.fBankNO
+          this.formInfo.faccount = Info.faccount
 
           this.formInfo.ID = Info.fIdentity
           // 货主 承运商
@@ -339,6 +404,27 @@ export default {
           this.$message({
             message: res.data.message + '！',
             type: 'error'
+          })
+        }
+      }).catch((res) => {
+        console.log(res)
+      })
+    },
+    handleCurrentChange () {
+      this.getCapitalFlow()
+    },
+    getCapitalFlow () {
+      send({
+        name: '/zPayAccountRegisterController/list/' + this.currentPage + '/' + this.pageSize + '/' + this.userId + '/{pay_type}',
+        method: 'GET',
+        data: {
+        }
+      }).then(res => {
+        if (res.data.respCode === '0') {
+          this.sum = res.data.size
+          this.CapitalFlowData = res.data.data.map((item) => {
+            item.typeTxt = (item.payType === '1' ? '结单扣款' : '充值')
+            return item
           })
         }
       }).catch((res) => {

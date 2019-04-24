@@ -17,16 +17,16 @@
         <el-input v-model="formInfo.tel" placeholder="请输入联系人手机号" clearable></el-input>
       </el-form-item>
       <!-- 货主 -->
-      <el-form-item v-if="userRole == 2" label="抬头" prop="taitou">
+      <el-form-item v-if="userRole == 1 || userRole == 2" label="抬头" prop="taitou">
         <el-input v-model="formInfo.taitou" placeholder="请输入抬头" clearable></el-input>
       </el-form-item>
-      <el-form-item v-if="userRole == 2" label="开户行" prop="bank">
+      <el-form-item v-if="userRole == 1 || userRole == 2" label="开户行" prop="bank">
         <el-input v-model="formInfo.bank" placeholder="请输入开户行" clearable></el-input>
       </el-form-item>
-      <el-form-item v-if="userRole == 2" label="银行账号" prop="bankNo">
+      <el-form-item v-if="userRole == 1 || userRole == 2" label="银行账号" prop="bankNo">
         <el-input v-model="formInfo.bankNo" placeholder="请输入银行账号" clearable></el-input>
       </el-form-item>
-      <el-form-item v-if="userRole == 2" label="税号" prop="tax">
+      <el-form-item v-if="userRole == 1 || userRole == 2" label="税号" prop="tax">
         <el-input v-model="formInfo.tax" placeholder="请输入税号" clearable></el-input>
       </el-form-item>
       <!-- 个体司机 -->
@@ -316,11 +316,11 @@ export default {
         company_lxr: this.formInfo.contact,
         company_licence: this.licenseImgName,
         company_contract: this.contractImgName,
-        company_phone: this.formInfo.tel
-        // tai_tou: this.formInfo.taitou,
-        // f_bank: this.formInfo.bank,
-        // f_bank_no: this.formInfo.bankNo,
-        // tax_number: this.formInfo.tax
+        company_phone: this.formInfo.tel,
+        tai_tou: this.formInfo.taitou,
+        f_bank: this.formInfo.bank,
+        f_bank_no: this.formInfo.bankNo,
+        tax_number: this.formInfo.tax
       }
       let stObg = JSON.stringify(DATA)
       this.ifLoading = true
@@ -394,6 +394,10 @@ export default {
       }).then(res => {
         let Info = res.data.data
         if (res.data.respCode === '0') {
+          if (Info.checkStatus === '1' || Info.checkStatus === '3') {
+            this.$router.push({name: 'Home'})
+            this.changeLocationIdx(2)
+          }
           if (Info.companyName) {
             this.checkStatus = Info.checkStatus
             this.agreed = true

@@ -232,6 +232,7 @@ export default {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  background: #fff;
   */
   .leftImg{
     height: calc(400px + 4rem);

@@ -185,7 +185,7 @@
           </el-form-item>
           <!-- time -->
           <el-form-item prop="zhTime" label="装货日期">
-            <el-date-picker  type="datetime" :picker-options="pickerOptionsStart" placeholder="选择装货日期" v-model="formAdd.zhTime" style="width: 100%;">
+            <el-date-picker  type="date" :picker-options="pickerOptionsStart" placeholder="选择装货日期" v-model="formAdd.zhTime" style="width: 100%;">
             </el-date-picker>
           </el-form-item>
           <el-form-item prop="appointId" label="指派人员" class="TextAlignL">
@@ -623,6 +623,11 @@ export default {
     },
     appointIDSJ: function (value) {
       this.appointSearchResultG = []
+    },
+    'formAdd.ifUseOilCard': function (value) {
+      if (value === 0) {
+        this.formAdd.oilCard = 0
+      }
     }
   },
   created () {
@@ -842,6 +847,7 @@ export default {
         isAppoint: this.formAdd.appointId === '' ? 0 : 1,
         fmaxFee: this.formAdd.max_price,
         ffee: this.formAdd.ffee,
+        foilCard: this.formAdd.oilCard,
         fweight: this.totalWeight,
         id: this.formAdd.id,
         fstatus: this.formAdd.fstatus,
@@ -1009,7 +1015,7 @@ export default {
         console.log(res)
       })
     },
-    // 或许车型下拉
+    // 获取车型下拉
     getCarType () {
       send({
         name: '/zCarTypeController/list',
