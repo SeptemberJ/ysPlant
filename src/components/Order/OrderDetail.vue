@@ -599,6 +599,7 @@ export default {
           fmoney: this.formAdd.ffee,
           payType: 1,
           orderNo: this.order_no,
+          orderId: this.searchOrderId,
           registerId: this.userId
         }
       }).then(res => {

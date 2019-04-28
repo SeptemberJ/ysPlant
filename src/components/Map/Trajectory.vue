@@ -35,8 +35,8 @@ export default {
     setMap (PointData) {
       var map = new BMap.Map('Trajectory', {enableMapClick: false})
       var linePoint = []
-      var point = new BMap.Point(116.404, 39.915)
-      map.centerAndZoom(point, 15)
+      // var point = new BMap.Point(116.404, 39.915)
+      // map.centerAndZoom(point, 15)
       // map.enableScrollWheelZoom(true) // 开启鼠标滚轮缩放
       map.addControl(new BMap.ScaleControl())
       map.addControl(new BMap.NavigationControl({anchor: BMAP_ANCHOR_TOP_RIGHT, type: BMAP_NAVIGATION_CONTROL_LARGE }))
@@ -120,8 +120,11 @@ export default {
           }),'100%','5%',false)
         return icons
       }
-
-      setZoom(PointData, map, BMap)
+      if (PointData.length == 1) {
+        map.centerAndZoom(new BMap.Point(PointData[0].lng, PointData[0].lat), 8)
+      } else {
+        setZoom(PointData, map, BMap)
+      }
     },
     getData() {
       send({

@@ -122,6 +122,8 @@ export default {
           case 1:
             setCookie('btwccy_cookie', res.data.token, 6)
             this.changeUserId(res.data.id)
+            // mapUserId
+            localStorage['MapId'] = res.data.id
             this.changeUserCode(res.data.usercode)
             // 1-承运商主 2-货主主 4-承运商子 5-货主子 3-个人
             this.changeUserRole(res.data.ftype)
