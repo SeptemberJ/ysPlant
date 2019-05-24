@@ -1,5 +1,6 @@
 <template>
   <div class="Center">
+    <!-- 基本信息 -->
     <el-row v-if="userRole == 1 || userRole == 2">
       <el-col :span="8" class="TextAlignL">
         <div class="MarginT_10">
@@ -37,6 +38,16 @@
         </div>
       </el-col>
     </el-row>
+    <!-- 基本信息 -->
+    <el-row v-if="userRole == 3">
+      <el-col :span="24" class="TextAlignL">
+        <div class="MarginT_10">
+          <span class="LeftTit">账户余额：</span>
+          <span>{{formInfo.faccount}} (¥)</span>
+          <el-button type = 'success' size="mini" class="MarginL_10" @click="recharge">充值</el-button>
+        </div>
+      </el-col>
+    </el-row>
     <!-- 充值 -->
     <el-dialog
       title="账户充值"
@@ -49,6 +60,16 @@
           <el-form-item label="充值金额" prop="amount">
             <el-input style="width: 200px;float:left;margin-left: 10px;" v-model="formCharge.amount" clearable placeholder="请输入要充值的金额"></el-input>
             <span style="float:left;margin-left: 10px;">(¥)</span>
+          </el-form-item>
+          <el-form-item label="支付方式" prop="payWay" class="TextAlignL">
+            <el-radio-group v-model="formCharge.payWay" style="margin-left:10px;">
+              <el-radio label="微信"></el-radio>
+              <el-radio label="支付宝"></el-radio>
+              <el-radio label="公对公打款" v-if="userRole != 3"></el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item label="" v-if="formCharge.payWay == '公对公打款' && userRole != 3">
+            <span>(请使用已绑定的 {{formInfo.bankNo}} 账户进行打款)</span>
           </el-form-item>
         </el-form>
       </div>
@@ -85,6 +106,7 @@
           </el-table-column>
           <el-table-column
             prop="addtime"
+            width="150"
             label="交易时间">
           </el-table-column>
           <el-table-column
@@ -93,21 +115,40 @@
           </el-table-column>
           <el-table-column
             prop="fmoney"
+            width="120px"
             label="交易金额(¥)">
+          </el-table-column>
+          <el-table-column
+            prop="orderNo"
+            label="订单号">
           </el-table-column>
           <el-table-column
             prop="typeTxt"
             label="交易类型"
             width="100">
           </el-table-column>
-          <!-- <el-table-column label="操作" width="100">
+          <el-table-column label="操作" width="100">
             <template slot-scope="scope">
               <el-button
                 size="mini"
                 type="danger"
-                @click="deleteChargeRecord(scope.$index, scope.row)">删除</el-button>
+                v-if="scope.row.fstatus == 1 && scope.row.forigin == 2"
+                @click="handleCancel(scope.$index, scope.row)">确认打款
+              </el-button>
+              <el-button
+                size="mini"
+                type="default"
+                disabled
+                v-if="scope.row.fstatus != 1 && scope.row.forigin == 2">暂未到账
+              </el-button>
+              <!-- <el-button
+                size="mini"
+                type="danger"
+                v-if="scope.row.fstatus == 1"
+                @click="deleteChargeRecord(scope.$index, scope.row)">确认打款</el-button>
+              <text v-if="scope.row.fstatus == 0">暂未到账</text> -->
             </template>
-          </el-table-column> -->
+          </el-table-column>
         </el-table>
       </el-col>
       <el-col :span="24" class="MarginTB_20 TextAlignR" v-if="CapitalFlowData.length > 0">
@@ -120,127 +161,6 @@
         </el-pagination>
       </el-col>
     </el-row>
-
-    <!-- <el-form class="CenterForm MarginT_40" :model="formInfo" ref="formInfo" label-width="120px">
-      <el-form-item
-        v-if="userRole == 1 || userRole == 2"
-        class="TextAlignR"
-        prop="company"
-        label="公司名称："
-      >
-        <el-row>
-          <el-col class="TextAlignR" :span="24">
-            <span class="Padding_20">{{formInfo.company}}</span>
-          </el-col>
-        </el-row>
-      </el-form-item>
-      <el-form-item
-        v-if="userRole == 1 || userRole == 2"
-        class="TextAlignR"
-        prop="contact"
-        label="联系人："
-      >
-        <el-row>
-          <el-col class="TextAlignR" :span="24">
-            <span class="Padding_20">{{formInfo.contact}}</span>
-          </el-col>
-        </el-row>
-      </el-form-item>
-      <el-form-item
-        v-if="userRole == 3"
-        class="TextAlignR"
-        prop="contact"
-        label="身份证："
-      >
-        <el-row>
-          <el-col class="TextAlignR" :span="24">
-            <span class="Padding_20">{{formInfo.ID}}</span>
-          </el-col>
-        </el-row>
-      </el-form-item>
-      <el-form-item
-        v-if="userRole == 1 || userRole == 2"
-        class="TextAlignR"
-        prop="tel"
-        label="联系电话："
-      >
-        <el-row>
-          <el-col class="TextAlignR" :span="24">
-            <span class="Padding_20">{{formInfo.tel}}</span>
-          </el-col>
-        </el-row>
-      </el-form-item>
-      <el-form-item
-        v-if="userRole == 2"
-        class="TextAlignR"
-        prop="contact"
-        label="抬头："
-      >
-        <el-row>
-          <el-col class="TextAlignR" :span="24">
-            <span class="Padding_20">{{formInfo.taitou}}</span>
-          </el-col>
-        </el-row>
-      </el-form-item>
-      <el-form-item
-        v-if="userRole == 2"
-        class="TextAlignR"
-        prop="contact"
-        label="开户行："
-      >
-        <el-row>
-          <el-col class="TextAlignR" :span="24">
-            <span class="Padding_20">{{formInfo.bank}}</span>
-          </el-col>
-        </el-row>
-      </el-form-item>
-      <el-form-item
-        v-if="userRole == 2"
-        class="TextAlignR"
-        prop="contact"
-        label="银行账号："
-      >
-        <el-row>
-          <el-col class="TextAlignR" :span="24">
-            <span class="Padding_20">{{formInfo.bankNo}}</span>
-          </el-col>
-        </el-row>
-      </el-form-item>
-      <el-form-item
-        v-if="userRole == 2"
-        class="TextAlignR"
-        prop="contact"
-        label="税号："
-      >
-        <el-row>
-          <el-col class="TextAlignR" :span="24">
-            <span class="Padding_20">{{formInfo.tax}}</span>
-          </el-col>
-        </el-row>
-      </el-form-item>
-      <el-form-item
-        class="TextAlignR"
-        prop="license"
-        :label="userRole == 3 ? '身份证正面：' : '营业执照：'"
-      >
-        <el-row>
-          <el-col class="TextAlignR Padding_20" :span="24">
-            <img style="float: right" :src="formInfo.license" class="avatar">
-          </el-col>
-        </el-row>
-      </el-form-item>
-      <el-form-item
-        class="TextAlignR"
-        prop="contract"
-        :label="userRole == 3 ? '身份证反面：' : '合同：'"
-      >
-        <el-row>
-          <el-col class="TextAlignR Padding_20" :span="24">
-            <img style="float: right" :src="formInfo.contract" class="avatar">
-          </el-col>
-        </el-row>
-      </el-form-item>
-   </el-form> -->
   </div>
 </template>
 
@@ -287,11 +207,15 @@ export default {
       },
       dialogVisibleCharge: false,
       formCharge: {
-        amount: 2000
+        amount: 2000,
+        payWay: '微信'
       },
       chargeRules: {
         amount: [
           { required: true, message: '请输入要充值的金额!', trigger: 'blur' }
+        ],
+        payWay: [
+          { required: true, message: '请选择支付方式!', trigger: 'blur' }
         ]
       },
       CapitalFlowData: [],
@@ -335,14 +259,17 @@ export default {
         }
       })
     },
+    // 充值
     sureRecharge () {
+      let rechargeInfo = {
+        id: this.userId,
+        amount: this.formCharge.amount,
+        type: this.formCharge.payWay === '支付宝' ? 0 : (this.formCharge.payWay === '微信' ? 1 : '2') // '充值方式0支付宝1微信2公对公打款'
+      }
       send({
-        name: '/zPayAccountRegisterController',
+        name: '/yqzlController/recharge?rechargeInfo=' + JSON.stringify(rechargeInfo),
         method: 'POST',
         data: {
-          fmoney: this.formCharge.amount,
-          payType: 0,
-          registerId: this.userId
         }
       }).then(res => {
         if (res.data.respCode === '0') {
@@ -365,7 +292,6 @@ export default {
     // 获取基本信息
     getBasicInfo () {
       send({
-        // name: '/zRegisterController/registerInfo?id=' + this.userId,
         name: '/zRegisterController/' + this.userId,
         method: 'GET',
         data: {
@@ -423,7 +349,27 @@ export default {
         if (res.data.respCode === '0') {
           this.sum = res.data.size
           this.CapitalFlowData = res.data.data.map((item) => {
-            item.typeTxt = (item.payType === '1' ? '结单扣款' : '充值')
+            // 0 - 充值 1- 接单扣款 2 - 押金支付 3 - 提现 4 - 订单收入 5 - 押金退回
+            switch (item.payType) {
+              case '0':
+                item.typeTxt = '充值'
+                break
+              case '1':
+                item.typeTxt = '接单扣款'
+                break
+              case '2':
+                item.typeTxt = '押金支付'
+                break
+              case '3':
+                item.typeTxt = '提现'
+                break
+              case '4':
+                item.typeTxt = '订单收入'
+                break
+              case '5':
+                item.typeTxt = '押金退回'
+                break
+            }
             return item
           })
         }

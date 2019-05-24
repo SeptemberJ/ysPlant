@@ -1,8 +1,8 @@
 <template>
   <div>
-    <form id='alipaysubmit' name='alipaysubmit' action='http://openapi.alipaydev.com/gateway.do?charset=utf-8' method='POST'>
+    <!-- <form id='alipaysubmit' name='alipaysubmit' action='http://openapi.alipaydev.com/gateway.do?charset=utf-8' method='POST'>
       <input name='app_id' value='2016090800462854'/>
-      <input name='biz_content' value='{"out_trade_no":"1548229323956","total_amount":"0.01","subject":"无车承运定金","product_code":"FAST_INSTANT_TRADE_PAY"}'/>
+      <input name='biz_content' value='{"out_trade_no":"1557900534524","total_amount":"0.01","subject":"无车承运订单定金","product_code":"FAST_INSTANT_TRADE_PAY"}'/>
       <input name='charset' value='utf-8'/>
       <input name='method' value='alipay.trade.page.pay'/>
       <input name='sign_type' value='RSA2'/>
@@ -10,7 +10,7 @@
       <input name='version' value='1.0'/>
       <input name='sign' value='P1dkKvY1dL9tqTfDye1+ujFi5ys+09tkwuSBwmjyAAQKKjclfrlY7QotylfTd5I2LLNGWQHTGod4/iX97Ct8JFBfUS/VicpZKC5yccqZfu4tmQmOd1oV1Rz8QpXjvzVFA44FjDpM0fN/F7OicORuMrTEqF1/L85MjzOUbN6IrkcobDqvHncEhqfLduCy5Nx1y8egvluawdNGL2iw39JcALjvIy9U5si4HwP5HraLcD0qGNSL8AdhZyLpuFrEuC4s890amKXfGiVSWkf0B3KVKrfqtCkfCnkZNrXo4T0gY20M6RMndJNFROQCb90Gne98Rmm1MeXlwlc3ZWjwkVdWIQ=='/>
       <input type='submit' value='POST'>
-    </form>
+    </form> -->
     <h2 @click="pay">点击触发</h2>
   </div>
 </template>
@@ -23,7 +23,7 @@ key.importKey(userPrivateKey, 'pkcs1-private') // 导入密钥并设定格式
 // const publicDer = key.exportKey('pkcs1-public')
 // console.log(publicDer)
 // sign
-let text = 'app_id=2016090800462854&biz_content={"out_trade_no":"1548299873696","product_code":"FAST_INSTANT_TRADE_PAY","subject":"外卖订单","total_amount":"16.00"}&charset=utf-8&method=alipay.trade.page.pay&sign_type=RSA2&timestamp=2019-01-24 09:01:42&version=1.0'
+let text = 'app_id=2016090800462854&biz_content={"out_trade_no":"1557900534524","product_code":"FAST_INSTANT_TRADE_PAY","subject":"无车承运订单定金","total_amount":"16.00"}&charset=utf-8&method=alipay.trade.page.pay&sign_type=RSA2&timestamp=2019-01-24 09:01:42&version=1.0'
 let buffer = Buffer.from(text)
 let signature = key.sign(buffer).toString('base64')
 console.log(signature)
@@ -41,7 +41,7 @@ export default {
     pay () {
       let DATA = {
         app_id: '2016090800462854',
-        biz_content: '{"out_trade_no":"1548299873696","product_code":"FAST_INSTANT_TRADE_PAY","subject":"外卖订单","total_amount":"16.00"}',
+        biz_content: '{"out_trade_no":"1557900534524","product_code":"FAST_INSTANT_TRADE_PAY","subject":"无车承运订单定金","total_amount":"16.00"}',
         charset: 'utf-8',
         method: 'alipay.trade.page.pay',
         sign_type: 'RSA2',

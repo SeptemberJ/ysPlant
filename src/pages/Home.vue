@@ -19,7 +19,7 @@
                 </template>
                 <el-menu-item-group>
                   <el-menu-item index="1-1" v-if="userRole == 2 || userRole == 5 || userRole == 3">订单列表</el-menu-item>
-                  <!-- 货主add -->
+                  <!-- 货主订单新增 -->
                   <el-submenu index="1-2" v-if="userRole == 2 || userRole == 5  || userRole == 3">
                     <template slot="title">订单新增</template>
                     <el-menu-item index="1-2-1">普货</el-menu-item>
@@ -27,7 +27,7 @@
                     <el-menu-item index="1-2-3">冷藏品</el-menu-item>
                   </el-submenu>
                   <el-menu-item index="1-7" v-if="userRole == 2 || userRole == 5 || userRole == 3">车辆查询</el-menu-item>
-                  <!-- 承运商add -->
+                  <!-- 承运商订单管理 -->
                   <el-menu-item index="1-3" v-if="userRole == 1 || userRole == 4">订单查询</el-menu-item>
                   <el-menu-item index="1-4" v-if="userRole == 1 || userRole == 4">指定接单</el-menu-item>
                   <el-menu-item index="1-6" v-if="userRole == 1 || userRole == 4">未指定接单</el-menu-item>
@@ -35,6 +35,10 @@
                   <!-- <el-menu-item index="1-5" v-if="userRole == 2 || userRole == 5  || userRole == 3">实况查询</el-menu-item> -->
                 </el-menu-item-group>
               </el-submenu>
+              <el-menu-item index="4" v-if="userRole != 3">
+                <i class="fa fa-ticket"></i>
+                <span slot="title">开票管理</span>
+              </el-menu-item>
               <el-menu-item index="2" v-if="userRole == 1 || userRole == 2 || userRole == 4">
                 <i class="fa fa-users"></i>
                 <span slot="title">用户管理</span>
@@ -71,6 +75,8 @@
                 <el-breadcrumb-item v-if="siderIdx == '1-2-1' || siderIdx == '1-2-2' || siderIdx == '1-2-3'">{{siderIdx == '1-2-1' ? '普货' : (siderIdx == '1-2-2' ? '危险品' : '冷藏品')}}订单新增</el-breadcrumb-item>
                 <el-breadcrumb-item v-if="showDetail && (siderIdx == '1-1' || siderIdx == '1-3' || siderIdx == '1-4')">订单详情</el-breadcrumb-item>
                 <!-- <el-breadcrumb-item v-if="siderIdx == '1-5' && (userRole == 2 || userRole == 5 || userRole == 3)">实况查询</el-breadcrumb-item> -->
+                <!-- 开票管理导航 -->
+                <el-breadcrumb-item v-if="siderIdx == '4'">开票管理</el-breadcrumb-item>
                 <!-- 用户管理导航 -->
                 <el-breadcrumb-item v-if="siderIdx == '2'">用户管理</el-breadcrumb-item>
                 <!-- 个人中心导航 -->

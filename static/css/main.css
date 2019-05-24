@@ -115,6 +115,12 @@ form{
 .ColorGray{
   color: #666 !important;
 }
+.ColorRed{
+  color: red !important;
+}
+.Bold{
+  font-weight: bold;
+}
 .CursorPointer{
 	cursor: pointer;
 }
@@ -258,3 +264,7 @@ form{
   color: #fff;
 }
 .el-table td, .el-table th.is-leaf{}
+/*from*/
+.searchForm .el-form-item{
+  margin-bottom: 0px !important;
+}

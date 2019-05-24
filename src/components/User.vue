@@ -75,11 +75,11 @@
             label="司机手机"
             show-overflow-tooltip>
           </el-table-column>
-           <el-table-column
+          <!-- <el-table-column
             prop="company_name"
             label="司机公司"
             show-overflow-tooltip>
-          </el-table-column>
+          </el-table-column> -->
           <el-table-column
             align="right"
             label="操作"
@@ -123,9 +123,9 @@
         <el-form-item label="司机手机" prop="LogisticPhone">
           <el-input v-model="form.LogisticPhone"></el-input>
         </el-form-item>
-        <el-form-item label="公司" prop="LogisticCompany">
+        <!-- <el-form-item label="公司" prop="LogisticCompany">
           <el-input v-model="form.LogisticCompany"></el-input>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="密码" prop="LogisticPsd">
           <el-input v-model="form.LogisticPsd"></el-input>
         </el-form-item>
@@ -163,7 +163,7 @@ export default {
       form: {
         LogisticName: '',
         LogisticPhone: '',
-        LogisticCompany: '',
+        // LogisticCompany: '',
         LogisticPsd: ''
       },
       Rules: {
@@ -175,10 +175,10 @@ export default {
         ],
         LogisticPsd: [
           { required: true, message: '请输入密码！', trigger: 'blur' }
-        ],
-        LogisticCompany: [
-          { required: true, message: '请输入公司名称！', trigger: 'blur' }
         ]
+        // LogisticCompany: [
+        //   { required: true, message: '请输入公司名称！', trigger: 'blur' }
+        // ]
       }
     }
   },

@@ -1,33 +1,107 @@
 <template>
   <div class="Order">
     <el-row v-if="!showDetail && !showMap" style="background: #fff;padding: 20px;">
-      <el-col :span="24" class="BgWhite MarginT_10 TextAlignR">
-        <!-- <el-button type="primary" icon="el-icon-plus" size="small">新增</el-button> -->
-        <el-form :inline="true" :model="formCondition" class="demo-form-inline">
-          <!-- <el-form-item label="订单号">
-            <el-input v-model="formCondition.orderNo" placeholder="订单号" clearable></el-input>
-          </el-form-item> -->
-          <!-- <el-form-item label="起始日期">
-            <el-date-picker type="date" placeholder="选择起始日期" v-model="formCondition.startDate" style="width: 100%;"></el-date-picker>
-          </el-form-item>
-          <el-form-item label="结束日期">
-            <el-date-picker type="date" placeholder="选择结束日期" v-model="formCondition.endDate" style="width: 100%;"></el-date-picker>
-          </el-form-item> -->
-          <!-- <el-form-item label="活动区域">
-            <el-select v-model="formCondition.region" placeholder="活动区域">
-              <el-option label="区域一" value="shanghai"></el-option>
-              <el-option label="区域二" value="beijing"></el-option>
-            </el-select>
-          </el-form-item> -->
-          <!-- <el-form-item>
-            <el-button type="primary" @click="onSubmit">查询</el-button>
-          </el-form-item> -->
-          <el-form-item>
-            <el-button type="success" icon="el-icon-printer" @click="exportExcell">导出</el-button>
-          </el-form-item>
+      <!-- <el-col :span="24" class="BgWhite MarginT_10">
+        <el-form :inline="true" :model="formCondition" class="demo-form-inline searchForm">
+          <el-row>
+            <el-col :span="7" :offset="0">
+              <el-form-item prop="fprovince" label="发货省">
+                <el-select v-model="formCondition.fprovince" size="mini" placeholder="请选择" @change="changeFprovince" style="width: 120px;">
+                  <el-option
+                    v-for="(fprovince, idx) in fprovinceList"
+                    :key="idx"
+                    :label="fprovince.name"
+                    :value="fprovince.id">
+                  </el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="7" :offset="1">
+              <el-form-item prop="fcity" label="发货市">
+                <el-select v-model="formCondition.fcity" size="mini" placeholder="请选择" @change="changeFcity" style="width: 120px;">
+                  <el-option
+                    v-for="(fcity, idx) in fcityList"
+                    :key="idx"
+                    :label="fcity.name"
+                    :value="fcity.id">
+                  </el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="7" :offset="1">
+              <el-form-item prop="farea" label="发货区">
+                <el-select v-model="formCondition.farea" size="mini" placeholder="请选择" @change="changeFarea" style="width: 120px;">
+                  <el-option
+                    v-for="(farea, idx) in fareaList"
+                    :key="idx"
+                    :label="farea.name"
+                    :value="farea.id">
+                  </el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="7" :offset="0">
+              <el-form-item prop="sprovince" label="收货省">
+                <el-select v-model="formCondition.sprovince" size="mini" placeholder="请选择" @change="changeSprovince" style="width: 120px;">
+                  <el-option
+                    v-for="(sprovince, idx) in sprovinceList"
+                    :key="idx"
+                    :label="sprovince.name"
+                    :value="sprovince.id">
+                  </el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="7" :offset="1">
+              <el-form-item prop="scity" label="收货市">
+                <el-select v-model="formCondition.scity" size="mini" placeholder="请选择" @change="changeScity" style="width: 120px;">
+                  <el-option
+                    v-for="(scity, idx) in scityList"
+                    :key="idx"
+                    :label="scity.name"
+                    :value="scity.id">
+                  </el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="7" :offset="1">
+              <el-form-item prop="sarea" label="收货区">
+                <el-select v-model="formCondition.sarea" size="mini" placeholder="请选择" @change="changeSarea" style="width: 120px;">
+                  <el-option
+                    v-for="(sarea, idx) in sareaList"
+                    :key="idx"
+                    :label="sarea.name"
+                    :value="sarea.id">
+                  </el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="7">
+              <el-form-item prop="sarea" label="货物类型">
+                <el-select v-model="formCondition.goodsName" size="mini" placeholder="请选择" style="width: 120px">
+                  <el-option
+                    v-for="(goodsType, idx) in goodsTypeList"
+                    :key="idx"
+                    :label="goodsType.name"
+                    :value="goodsType.id">
+                  </el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row class="MarginB_20">
+            <el-button type="primary" size="mini" icon="el-icon-search" @click="onSubmit">查询</el-button>
+            <el-button type="success" size="mini" icon="el-icon-printer" @click="exportExcell">导出</el-button>
+          </el-row>
         </el-form>
       </el-col>
-      <el-col :span="24"  class="MarginB_20">
+      <el-col :span="24" style="width: 100%;height: 10px; border-bottom: 1px dashed #ccc;">
+      </el-col> -->
+      <el-col :span="24"  class="MarginT_20 MarginB_20">
         <el-table
           id="rebateSetTable"
           ref="multipleTable"
@@ -89,7 +163,7 @@
               <el-button
                 size="mini"
                 type="warning"
-                :disabled="scope.row.fstatus != 1"
+                :disabled="scope.row.fstatus != 0"
                 @click="getOfferList(scope.$index, scope.row)">报价
               </el-button>
               <el-button
@@ -194,10 +268,30 @@ export default {
       currentPage: 1,
       sum: 0,
       formCondition: {
-        orderNo: '',
-        startDate: '',
-        endDate: ''
+        fprovince: '',
+        fcity: '',
+        farea: '',
+        sprovince: '',
+        scity: '',
+        sarea: '',
+        goodsName: ''
+        // orderNo: '',
+        // startDate: '',
+        // endDate: ''
       },
+      fprovinceList: [],
+      fcityList: [],
+      fareaList: [],
+      sprovinceList: [],
+      scityList: [],
+      sareaList: [],
+      fProvincePid: 1,
+      fcityPid: '',
+      fareaPid: '',
+      sProvincePid: 1,
+      scityPid: '',
+      sareaPid: '',
+      //
       orderList: [],
       carTypeList: [],
       goodsTypeList: [],
@@ -242,6 +336,7 @@ export default {
     this.getOrderList()
     this.getCarType()
     this.getGoodsType()
+    this.getProvince()
   },
   components: {
     OrderDetail,
@@ -481,6 +576,81 @@ export default {
     },
     formatJson (filterVal, jsonData) {
       return jsonData.map(v => filterVal.map(j => v[j]))
+    },
+    // order search module
+    // 改变发货地省
+    changeFprovince (id) {
+      this.getCity(id, 'fcityList')
+      this.formCondition.fcity = ''
+      this.formCondition.farea = ''
+    },
+    // 改变发货地市
+    changeFcity (id) {
+      this.getArea(id, 'fareaList')
+      this.formCondition.farea = ''
+    },
+    // 改变发货地区
+    changeFarea (id) {
+    },
+    // 改变收货地省
+    changeSprovince (id) {
+      this.getCity(id, 'scityList')
+      this.formCondition.scity = ''
+      this.formCondition.sarea = ''
+    },
+    // 改变收货地市
+    changeScity (id) {
+      this.getArea(id, 'sareaList')
+      this.formCondition.sarea = ''
+    },
+    // 改变收货地区
+    changeSarea (id) {
+    },
+    // 获取省下拉
+    getProvince () {
+      send({
+        name: '/registerDriverController/regionSelect?pid=' + this.fProvincePid,
+        method: 'GET',
+        data: {
+        }
+      }).then(res => {
+        if (res.data.respCode === '0') {
+          this.fprovinceList = res.data.data
+          this.sprovinceList = res.data.data
+        }
+      }).catch((res) => {
+        console.log(res)
+      })
+    },
+    // 获取市下拉
+    getCity (id, property) {
+      send({
+        name: '/registerDriverController/regionSelect?pid=' + id,
+        method: 'GET',
+        data: {
+        }
+      }).then(res => {
+        if (res.data.respCode === '0') {
+          this[property] = res.data.data
+        }
+      }).catch((res) => {
+        console.log(res)
+      })
+    },
+    // 获取区下拉
+    getArea (id, property) {
+      send({
+        name: '/registerDriverController/regionSelect?pid=' + id,
+        method: 'GET',
+        data: {
+        }
+      }).then(res => {
+        if (res.data.respCode === '0') {
+          this[property] = res.data.data
+        }
+      }).catch((res) => {
+        console.log(res)
+      })
     }
   }
 }

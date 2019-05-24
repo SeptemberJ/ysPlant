@@ -29,14 +29,14 @@
       <el-form-item v-if="userRole == 1 || userRole == 2" label="税号" prop="tax">
         <el-input v-model="formInfo.tax" placeholder="请输入税号" clearable></el-input>
       </el-form-item>
-      <!-- 个体司机 -->
+      <!-- 个体货主 -->
       <el-form-item v-if="userRole == 3" label="身份证正面" prop="license">
         <el-upload
           class="avatar-uploader"
           action=""
           :show-file-list="false"
           :on-success="handleAvatarSuccess"
-          :before-upload="beforeAvatarUpload">
+          :before-upload="beforeAvatarUploadSF">
           <img v-if="formInfo.license" :src="formInfo.license" class="avatar">
           <i v-else class="el-icon-plus avatar-uploader-icon"></i>
         </el-upload>
@@ -47,7 +47,7 @@
           action=""
           :show-file-list="false"
           :on-success="handleAvatarSuccess"
-          :before-upload="beforeAvatarUploadC">
+          :before-upload="beforeAvatarUploadSB">
           <img v-if="formInfo.contract" :src="formInfo.contract" class="avatar">
           <i v-else class="el-icon-plus avatar-uploader-icon"></i>
         </el-upload>
@@ -104,12 +104,21 @@ export default {
         callback()
       }
     }
+    var validateID = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error('请输入身份证号！'))
+      } else if (!(/(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/.test(value))) {
+        callback(new Error('身份证号格式不正确!'))
+      } else {
+        callback()
+      }
+    }
     return {
       agreed: false,
       ifLoading: false,
       checkStatus: 0,
-      licenseImgName: '', // 图片服务器地址
-      contractImgName: '', // 图片服务器地址
+      licenseImgName: '', // 图片服务器地址 执照和身份证正面
+      contractImgName: '', // 图片服务器地址 合同和身份证反面
       formInfo: {
         company: '柏田',
         bank: '',
@@ -140,7 +149,7 @@ export default {
           { required: true, message: '请输入税号！', trigger: 'blur' }
         ],
         ID: [
-          { required: true, message: '请输入身份证号！', trigger: 'blur' }
+          { required: true, validator: validateID, trigger: 'blur' }
         ],
         contact: [
           { required: true, message: '请输入联系人！', trigger: 'blur' }
@@ -198,7 +207,7 @@ export default {
       }
       let licenseImage = new FormData()
       licenseImage.append('file', file)
-      this.uploadImg('licenseImgName', licenseImage)
+      this.uploadImg('licenseImgName', licenseImage, 'zhizhao')
       var _this = this
       var reader = new FileReader()
       reader.readAsDataURL(file)
@@ -217,7 +226,45 @@ export default {
       }
       let contractImage = new FormData()
       contractImage.append('file', file)
-      this.uploadImg('contractImgName', contractImage)
+      this.uploadImg('contractImgName', contractImage, 'hetong')
+      var _this = this
+      var reader = new FileReader()
+      reader.readAsDataURL(file)
+      reader.onload = function (e) {
+        _this.formInfo.contract = this.result
+      }
+    },
+    // 身份证正面
+    beforeAvatarUploadSF (file) {
+      if (file.size > 1024000 * 2) {
+        this.$message({
+          message: '您上传的图片太大了, 请不要超过2M!',
+          type: 'warning'
+        })
+        return false
+      }
+      let licenseImage = new FormData()
+      licenseImage.append('file', file)
+      this.uploadImg('licenseImgName', licenseImage, 'personalid')
+      var _this = this
+      var reader = new FileReader()
+      reader.readAsDataURL(file)
+      reader.onload = function (e) {
+        _this.formInfo.license = this.result
+      }
+    },
+    // 身份证反面
+    beforeAvatarUploadSB (file) {
+      if (file.size > 1024000 * 2) {
+        this.$message({
+          message: '您上传的图片太大了, 请不要超过2M!',
+          type: 'warning'
+        })
+        return false
+      }
+      let contractImage = new FormData()
+      contractImage.append('file', file)
+      this.uploadImg('contractImgName', contractImage, 'personalid')
       var _this = this
       var reader = new FileReader()
       reader.readAsDataURL(file)
@@ -226,8 +273,8 @@ export default {
       }
     },
     // 上传图片
-    uploadImg (property, img) {
-      axios.post('http://116.62.171.244:8082/yingsu/rest/registerDriverController/photo', img, {
+    uploadImg (property, img, floder) {
+      axios.post('http://116.62.171.244:8082/yingsu/rest/registerDriverController/photo?kind=1&folder=' + floder, img, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'X-AUTH-TOKEN': getCookie('btwccy_cookie')
@@ -239,7 +286,7 @@ export default {
     onSubmit (formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          if (!this.agreed && this.userRole !== 3) {
+          if (!this.agreed && this.userRole !== '3') {
             this.$message({
               message: '请先阅读并同意使用许可及服务协议！',
               type: 'warning'

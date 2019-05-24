@@ -234,7 +234,7 @@
               <el-radio :label="1" border>使用</el-radio>
             </el-radio-group>
           </el-form-item>
-          <el-form-item prop="ffee" label="可接受最高价">
+          <el-form-item prop="ffee" label="报价">
             <el-input v-model="formAdd.ffee" clearable placeholder="请输入您的报价">
               <template slot="append">¥</template>
             </el-input>
@@ -457,54 +457,6 @@ export default {
         ffee: '',
         ifUseOilCard: 0, // 0 不使用 1 使用
         oilCard: 0, // 油卡金额
-        max_price: 0
-      },
-      formAdd2: {
-        appointId: '', // 指派司机id
-        fprovince: '',
-        fcity: '',
-        farea: '',
-        sprovince: '',
-        scity: '',
-        sarea: '',
-        id: '',
-        fstatus: '0',
-        fcheck: '0',
-        fmainId: '', // 主账号code
-        fsubId: '', // 子账号code
-        fhName: '赵三',
-        fhTelephone: '18234567890',
-        fh: '', // 发货地id
-        fhAddress: '南通',
-        shName: '李四',
-        shTelephone: '18234567898',
-        sh: '', // 收货地id
-        shArea: '上海',
-        shAddress: '上海',
-        carType: '',
-        zhTime: '',
-        goodsName: '',
-        orderGoodsList: [
-          {
-            goodsName: '上装',
-            goodsSpace: 11,
-            goodsWeight: 12,
-            id: '',
-            orderId: ''
-          },
-          {
-            goodsName: '下装',
-            goodsSpace: 21,
-            goodsWeight: 22,
-            id: '',
-            orderId: ''
-          }
-        ],
-        isFapiao: 0, // 0-不要 1-要
-        isBox: 0, // 0-要 1-不要
-        boxNo: '',
-        payType: 0, // 0-支付宝 1-微信
-        ffee: '',
         max_price: 0
       },
       AddRules: {

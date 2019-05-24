@@ -229,7 +229,7 @@
               <el-radio :label="1" border :disabled="formAdd.fstatus != 0">使用</el-radio>
             </el-radio-group>
           </el-form-item>
-            <el-form-item prop="ffee" :label="formAdd.fstatus == 0 ? '可接受最高价' : '确认报价'">
+            <el-form-item prop="ffee" :label="formAdd.fstatus == 0 ? '报价' : '确认报价'">
               <el-input v-model="formAdd.ffee" clearable placeholder="请输入您的报价" :disabled="formAdd.fstatus != 0">
                 <template slot="append">¥</template>
               </el-input>
