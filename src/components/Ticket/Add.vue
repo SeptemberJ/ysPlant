@@ -3,9 +3,9 @@
     <el-row class="AddMain">
       <el-col :span="24">
         <el-row class="TextAlignL PaddingL_10 MarginB_10 ColorRed Bold">
-          <el-col :span="12">总金额： {{sumPrice}} ¥</el-col>
-          <el-col :span="12">总税额： {{sumTax}} ¥</el-col>
-          <el-col :span="12">税后金额： {{sumPrice - sumTax}} ¥</el-col>
+          <el-col :span="8">总金额： {{sumPrice}} ¥</el-col>
+          <el-col :span="8">税额： {{sumTax}} ¥</el-col>
+          <el-col :span="8">税后金额： {{sumPrice - sumTax}} ¥</el-col>
         </el-row>
        <!--  <span style="width: 50%;display:inline-block;float:left;text-align:left;">总金额： {{sumPrice}}</span>
         <span style="width: 50%;display:inline-block;float:left;text-align:left;">总税额： {{sumTax}}</span> -->

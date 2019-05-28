@@ -216,14 +216,14 @@
           <span>预估费用</span>
         </div>
         <div class="TextAlignL">
-          <el-form-item label="支付方式" prop="isFapiao">
+          <!-- <el-form-item label="支付方式" prop="isFapiao">
             <el-row class="TextAlignR">
               <el-col :span="1" :offset="18"><el-radio v-model="formAdd.payType" :label="0"><span style="color:#fff">0</span></el-radio></el-col>
               <el-col :span="1"><img src="../../../static/images/icon/zfb.png" style="width: 35px;margin-top:5px;"></el-col>
               <el-col :span="1" :offset="2"><el-radio v-model="formAdd.payType" :label="1"><span style="color:#fff">1</span></el-radio></el-col>
               <el-col :span="1"><img src="../../../static/images/icon/wx.png" style="width: 35px;margin-top:5px;"></el-col>
             </el-row>
-          </el-form-item>
+          </el-form-item> -->
           <el-form-item prop="oilCard" label="是否使用油卡">
             <span style="color: red">(油卡部分的金额无法开票)</span>
             <el-input v-model="formAdd.oilCard" clearable v-if="formAdd.ifUseOilCard == 1" style="width: 200px;float:right;margin-left:20px;">
@@ -453,7 +453,7 @@ export default {
         isFapiao: 0, // 0-不要 1-要
         isBox: 0, // 0-要 1-不要
         boxNo: '',
-        payType: 0, // 0-支付宝 1-微信
+        // payType: 0, // 0-支付宝 1-微信
         ffee: '',
         ifUseOilCard: 0, // 0 不使用 1 使用
         oilCard: 0, // 油卡金额

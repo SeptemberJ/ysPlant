@@ -65,22 +65,33 @@
         </el-upload>
       </el-form-item>
       <el-form-item v-if="userRole == 1 || userRole == 2" label="合同(请下载文件后盖章)" prop="contract">
-        <el-upload
+        <!-- <el-upload
           class="avatar-uploader"
           action=""
           :show-file-list="false"
+          accept=".pdf,.doc,.PDF"
           :on-success="handleAvatarSuccess"
           :before-upload="beforeAvatarUploadC">
           <img v-if="formInfo.contract" :src="formInfo.contract" class="avatar">
           <i v-else class="el-icon-plus avatar-uploader-icon"></i>
         </el-upload>
-        <span class="CursorPointer" style="color:#409EFF" target="_blank" @click="ToPdf">点击下载合同格式文件</span>
+        <span class="CursorPointer" style="color:#409EFF" target="_blank" @click="ToPdf">点击下载合同格式文件</span> -->
+        <el-upload
+          class="upload-demo"
+          action=""
+          accept=".pdf,.doc,.PDF"
+          :on-success="handleAvatarSuccess"
+          :before-upload="beforeAvatarUploadC">
+          <el-button size="small" type="primary">点击上传</el-button>
+          <span v-if="hetongName">{{hetongName}}</span>
+          <span class="CursorPointer" style="color:#409EFF;display: Block" target="_blank" @click="ToPdf">点击下载合同格式文件</span>
+        </el-upload>
       </el-form-item>
-      <el-form-item v-if="userRole == 1 || userRole == 2" label="">
+      <el-form-item >
         <el-checkbox v-model="agreed">我已阅读并同意</el-checkbox><span class="CursorPointer" style="color:#409EFF" @click="showAgreement">使用许可及服务协议</span>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="onSubmit('formInfo')" style="width: 100px;" :loading="ifLoading">{{checkStatus == -1 ? '提交信息' :'保存修改'}}</el-button>
+        <el-button type="primary" :disabled="checkStatus == 0" @click="onSubmit('formInfo')" style="width: 100px;" :loading="ifLoading">{{checkStatus == -1 ? '提交信息' :'保存修改'}}{{checkStatus}}</el-button>
       </el-form-item>
       <div class="BgBlock"></div>
     </el-form>
@@ -119,18 +130,19 @@ export default {
       checkStatus: 0,
       licenseImgName: '', // 图片服务器地址 执照和身份证正面
       contractImgName: '', // 图片服务器地址 合同和身份证反面
+      hetongName: '', // 上传的合同文件的本地名称
       formInfo: {
-        company: '柏田',
+        company: '',
         bank: '',
         bankNo: '',
         taitou: '',
         tax: '',
         ID: '',
-        contact: '留白',
-        tel: '18234567890',
+        contact: '',
+        tel: '',
         license: '',
         contract: '',
-        role: '承运商'
+        role: ''
       },
       InfoRules: {
         company: [
@@ -158,10 +170,10 @@ export default {
           { required: true, validator: validatePhone, trigger: 'blur' }
         ],
         license: [
-          { required: true, message: '请选择要上传的营业执照！', trigger: 'change' }
+          { required: true, message: '请选择要上传的文件！', trigger: 'change' }
         ],
         contract: [
-          { required: true, message: '请选择要上传的合同！', trigger: 'change' }
+          { required: true, message: '请选择要上传的文件！', trigger: 'change' }
         ]
       }
     }
@@ -207,7 +219,7 @@ export default {
       }
       let licenseImage = new FormData()
       licenseImage.append('file', file)
-      this.uploadImg('licenseImgName', licenseImage, 'zhizhao')
+      this.uploadImg('licenseImgName', licenseImage, 'zhizhao', 1)
       var _this = this
       var reader = new FileReader()
       reader.readAsDataURL(file)
@@ -217,6 +229,9 @@ export default {
     },
     // 合同
     beforeAvatarUploadC (file) {
+      this.hetongName = file.name
+      let fileName = file.name
+      let index = fileName.indexOf('.')
       if (file.size > 1024000 * 2) {
         this.$message({
           message: '您上传的图片太大了, 请不要超过2M!',
@@ -226,7 +241,20 @@ export default {
       }
       let contractImage = new FormData()
       contractImage.append('file', file)
-      this.uploadImg('contractImgName', contractImage, 'hetong')
+      switch (fileName.substring(index)) {
+        case '.pdf':
+          this.uploadImg('contractImgName', contractImage, 'hetong', 2)
+          break
+        case '.PDF':
+          this.uploadImg('contractImgName', contractImage, 'hetong', 2)
+          break
+        case '.doc':
+          this.uploadImg('contractImgName', contractImage, 'hetong', 3)
+          break
+        case '.DOC':
+          this.uploadImg('contractImgName', contractImage, 'hetong', 3)
+          break
+      }
       var _this = this
       var reader = new FileReader()
       reader.readAsDataURL(file)
@@ -245,7 +273,7 @@ export default {
       }
       let licenseImage = new FormData()
       licenseImage.append('file', file)
-      this.uploadImg('licenseImgName', licenseImage, 'personalid')
+      this.uploadImg('licenseImgName', licenseImage, 'personalid', 1)
       var _this = this
       var reader = new FileReader()
       reader.readAsDataURL(file)
@@ -264,7 +292,7 @@ export default {
       }
       let contractImage = new FormData()
       contractImage.append('file', file)
-      this.uploadImg('contractImgName', contractImage, 'personalid')
+      this.uploadImg('contractImgName', contractImage, 'personalid', 1)
       var _this = this
       var reader = new FileReader()
       reader.readAsDataURL(file)
@@ -273,8 +301,9 @@ export default {
       }
     },
     // 上传图片
-    uploadImg (property, img, floder) {
-      axios.post('http://116.62.171.244:8082/yingsu/rest/registerDriverController/photo?kind=1&folder=' + floder, img, {
+    uploadImg (property, img, floder, type) {
+      axios.post('http://172.16.52.63:8080/rest/registerDriverController/photo?kind=0&folder=' + floder + '&type=' + type, img, {
+      // axios.post('http://116.62.171.244:8082/yingsu/rest/registerDriverController/photo?kind=&folder=' + floder + '&type=' + type, img, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'X-AUTH-TOKEN': getCookie('btwccy_cookie')
@@ -286,7 +315,7 @@ export default {
     onSubmit (formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          if (!this.agreed && this.userRole !== '3') {
+          if (!this.agreed) {
             this.$message({
               message: '请先阅读并同意使用许可及服务协议！',
               type: 'warning'
@@ -439,18 +468,23 @@ export default {
         data: {
         }
       }).then(res => {
+        // checkStatus -1 未填写  0 审核中  其他 审核未通过
         let Info = res.data.data
+        this.checkStatus = Info.checkStatus
         if (res.data.respCode === '0') {
           if (Info.checkStatus === '1' || Info.checkStatus === '3') {
             this.$router.push({name: 'Home'})
             this.changeLocationIdx(2)
           }
-          if (Info.companyName) {
-            this.checkStatus = Info.checkStatus
+          if (Info.checkStatus === '0') {
             this.agreed = true
-          } else {
-            this.checkStatus = -1 // 未填写过信息
           }
+          // if (Info.companyName) {
+          //   this.checkStatus = Info.checkStatus
+          //   this.agreed = true
+          // } else {
+          //   this.checkStatus = -1 // 未填写过信息
+          // }
           this.formInfo.company = Info.companyName
           this.formInfo.contact = Info.companyLxr
           this.formInfo.tel = Info.companyPhone

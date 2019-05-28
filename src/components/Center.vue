@@ -132,8 +132,7 @@
               <el-button
                 size="mini"
                 type="danger"
-                v-if="scope.row.fstatus == 1 && scope.row.forigin == 2"
-                @click="handleCancel(scope.$index, scope.row)">确认打款
+                v-if="scope.row.fstatus == 1 && scope.row.forigin == 2">成功
               </el-button>
               <el-button
                 size="mini"
@@ -264,7 +263,7 @@ export default {
       let rechargeInfo = {
         id: this.userId,
         amount: this.formCharge.amount,
-        type: this.formCharge.payWay === '支付宝' ? 0 : (this.formCharge.payWay === '微信' ? 1 : '2') // '充值方式0支付宝1微信2公对公打款'
+        type: this.formCharge.payWay === '支付宝' ? 0 : (this.formCharge.payWay === '微信' ? 1 : '2') // 充值方式 0-支付宝 1-微信 2-公对公打款
       }
       send({
         name: '/yqzlController/recharge?rechargeInfo=' + JSON.stringify(rechargeInfo),
