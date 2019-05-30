@@ -1,7 +1,7 @@
 <template>
   <div class="User">
     <el-row>
-      <el-col :span="24"  class="MarginTB_20" v-if="userRole == 1">
+      <el-col :span="24"  class="MarginB_20" v-if="userRole == 1">
         <el-row>
           <el-col :span="12" :class="{'activeTab': userType == 0, 'normalTab': userType == 1, 'Padding_10': true}"><span @click="changeTab(0)">子账户</span></el-col>
           <el-col :span="12" :class="{'activeTab': userType == 1, 'normalTab': userType == 0, 'Padding_10': true}"><span @click="changeTab(1)">司机</span></el-col>

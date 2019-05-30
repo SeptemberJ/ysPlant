@@ -187,13 +187,8 @@
             </el-form-item>
             <el-form-item prop="appointId" label="指派人员" class="TextAlignL">
               <span class="MarginR_10" v-if="appointName">{{appointName}}</span>
-              <!-- <el-button type="text" size="small" @click="chooseSJ">去选择<i class="el-icon-d-arrow-right el-icon--right"></i></el-button> -->
             </el-form-item>
             <el-form-item label="开具发票" prop="isFapiao">
-              <!-- <el-radio-group v-model="formAdd.isFapiao" style="float: left">
-                <el-radio label="0" border v-if="formAdd.isFapiao == 0">不需要</el-radio>
-                <el-radio label="1" border v-if="formAdd.isFapiao == 1">需要</el-radio>
-              </el-radio-group> -->
               <el-radio-group v-model="formAdd.isFapiao" disabled style="float: left">
                 <el-radio label="0" border>不需要</el-radio>
                 <el-radio label="1" border>需要</el-radio>
@@ -228,6 +223,27 @@
             <p style="font-size: 12px;color: #909399;text-align:right">{{cityDistance}} (路程/km) * {{totalWeight/1000}} (重量/t) * {{unitPrice}} (单价/¥) = {{totalSum}} ¥</p> -->
           </div>
         </el-card>
+        <!-- 回单 -->
+        <el-card class="box-card MarginTB_20">
+          <div slot="header" class="clearfix TextAlignL">
+            <span>回单信息</span>
+          </div>
+          <div class="TextAlignL">
+            <el-form-item prop="floadpics" label="装车照片">
+              <img v-if="formAdd.floadpics" :src="formAdd.floadpics" style="height:250px;">
+            </el-form-item>
+            <el-form-item prop="floadtime" label="装车时间">
+              <el-date-picker type="date"  v-model="formAdd.floadtime" style="width: 100%;" disabled></el-date-picker>
+            </el-form-item>
+            <el-form-item prop="frecepics" label="回单照片">
+              <img v-if="formAdd.frecepics" :src="formAdd.frecepics" style="height:250px;">
+            </el-form-item>
+            <el-form-item prop="frecetime" label="回单时间">
+              <el-date-picker type="date"  v-model="formAdd.frecetime" style="width: 100%;" disabled></el-date-picker>
+            </el-form-item>
+          </div>
+        </el-card>
+        <!-- bt -->
         <el-row>
           <el-col :span="12" class="TextAlignC">
             <el-button type="primary" :loading="ifLoading" @click="showDialog" :disabled="hasOffered">{{hasOffered ? '已报价' : '报价'}}</el-button>
@@ -355,7 +371,12 @@ export default {
         isBox: '', // 0-要 1-不要
         ifUseOilCard: 0, // 0 不使用 1 使用
         oilCard: 0, // 油卡金额
-        boxNo: ''
+        boxNo: '',
+        floadpics: '', // 装车照片
+        floadtime: '', // 装车时间
+        frecepics: '', // 回单照片
+        frecetime: '', // 回单时间
+        frece: '' // 回单确认
       },
       AddRules: {
         fhName: [
@@ -438,7 +459,8 @@ export default {
       userRole: state => state.userRole,
       userId: state => state.userId,
       userCode: state => state.userCode,
-      searchOrderId: state => state.searchOrderId
+      searchOrderId: state => state.searchOrderId,
+      ImgURL_PREFIX: state => state.ImgURL_PREFIX
     }),
     totalWeight: function () {
       let sum = 0
@@ -475,42 +497,48 @@ export default {
     // 获取订单详情
     getOrderDetail () {
       send({
+        // name: '/orderController/' + this.searchOrderId,
         name: '/orderController/orderDetail?id=' + this.searchOrderId + '&register_id=' + this.userId,
         method: 'GET',
         data: {}
       }).then(res => {
-        if (res.data.code === 1) {
-          let Info = res.data.orderInfo
+        if (res.data.respCode === '0') {
+          let Info = res.data.data
           let temp = Info
           temp.ffee = Info.ffee
-          temp.ifUseOilCard = (temp.foil_card === 0 ? 0 : 1) // 0 不使用 1 使用
-          temp.oilCard = Info.foil_card
+          temp.ifUseOilCard = (temp.foilCard === 0 ? 0 : 1) // 0 不使用 1 使用
+          temp.oilCard = Info.foilCard
           temp.fprovince = Info.origin_province_id
           temp.fcity = Info.origin_city_id
           temp.farea = Info.origin_area_id
           temp.sprovince = Info.destination_province_id
           temp.scity = Info.destination_city_id
           temp.sarea = Info.destination_area_id
-          temp.zhTime = new Date(Info.zh_time.time)
-          temp.orderGoodsList = Info.ordergoods
-          temp.carType = Info.car_type
-          temp.fmainId = Info.fmain_id
-          temp.fsubId = Info.fsub_id
-          temp.goodsName = Info.goods_name
-          temp.fhName = Info.fh_name
-          temp.fhTelephone = Info.fh_telephone
-          temp.fhAddress = Info.fh_address
-          temp.shAddress = Info.sh_address
-          temp.shArea = Info.sh_area
-          temp.shName = Info.sh_name
-          temp.shTelephone = Info.sh_telephone
-          temp.isFapiao = Info.is_fapiao
-          temp.isBox = Info.is_box
-          temp.boxNo = Info.box_no
-          this.appointName = Info.appoint_name ? Info.appoint_name : '未指定'
+          temp.zhTime = Info.zhTime // new Date(Info.zh_time.time)
+          temp.orderGoodsList = Info.orderGoodsList // Info.ordergoods
+          temp.carType = Info.carType
+          temp.fmainId = Info.fmainId
+          temp.fsubId = Info.fsubId
+          temp.goodsName = Info.goodsName
+          temp.fhName = Info.fhName
+          temp.fhTelephone = Info.fhTelephone
+          temp.fhAddress = Info.fhAddress
+          temp.shAddress = Info.shAddress
+          temp.shArea = Info.shArea
+          temp.shName = Info.shName
+          temp.shTelephone = Info.shTelephone
+          temp.isFapiao = Info.isFapiao
+          temp.isBox = Info.isBox
+          temp.boxNo = Info.boxNo
+          temp.floadpics = Info.floadpics ? (this.ImgURL_PREFIX + Info.floadpics) : null
+          temp.floadtime = Info.floadtime
+          temp.frecepics = Info.frecepics ? (this.ImgURL_PREFIX + Info.frecepics) : null
+          temp.frecetime = Info.frecetime
+          temp.frece = Info.frece
+          this.appointName = Info.appointId ? Info.appointId : '未指定'
           this.formAdd = temp
           this.maxFee = Info.fmax_fee
-          this.hasOffered = res.data.flag === 1
+          this.hasOffered = res.data.size === 1
           // 省市区
           this.getProvince()
           this.changeFprovince(temp.fprovince, 1)

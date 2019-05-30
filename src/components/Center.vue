@@ -18,16 +18,16 @@
       </el-col>
       <el-col :span="8" class="TextAlignL">
         <div class="MarginT_10">
-          <span class="LeftTit">抬头：</span>
-          <span>{{formInfo.taitou}}</span>
+          <span class="LeftTit">银行账号：</span>
+          <span>{{formInfo.bankNo}}</span>
         </div>
         <div class="MarginT_10">
           <span class="LeftTit">开户行：</span>
           <span>{{formInfo.bank}}</span>
         </div>
         <div class="MarginT_10">
-          <span class="LeftTit">银行账号：</span>
-          <span>{{formInfo.bankNo}}</span>
+          <span class="LeftTit">抬头：</span>
+          <span>{{formInfo.taitou}}</span>
         </div>
       </el-col>
       <el-col :span="8" class="TextAlignL">
@@ -78,7 +78,7 @@
         <el-button type="primary" @click="onSubmit('formCharge')">确 定</el-button>
       </span>
     </el-dialog>
-    <div style="width:100%;height:30px;border-bottom: 1px dashed #ddd;margin:30px 0 0 0;"></div>
+    <div style="width:100%;height:30px;border-bottom: 1px dashed #ddd;margin:20px 0;"></div>
     <!-- <el-row class="MarginT_40">
       <span class="PaddingR_10">操作时间</span>
       <el-date-picker
@@ -140,12 +140,6 @@
                 disabled
                 v-if="scope.row.fstatus != 1 && scope.row.forigin == 2">暂未到账
               </el-button>
-              <!-- <el-button
-                size="mini"
-                type="danger"
-                v-if="scope.row.fstatus == 1"
-                @click="deleteChargeRecord(scope.$index, scope.row)">确认打款</el-button>
-              <text v-if="scope.row.fstatus == 0">暂未到账</text> -->
             </template>
           </el-table-column>
         </el-table>
@@ -206,7 +200,7 @@ export default {
       },
       dialogVisibleCharge: false,
       formCharge: {
-        amount: 2000,
+        amount: '',
         payWay: '微信'
       },
       chargeRules: {
@@ -298,12 +292,6 @@ export default {
       }).then(res => {
         let Info = res.data.data
         if (res.data.respCode === '0') {
-          // this.formInfo.company = Info.companyName
-          // this.formInfo.contact = Info.companyLxr
-          // this.formInfo.tel = Info.companyPhone
-          // this.formInfo.contract = this.ImgURL_PREFIX + Info.companyContract
-          // this.formInfo.license = this.ImgURL_PREFIX + Info.companyLicence
-          // this.formInfo.role = (Info.ftype === '1' ? '承运商' : '货主')
           this.formInfo.company = Info.companyName
           this.formInfo.contact = Info.companyLxr
           this.formInfo.tel = Info.companyPhone
@@ -380,7 +368,6 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="less" scoped>
 .Center{
   background: #fff;
@@ -388,7 +375,7 @@ export default {
   padding: 20px;
   .LeftTit{
     width: 100px;
-    text-align: right;
+    text-align: left;
     color: #909399;
     font-weight: bold;
     display: inline-block;

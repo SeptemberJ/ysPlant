@@ -30,7 +30,6 @@
 import { mapActions } from 'vuex'
 import {send} from '../util/send'
 import {setCookie} from '../util/utils'
-// import {setCookie, Encrypt, Decrypt} from '../util/utils'
 export default {
   name: 'Login',
   data () {
@@ -53,32 +52,6 @@ export default {
       'changeIfSJOrderSearch',
       'changeShowDetail'
     ]),
-    pay () {
-      let DATA = {
-        app_id: '2016090800462854',
-        biz_content: '{"out_trade_no":"1548219783416","total_amount":"0.01","subject":"沙箱测试","product_code":"FAST_INSTANT_TRADE_PAY"}',
-        charset: 'utf-8',
-        method: 'alipay.trade.page.pay',
-        sign_type: 'RSA2',
-        timestamp: '2019-01-23 12:01:42',
-        version: '1.0',
-        sign: 'LU6rlg/+sYJa+Kpy6evknm+WK02AoWgJQcAheX1LFyCmyoc46cBJyO2G9GRCzl6s9QNzq76hFnoNnEpO2XgKSnNhu0x2CGnjvIPFs3CjF651Ghmoh/XbE+bRgJF4ZGY4+kpbz9bjXbQ5HHq8UCZgiAA3GUfOUx5rZPtRk+ULT8E7olkwIFAKKuu37LLLTTsA3SwyjxInZNKzFvG72R+B9fcWUILtVEi6t8b4Z0uvKlTJHTvLRHLwdSq+ozzEzjiwFNOE/QxIHhAfT1z/vpJdhbM73QQhR2BfwcfLyxJod9qqwhkjJYUqkMiYQacNzQUlqch2sQs2KMl7s5ActAV+SA=='
-      }
-      console.log(DATA)
-      var temp = document.createElement('form')
-      temp.action = 'http://openapi.alipaydev.com/gateway.do?charset=utf-8'
-      temp.method = 'post'
-      temp.style.display = 'none'
-      for (var x in DATA) {
-        var opt = document.createElement('input')
-        opt.name = x
-        opt.value = DATA[x]
-        temp.appendChild(opt)
-      }
-      document.body.appendChild(temp)
-      temp.submit()
-      return temp
-    },
     // 前往注册
     ToSign () {
       this.$router.push({name: 'Sign'})
@@ -158,15 +131,6 @@ export default {
             // 关闭详情页确保进入首页一级菜单
             this.changeIfSJOrderSearch(false)
             this.changeShowDetail(false)
-            // if (res.data.checkStatus === '1' || res.data.checkStatus === undefined) {
-            //   // 主页
-            //   this.$router.push({name: 'Home'})
-            //   this.changeLocationIdx(2)
-            // } else if (res.data.checkStatus === '0' || res.data.checkStatus === '2' || res.data.checkStatus === '3') {
-            //   // 信息页
-            //   this.$router.push({name: 'Information'})
-            //   this.changeLocationIdx(3)
-            // }
             break
           default:
             this.$message({
@@ -179,8 +143,6 @@ export default {
         console.log(res)
         this.ifLoading = false
       })
-      // this.$router.push({name: 'Home'})
-      // this.changeLocationIdx(2)
     }
   }
 }

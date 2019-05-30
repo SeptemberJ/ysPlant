@@ -2,7 +2,7 @@
   <div class="Ticket">
     <el-row>
       <el-col :span="24" class="BgWhite MarginTB_10 TextAlignR">
-       <el-button type="primary" icon="el-icon-plus" @click="toAddTicket">申请开票</el-button>
+       <el-button type="primary" size="mini" icon="el-icon-plus" @click="toAddTicket">申请开票</el-button>
       </el-col>
       <el-col :span="24"  class="MarginT_20 MarginB_20">
         <el-table

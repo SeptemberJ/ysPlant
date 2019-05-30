@@ -220,15 +220,15 @@
               </el-row>
             </el-form-item> -->
             <el-form-item prop="oilCard" label="是否使用油卡">
-            <span style="color: red">(油卡部分的金额无法开票)</span>
-            <el-input v-model="formAdd.oilCard" clearable v-if="formAdd.ifUseOilCard == 1" style="width: 200px;float:right;margin-left:20px;">
-              <template slot="append">¥</template>
-            </el-input>
-            <el-radio-group v-model="formAdd.ifUseOilCard" style="float: right">
-              <el-radio :label="0" border :disabled="formAdd.fstatus != 0">不使用</el-radio>
-              <el-radio :label="1" border :disabled="formAdd.fstatus != 0">使用</el-radio>
-            </el-radio-group>
-          </el-form-item>
+              <span style="color: red">(油卡部分的金额无法开票)</span>
+              <el-input v-model="formAdd.oilCard" clearable v-if="formAdd.ifUseOilCard == 1" style="width: 200px;float:right;margin-left:20px;">
+                <template slot="append">¥</template>
+              </el-input>
+              <el-radio-group v-model="formAdd.ifUseOilCard" style="float: right">
+                <el-radio :label="0" border :disabled="formAdd.fstatus != 0">不使用</el-radio>
+                <el-radio :label="1" border :disabled="formAdd.fstatus != 0">使用</el-radio>
+              </el-radio-group>
+            </el-form-item>
             <el-form-item prop="ffee" :label="formAdd.fstatus == 0 ? '报价' : '确认报价'">
               <el-input v-model="formAdd.ffee" clearable placeholder="请输入您的报价" :disabled="formAdd.fstatus != 0">
                 <template slot="append">¥</template>
@@ -241,6 +241,30 @@
            <!-- 原本按距离计算合计
            <h4 class="ColorWarn"><span style="display:inline-block;width:50%">合计：</span><span style="display:inline-block;width:50%;text-align:right">{{totalSum}} ¥</span></h4>
             <p style="font-size: 12px;color: #909399;text-align:right">{{cityDistance}} (路程/km) * {{totalWeight/1000}} (重量/t) * {{unitPrice}} (单价/¥) = {{totalSum}} ¥</p> -->
+          </div>
+        </el-card>
+        <!-- 回单 -->
+        <el-card class="box-card MarginTB_20">
+          <div slot="header" class="clearfix TextAlignL">
+            <span>回单信息</span>
+          </div>
+          <div class="TextAlignL">
+            <el-form-item prop="floadpics" label="装车照片">
+              <img v-if="formAdd.floadpics" :src="formAdd.floadpics" style="height:250px;">
+            </el-form-item>
+            <el-form-item prop="floadtime" label="装车时间">
+              <el-date-picker type="date"  v-model="formAdd.floadtime" style="width: 100%;" disabled></el-date-picker>
+            </el-form-item>
+            <el-form-item prop="frecepics" label="回单照片">
+              <img v-if="formAdd.frecepics" :src="formAdd.frecepics" style="height:250px;">
+            </el-form-item>
+            <el-form-item prop="frecetime" label="回单时间">
+              <el-date-picker type="date"  v-model="formAdd.frecetime" style="width: 100%;" disabled></el-date-picker>
+            </el-form-item>
+            <el-form-item prop="frecetime" label="回单确认">
+              <el-button type="primary" v-if="formAdd.frece == 1" disabled>已确认</el-button>
+              <el-button type="primary" v-else :disabled="!formAdd.frecepics" @click="huidanConfirm">确认</el-button>
+            </el-form-item>
           </div>
         </el-card>
         <!-- bt -->
@@ -334,7 +358,12 @@ export default {
         max_price: 0,
         ifUseOilCard: 0, // 0 不使用 1 使用
         oilCard: 0, // 油卡金额
-        fmaxFee: 0
+        fmaxFee: 0,
+        floadpics: '', // 装车照片
+        floadtime: '', // 装车时间
+        frecepics: '', // 回单照片
+        frecetime: '', // 回单时间
+        frece: '' // 回单确认
       },
       AddRules: {
         fhName: [
@@ -415,7 +444,8 @@ export default {
       userRole: state => state.userRole,
       userCode: state => state.userCode,
       userId: state => state.userId,
-      searchOrderId: state => state.searchOrderId
+      searchOrderId: state => state.searchOrderId,
+      ImgURL_PREFIX: state => state.ImgURL_PREFIX
     }),
     totalWeight: function () {
       let sum = 0
@@ -693,7 +723,12 @@ export default {
           temp.isFapiao = Info.is_fapiao
           temp.isBox = Info.is_box
           temp.boxNo = Info.box_no
-          temp.payType = Info.payType ? Info.payType : 0
+          temp.floadpics = Info.floadpics ? (this.ImgURL_PREFIX + Info.floadpics) : null
+          temp.floadtime = Info.floadtime
+          temp.frecepics = Info.frecepics ? (this.ImgURL_PREFIX + Info.frecepics) : null
+          temp.frecetime = Info.frecetime
+          temp.frece = Info.frece
+          // temp.payType = Info.payType ? Info.payType : 0
           this.appointName = Info.appoint_name ? Info.appoint_name : '未指定'
           this.formAdd = temp
           // 省市区
@@ -717,6 +752,32 @@ export default {
         }
       }).catch((res) => {
         console.log(res)
+      })
+    },
+    // 回单确认
+    huidanConfirm () {
+      send({
+        name: '/orderController/huidan/' + this.searchOrderId,
+        method: 'POST'
+      }).then(res => {
+        if (res.data.respCode === '0') {
+          this.$message({
+            message: '回单确认成功！',
+            type: 'success'
+          })
+          this.getOrderDetail()
+        } else {
+          this.$message({
+            message: res.data.message + '！',
+            type: 'error'
+          })
+        }
+      }).catch((res) => {
+        console.log(res)
+        this.$message({
+          message: '回单确认失败！',
+          type: 'error'
+        })
       })
     },
     // 获取初始发货地与收货地的距离

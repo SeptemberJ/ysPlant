@@ -302,8 +302,8 @@ export default {
     },
     // 上传图片
     uploadImg (property, img, floder, type) {
-      axios.post('http://172.16.52.63:8080/rest/registerDriverController/photo?kind=0&folder=' + floder + '&type=' + type, img, {
-      // axios.post('http://116.62.171.244:8082/yingsu/rest/registerDriverController/photo?kind=&folder=' + floder + '&type=' + type, img, {
+      // axios.post('http://172.16.52.63:8080/rest/registerDriverController/photo?kind=0&folder=' + floder + '&type=' + type, img, {
+      axios.post('http://116.62.171.244:8082/yingsu/rest/registerDriverController/photo?kind=0&folder=' + floder + '&type=' + type, img, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'X-AUTH-TOKEN': getCookie('btwccy_cookie')
@@ -479,12 +479,6 @@ export default {
           if (Info.checkStatus === '0') {
             this.agreed = true
           }
-          // if (Info.companyName) {
-          //   this.checkStatus = Info.checkStatus
-          //   this.agreed = true
-          // } else {
-          //   this.checkStatus = -1 // 未填写过信息
-          // }
           this.formInfo.company = Info.companyName
           this.formInfo.contact = Info.companyLxr
           this.formInfo.tel = Info.companyPhone

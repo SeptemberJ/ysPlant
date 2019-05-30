@@ -97,7 +97,7 @@
               <User v-if="siderIdx == '2'"/>
               <Center v-if="siderIdx == '3-1'"/>
               <Safe v-if="siderIdx == '3-2'"/>
-              <Car v-if="siderIdx == '1-7'"/>
+              <CarSearch v-if="siderIdx == '1-7'"/>
             </section>
             <div class="CopyrightBar">
               ©2019 上海旺策尔信息科技有限公司  版权所有
@@ -120,7 +120,7 @@ import Ticket from '../components/Ticket/Ticket.vue'
 import Center from '../components/Center.vue'
 import User from '../components/User.vue'
 import Safe from '../components/Safe.vue'
-import Car from '../components/Car.vue'
+import CarSearch from '../components/CarSearch.vue'
 export default {
   name: 'Home',
   data () {
@@ -137,7 +137,7 @@ export default {
     Ticket,
     Center,
     Safe,
-    Car
+    CarSearch
   },
   computed: {
     ...mapState({

@@ -3,13 +3,11 @@ import CryptoJS from 'crypto-js'
 export function Encrypt (plaintText) {
   var keyStr = 'btwccy_liubai'
   var key = CryptoJS.enc.Utf8.parse(keyStr)
-  // var iv = CryptoJS.enc.Utf8.parse('qwertyuiopasdfgh')
   var encryptedData = CryptoJS.AES.encrypt(plaintText, key, {
     // iv: iv,
     mode: CryptoJS.mode.ECB,
     padding: CryptoJS.pad.Pkcs7
   })
-  // var encryptedBase64Str = encryptedData.toString()
   var encryptedStr = encryptedData.ciphertext.toString()
   return encryptedStr
 }
@@ -32,9 +30,7 @@ export function Decrypt (encryptedStr) {
 export function setCookie (cname, cvalue, exhours) {
   var d = new Date()
   d.setTime(d.getTime() + (exhours * 60 * 60 * 1000))
-  // d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000))
   var expires = 'expires=' + d.toUTCString()
-  // console.info(cname + '=' + cvalue + '; ' + expires)
   document.cookie = cname + '=' + cvalue + '; ' + expires
 }
 
@@ -93,12 +89,12 @@ export function getuuid () {
 // 根据经纬极值计算绽放级别
 export function getZoom (maxLng, minLng, maxLat, minLat, map, BMap) {
   var zoom = ['50', '100', '200', '500', '1000', '2000', '5000', '10000', '20000', '25000', '50000', '100000', '200000', '500000', '1000000', '2000000'] // 级别18到3
-  var pointA = new BMap.Point(maxLng, maxLat) // 创建点坐标A
-  var pointB = new BMap.Point(minLng, minLat) // 创建点坐标B
-  var distance = map.getDistance(pointA, pointB).toFixed(1) // 获取两点距离,保留小数点后两位
+  var pointA = new BMap.Point(maxLng, maxLat)
+  var pointB = new BMap.Point(minLng, minLat)
+  var distance = map.getDistance(pointA, pointB).toFixed(1)
   for (var i = 0, zoomLen = zoom.length; i < zoomLen; i++) {
     if (zoom[i] - distance > 0) {
-      return 18 - i + 3 // 之所以会多3，是因为地图范围常常是比例尺距离的10倍以上。所以级别会增加3
+      return 18 - i + 3
     }
   }
 }
@@ -122,7 +118,6 @@ export function setZoom (points, map, BMap) {
     var zoom = getZoom(maxLng, minLng, maxLat, minLat, map, BMap)
     map.centerAndZoom(new BMap.Point(cenLng, cenLat), zoom)
   } else {
-    // 没有坐标，显示全中国
     map.centerAndZoom(new BMap.Point(103.388611, 35.563611), 5)
   }
 }

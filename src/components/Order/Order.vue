@@ -125,19 +125,8 @@
             >
             <template slot-scope="scope">
               <span>{{scope.row.fstatusTxt}}</span>
-              <!-- <span>{{scope.row.fstatus == 0 ? '待接单' : (scope.row.fstatus == 1 ? '已接单' : (scope.row.fstatus == 2 ? '已撤单' : (scope.row.fstatus == 3 ? '运输中' : (scope.row.fstatus == 4 ? '已签收' : '已取消'))))}}</span> -->
             </template>
           </el-table-column>
-          <!-- <el-table-column
-            prop="ffee"
-            label="预估价"
-            show-overflow-tooltip>
-          </el-table-column> -->
-          <!-- <el-table-column
-            prop="goods_name"
-            label="货物类型"
-            show-overflow-tooltip>
-          </el-table-column> -->
           <el-table-column
             prop="origin"
             label="发货地"
@@ -255,10 +244,6 @@ import {send} from '../../util/send'
 import {secondToFormat} from '../../util/utils'
 import OrderDetail from './OrderDetail.vue'
 import Map from '../Map/Map.vue'
-// import FileSaver from 'file-saver'
-// import XLSX from 'xlsx'
-// import expandRow from './TableExpand.vue'
-// import JsonExcel from 'vue-json-to-excel'
 export default {
   name: 'Order',
   data () {

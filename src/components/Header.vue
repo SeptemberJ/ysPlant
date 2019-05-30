@@ -2,7 +2,6 @@
   <div class="HeaderBar">
     <el-row style="background: #65c294;color: #fff">
       <el-col :span="12" class="block">
-        <!-- <img class="Logo" style="width: 140px;height: 66px;" src="../../static/images/Logo.png"> -->
         <img class="Logo" style="width: 140px;height: 66px;" src="../../static/images/Partner_10.png">
       </el-col>
       <el-col :span="12" class="block TextAlignR">
@@ -35,11 +34,17 @@ export default {
     ]),
     // 退出登陆
     LogOut () {
-      // localStorage.clear('vuex-along')
-      this.$router.push({name: 'Login'})
-      this.changeLocationIdx(0)
-      this.changeSiderIdx('1-1')
-      clearCookie('btwccy_cookie')
+      this.$confirm('确定退出当前账号?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.$router.push({name: 'Login'})
+        this.changeLocationIdx(0)
+        this.changeSiderIdx('1-1')
+        clearCookie('btwccy_cookie')
+      }).catch(() => {
+      })
     }
   }
 }
