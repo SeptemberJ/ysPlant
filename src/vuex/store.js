@@ -26,10 +26,18 @@ const state = {
   searchSjId: '',
   accountKind: 0,
   PDFCompany: '',
+  carTypeList: [],
+  goodsTypeList: [],
   html: ''
 }
 // actions
 const actions = {
+  initCarType  ({commit, state}, CARTYPE) {
+    commit('setCarTypeList', CARTYPE)
+  },
+  initGoodsType  ({commit, state}, GOODS) {
+    commit('setGoodsTypeList', GOODS)
+  },
   changePayHtml ({commit, state}, HTML) {
     commit('setPayHtml', HTML)
   },
@@ -85,6 +93,12 @@ const actions = {
 
 // mutations
 const mutations = {
+  setCarTypeList (state, CARTYPE) {
+    state.carTypeList = CARTYPE
+  },
+  setGoodsTypeList (state, GOODS) {
+    state.goodsTypeList = GOODS
+  },
   setPayHtml (state, HTML) {
     state.html = HTML
   },
@@ -140,7 +154,6 @@ export default new Vuex.Store({
   state,
   modules: {
   },
-  // getters,
   actions,
   mutations,
   // strict: debug,

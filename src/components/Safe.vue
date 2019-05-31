@@ -44,7 +44,6 @@
 
 <script>
 import { mapState, mapActions } from 'vuex'
-import {send} from '../util/send'
 import {clearCookie} from '../util/utils'
 export default {
   name: 'Safe',
@@ -113,7 +112,7 @@ export default {
     },
     // 发送验证码
     getCode () {
-      send({
+      this.send({
         name: '/tokens/SMScode?fmobile=' + this.userAccount,
         method: 'POST',
         data: {
@@ -160,7 +159,7 @@ export default {
             return false
           }
           this.ifLoading = true
-          send({
+          this.send({
             name: '/tokens/registerChangePsw?fmobile=' + this.userAccount + '&fpassword=' + this.formSafe.password,
             method: 'POST',
             data: {

@@ -7,29 +7,14 @@
 <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=i958ho3aKFiiVfxOIwAZOO05sHDDsAGK"></script>
 <script>
 import {setZoom} from '../../util/utils'
-import {send} from '../../util/send'
 export default {
-  name: 'Car',
+  name: 'Trajectory',
   data () {
     return {
-      // pointArray: [
-      //   {lng: "104.038748", lat: "30.641821"},
-      //   {lng: "104.047789", lat: "30.648128"},
-      //   {lng: "104.063959", lat: "30.655336"},
-      //   {lng: "104.067264", lat: "30.660307"},
-      //   {lng: "104.067264", lat: "30.664438"},
-      //   {lng: "104.064008", lat: "30.665418"}
-      // ],
     }
   },
   mounted () {
     this.getData()
-  },
-  watch: {
-  },
-  created () {
-  },
-  computed: {
   },
   methods: {
     setMap (PointData) {
@@ -60,7 +45,6 @@ export default {
       PointData.map((item, idx) => {
         let marker
         let point = new BMap.Point(item.lng, item.lat)
-        //  marker = new BMap.Marker(point)
         // 配置icon
         if (idx === 0) {
           marker = new BMap.Marker(point, {
@@ -76,12 +60,10 @@ export default {
           map.addOverlay(marker)
         } else {
           marker = new BMap.Marker(point, {
-            // icon: icon,
             offset: new BMap.Size(0, 0)
           })
           map.addOverlay(marker)
         }
-        // map.addOverlay(marker)
         // line point
         linePoint.push(new BMap.Point(item.lng, item.lat))
         // 信息框
@@ -127,13 +109,12 @@ export default {
       }
     },
     getData() {
-      send({
+      this.send({
         name: '/orderController/trail/' + localStorage['MapId'] + '/1',
         method: 'GET',
         data: {
         }
       }).then(res => {
-        // console.log(res.data.data)
         this.setMap(res.data.data)
       }).catch((res) => {
         console.log(res)

@@ -249,7 +249,6 @@
 
 <script>
 import { mapState } from 'vuex'
-import {send} from '../../util/send'
 export default {
   name: 'Order',
   data () {
@@ -388,7 +387,7 @@ export default {
   methods: {
     // 获取货物类型下拉
     getGoodsType () {
-      send({
+      this.send({
         name: '/typeController/list',
         method: 'GET',
         data: {
@@ -501,7 +500,7 @@ export default {
       }
       // console.log(DATA)
       this.ifLoading = true
-      send({
+      this.send({
         name: '/zInvoiceOrderController',
         method: 'POST',
         data: DATA
@@ -558,7 +557,7 @@ export default {
     },
     // 获取省下拉
     getProvince () {
-      send({
+      this.send({
         name: '/registerDriverController/regionSelect?pid=' + this.fProvincePid,
         method: 'GET',
         data: {
@@ -574,7 +573,7 @@ export default {
     },
     // 获取市下拉
     getCity (id, property) {
-      send({
+      this.send({
         name: '/registerDriverController/regionSelect?pid=' + id,
         method: 'GET',
         data: {
@@ -589,7 +588,7 @@ export default {
     },
     // 获取区下拉
     getArea (id, property) {
-      send({
+      this.send({
         name: '/registerDriverController/regionSelect?pid=' + id,
         method: 'GET',
         data: {
@@ -604,7 +603,7 @@ export default {
     },
     // 获取司机下拉
     getDriverList () {
-      send({
+      this.send({
         name: '/zRegisterController/driverListNoPage?fid=' + this.userId,
         method: 'GET',
         data: {

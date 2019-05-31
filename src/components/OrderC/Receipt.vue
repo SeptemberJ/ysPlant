@@ -190,7 +190,6 @@
 
 <script>
 import { mapState, mapActions } from 'vuex'
-import {send} from '../../util/send'
 import OrderDetail from './OrderDetail.vue'
 export default {
   name: 'Order',
@@ -231,9 +230,7 @@ export default {
       fareaPid: '',
       sProvincePid: 1,
       scityPid: '',
-      sareaPid: '',
-      carTypeList: [],
-      goodsTypeList: []
+      sareaPid: ''
     }
   },
   computed: {
@@ -242,7 +239,9 @@ export default {
       userCode: state => state.userCode,
       userId: state => state.userId,
       showDetail: state => state.showDetail,
-      siderIdx: state => state.siderIdx
+      siderIdx: state => state.siderIdx,
+      carTypeList: state => state.carTypeList,
+      goodsTypeList: state => state.goodsTypeList
     })
   },
   created () {
@@ -253,8 +252,6 @@ export default {
       this.getOrderList()
     }
     this.getProvince()
-    this.getCarType()
-    this.getGoodsType()
   },
   watch: {
     // 指定和未指定拆分后通过监听siderIdx的变化获取相应数据
@@ -350,7 +347,7 @@ export default {
     // 获取指定的订单列表
     getOrderList () {
       this.loading = true
-      send({
+      this.send({
         name: '/orderController/list/' + this.currentPage + '/10/1' + '/{appointId}?appointId=' + this.userId,
         method: 'GET',
         data: {}
@@ -373,7 +370,7 @@ export default {
     // 获取未指定的订单列表
     getOrderListNotAppoint () {
       this.loading = true
-      send({
+      this.send({
         name: '/orderController/list/' + this.currentPage + '/10/0' + '/{appointId}?appointId=' + '&order_no=' + this.fromSearch.orderNumber + '&fh=' + this.fromSearch.farea + '&sh=' + this.fromSearch.sarea + '&goodstype=' + this.fromSearch.goodsName + '&cartype=' + this.fromSearch.carType,
         method: 'GET',
         data: {}
@@ -417,7 +414,7 @@ export default {
     },
     // 获取省下拉
     getProvince () {
-      send({
+      this.send({
         name: '/registerDriverController/regionSelect?pid=' + this.fProvincePid,
         method: 'GET',
         data: {
@@ -433,7 +430,7 @@ export default {
     },
     // 获取市下拉
     getCity (id, property) {
-      send({
+      this.send({
         name: '/registerDriverController/regionSelect?pid=' + id,
         method: 'GET',
         data: {
@@ -448,7 +445,7 @@ export default {
     },
     // 获取区下拉
     getArea (id, property) {
-      send({
+      this.send({
         name: '/registerDriverController/regionSelect?pid=' + id,
         method: 'GET',
         data: {
@@ -456,36 +453,6 @@ export default {
       }).then(res => {
         if (res.data.respCode === '0') {
           this[property] = res.data.data
-        }
-      }).catch((res) => {
-        console.log(res)
-      })
-    },
-    // 获取车型下拉
-    getCarType () {
-      send({
-        name: '/zCarTypeController/list',
-        method: 'GET',
-        data: {
-        }
-      }).then(res => {
-        if (res.data.respCode === '0') {
-          this.carTypeList = res.data.data
-        }
-      }).catch((res) => {
-        console.log(res)
-      })
-    },
-    // 获取货物类型下拉
-    getGoodsType () {
-      send({
-        name: '/typeController/list',
-        method: 'GET',
-        data: {
-        }
-      }).then(res => {
-        if (res.data.respCode === '0') {
-          this.goodsTypeList = res.data.data
         }
       }).catch((res) => {
         console.log(res)

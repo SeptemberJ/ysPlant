@@ -7,8 +7,6 @@
           <el-col :span="8">税额： {{sumTax}} ¥</el-col>
           <el-col :span="8">税后金额： {{sumPrice - sumTax}} ¥</el-col>
         </el-row>
-       <!--  <span style="width: 50%;display:inline-block;float:left;text-align:left;">总金额： {{sumPrice}}</span>
-        <span style="width: 50%;display:inline-block;float:left;text-align:left;">总税额： {{sumTax}}</span> -->
       </el-col>
       <el-col :span="24">
         <el-table
@@ -45,7 +43,6 @@
 </template>
 <script>
 import { mapState } from 'vuex'
-import {send} from '../../util/send'
 export default {
   name: 'AddTicket',
   data () {
@@ -122,9 +119,8 @@ export default {
         id: '',
         invoiceentryList: this.invoiceentry
       }
-      console.log(DATA)
       // 提交
-      send({
+      this.send({
         name: '/invoiceController',
         method: 'POST',
         data: DATA
@@ -151,7 +147,7 @@ export default {
     },
     // 获取未开票订单
     getOrderList () {
-      send({
+      this.send({
         name: '/orderController/orderBystatus?id=' + this.userCode + '&status=7',
         method: 'GET',
         data: {

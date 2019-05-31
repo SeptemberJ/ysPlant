@@ -7,7 +7,6 @@
 <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=i958ho3aKFiiVfxOIwAZOO05sHDDsAGK"></script>
 <script>
 import {setZoom} from '../../util/utils'
-// import {send} from '../../util/send'
 export default {
   name: 'Car',
   data () {
@@ -32,20 +31,6 @@ export default {
 		}
   },
   created () {
-		// setTimeout(() => {
-		// 	this.pointArray = [
-		// 		{lng: 108.112917, lat: 24.435153, kind: 0, tips: '卡车A'},
-		// 		{lng: 119.532937, lat: 31.435183, kind: 0, tips: '卡车B'},
-		// 		{lng: 115.122987, lat: 28.435173, kind: 0, tips: '卡车C'}
-		// 	]
-		// }, 2000)
-		// setTimeout(() => {
-		// 	this.pointArray = [
-		// 		{lng: 117.812917, lat: 27.535153, kind: 1, tips: '卡车E'},
-	 //      {lng: 107.212917, lat: 29.535153, kind: 1, tips: '卡车F'},
-	 //      {lng: 120.1006487, lat: 30.435153, kind: 2, tips: '卡车G'}
-		// 	]
-		// }, 4000)
   },
   methods: {
 		setMap () {
@@ -70,6 +55,8 @@ export default {
 	        case 2:
 	          marker = new BMap.Marker(point, {icon:IconCarGreen})
 	          break
+          default:
+            marker = new BMap.Marker(point, {icon:IconCarBlue})
 	      }
 	      map.addOverlay(marker)
 	      // 信息框

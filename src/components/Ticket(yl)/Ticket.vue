@@ -140,7 +140,6 @@
 
 <script>
 import { mapState, mapActions } from 'vuex'
-import {send} from '../../util/send'
 import Add from './Add.vue'
 import Modify from './Modify.vue'
 import {secondToFormat} from '../../util/utils'
@@ -205,7 +204,7 @@ export default {
     },
     // 删除
     sureCancel (id) {
-      send({
+      this.send({
         name: '/zInvoiceOrderController/delInvoiceOrder?id=' + id,
         method: 'DELETE',
         data: {
@@ -265,7 +264,7 @@ export default {
     },
     // 获取货物类型下拉
     getGoodsType () {
-      send({
+      this.send({
         name: '/typeController/list',
         method: 'GET',
         data: {
@@ -289,7 +288,7 @@ export default {
     },
     // 获取开票订单列表
     getTicketList () {
-      send({
+      this.send({
         name: '/zInvoiceOrderController/invoiceList?fregisterId=' + this.userId + '&number=10&page_num=' + this.currentPage,
         method: 'GET',
         data: {

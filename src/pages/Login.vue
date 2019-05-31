@@ -28,7 +28,6 @@
 
 <script>
 import { mapActions } from 'vuex'
-import {send} from '../util/send'
 import {setCookie} from '../util/utils'
 export default {
   name: 'Login',
@@ -85,7 +84,7 @@ export default {
         return false
       }
       this.ifLoading = true
-      send({
+      this.send({
         name: '/tokens/registerLogin?fmobile=' + this.phone + '&password=' + this.password,
         method: 'POST',
         data: {

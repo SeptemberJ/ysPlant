@@ -101,7 +101,6 @@
 <script>
 import { mapState, mapActions } from 'vuex'
 import axios from 'axios'
-import {send} from '../util/send'
 import {getCookie} from '../util/utils'
 export default {
   name: 'Info',
@@ -359,7 +358,7 @@ export default {
       }
       let stObg = JSON.stringify(DATA)
       this.ifLoading = true
-      send({
+      this.send({
         name: '/zRegisterController/doUpdateHZ?jsonHZ=' + stObg,
         method: 'POST',
         data: {
@@ -400,7 +399,7 @@ export default {
       }
       let stObg = JSON.stringify(DATA)
       this.ifLoading = true
-      send({
+      this.send({
         name: '/zRegisterController/doUpdatePersonal?jsonPersonal=' + stObg,
         method: 'POST',
         data: {
@@ -435,7 +434,7 @@ export default {
       }
       let stObg = JSON.stringify(DATA)
       this.ifLoading = true
-      send({
+      this.send({
         name: '/zRegisterController/doUpdateLogistics?jsonLogistics=' + stObg,
         method: 'POST',
         data: {
@@ -462,7 +461,7 @@ export default {
     },
     // 获取基本信息
     getBasicInfo () {
-      send({
+      this.send({
         name: '/zRegisterController/' + this.userId,
         method: 'GET',
         data: {

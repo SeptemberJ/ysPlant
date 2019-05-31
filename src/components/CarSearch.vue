@@ -25,7 +25,7 @@
 </template>
 <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=i958ho3aKFiiVfxOIwAZOO05sHDDsAGK"></script>
 <script>
-import {send} from '../util/send'
+import { mapState } from 'vuex'
 import {setZoom} from '../util/utils'
 export default {
   name: 'Car',
@@ -40,7 +40,6 @@ export default {
 	      {lng: 107.212917, lat: 29.535153, kind: 1, tips: '卡车F'},
 	      {lng: 120.1006487, lat: 30.435153, kind: 2, tips: '卡车G'}
 	    ],
-	    carTypeList: [],
 	    carType: ''
     }
   },
@@ -52,8 +51,12 @@ export default {
 			this.setMap()
 		}
   },
+  computed: {
+    ...mapState({
+      carTypeList: state => state.carTypeList
+    })
+  },
   created () {
-		this.getCarType()
   },
   methods: {
 		setMap () {
@@ -96,22 +99,7 @@ export default {
 	      })
 	    })
 	    setZoom(this.pointArray, map, BMap)
-	  },
-	  // 获取车型下拉
-    getCarType () {
-      send({
-        name: '/zCarTypeController/list',
-        method: 'GET',
-        data: {
-        }
-      }).then(res => {
-        if (res.data.respCode === '0') {
-          this.carTypeList = res.data.data
-        }
-      }).catch((res) => {
-        console.log(res)
-      })
-    }
+	  }
   }
 }
 </script>

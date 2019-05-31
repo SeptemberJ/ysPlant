@@ -43,7 +43,6 @@
 
 <script>
 import { mapActions } from 'vuex'
-import {send} from '../util/send'
 export default {
   name: 'Sign',
   data () {
@@ -93,9 +92,6 @@ export default {
         passwordAgain: [
           { required: true, validator: validateConfirmPass }
         ]
-        // recommenderPhone: [
-        //   { required: true, validator: validateRecommenderPhone, trigger: 'blur' }
-        // ]
       }
     }
   },
@@ -124,7 +120,7 @@ export default {
           }
           let stObg = JSON.stringify(DATA)
           this.ifLoading = true
-          send({
+          this.send({
             name: '/tokens/register?zRegisterJson=' + stObg,
             method: 'POST',
             data: {
@@ -184,7 +180,7 @@ export default {
     },
     // 发送验证码
     getCode () {
-      send({
+      this.send({
         name: '/tokens/SMScode?fmobile=' + this.formSign.accountName,
         method: 'POST',
         data: {

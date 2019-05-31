@@ -62,7 +62,6 @@
 
 <script>
 import { mapState, mapActions } from 'vuex'
-import {send} from '../../util/send'
 import OrderDetail from './OrderDetail.vue'
 export default {
   name: 'Order',
@@ -111,7 +110,7 @@ export default {
       this.orderId = row.id
     },
     getOrderList () {
-      send({
+      this.send({
         name: '/orderController/list/' + this.currentPage + '/10/1' + '/&appointId=' + this.userId,
         method: 'GET',
         data: {}

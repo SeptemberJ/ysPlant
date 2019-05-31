@@ -1,46 +1,38 @@
 import axios from 'axios'
-// import * as $ from 'jquery'
-// import * as CryptoJS from 'crypto-js'
 import {getCookie, clearCookie} from './utils'
 import { Message } from 'element-ui'
 import store from '../vuex/store'
-// import _ from 'underscore'
 
 // const URL_PREFIX = 'http://172.16.52.227:8083/rest' // zhaosongsong
-// const URL_PREFIX = 'http://116.62.171.244:8082/yingsu/rest'
-const URL_PREFIX = 'http://172.16.52.63/rest' // qianpeiyuan
+const URL_PREFIX = 'http://116.62.171.244:8082/yingsu/rest'
+// const URL_PREFIX = 'http://172.16.52.63/rest' // qianpeiyuan
 
 export function send (options) {
-  // if (!options.name) {
-  //   throw new Error('没有指定接口名称')
-  // }
-  // let body = options.data
+  if (!options.name) {
+    throw new Error('没有指定接口名称')
+  }
   const timestamp = Date.now()
-  // const reqChecksum = calcChecksum(options.name, timestamp, body)
   // options.url = (URL_PREFIX + options.name).indexOf('?') === -1 ? (URL_PREFIX + options.name + '?timestamp=' + timestamp) : (URL_PREFIX + options.name + '&timestamp=' + timestamp)
   options.url = URL_PREFIX + options.name
   delete options.name
   return new Promise(function (resolve, reject) {
     switch (options.method) {
       case 'POST':
-        // MessageBox.alert('message', 'title')
         axios.post(encodeURI(options.url), options.data,
           {
             headers: {
               'X-AUTH-TOKEN': getCookie('btwccy_cookie') || '',
-              // 'Content-Type': 'multipart/form-data',
               'X-Timestamp': timestamp
-              // 'X-Checksum': reqChecksum
             }
           }
         ).then((res) => {
           resolve(res)
         }).catch((error) => {
-          // resolve(error)
           Message.error({
             message: 'Interface error!'
           })
           console.log(error)
+          resolve(error)
           throw new Error('接口报错!')
         })
         break

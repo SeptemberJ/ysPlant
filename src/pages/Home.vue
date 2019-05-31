@@ -9,9 +9,7 @@
               background-color="#65c294"
               text-color="#fff"
               class="el-menu-vertical-demo"
-              @select="changeSideMenu"
-              @open="handleOpen"
-              @close="handleClose">
+              @select="changeSideMenu">
               <el-submenu index="1">
                 <template slot="title">
                   <i class="fa fa-truck"></i>
@@ -32,7 +30,6 @@
                   <el-menu-item index="1-4" v-if="userRole == 1 || userRole == 4">指定接单</el-menu-item>
                   <el-menu-item index="1-6" v-if="userRole == 1 || userRole == 4">未指定接单</el-menu-item>
                   <el-menu-item index="1-5" v-if="userRole == 1 || userRole == 4">实况查询</el-menu-item>
-                  <!-- <el-menu-item index="1-5" v-if="userRole == 2 || userRole == 5  || userRole == 3">实况查询</el-menu-item> -->
                 </el-menu-item-group>
               </el-submenu>
               <el-menu-item index="4" v-if="userRole != 3">
@@ -43,7 +40,8 @@
                 <i class="fa fa-users"></i>
                 <span slot="title">用户管理</span>
               </el-menu-item>
-              <!-- <el-menu-item index="4" v-if="userRole == 1 || userRole == 4">
+              <!-- 之前开票模块
+              <el-menu-item index="4" v-if="userRole == 1 || userRole == 4">
                 <i class="fa fa-ticket"></i>
                 <span slot="title">开票订单</span>
               </el-menu-item> -->
@@ -74,7 +72,6 @@
                 <el-breadcrumb-item v-if="ifSJOrderSearch && siderIdx == '1-3' && (userRole == 1 || userRole == 4)"><span @click="backSjList" class="CursorPointer">司机订单列表</span></el-breadcrumb-item>
                 <el-breadcrumb-item v-if="siderIdx == '1-2-1' || siderIdx == '1-2-2' || siderIdx == '1-2-3'">{{siderIdx == '1-2-1' ? '普货' : (siderIdx == '1-2-2' ? '危险品' : '冷藏品')}}订单新增</el-breadcrumb-item>
                 <el-breadcrumb-item v-if="showDetail && (siderIdx == '1-1' || siderIdx == '1-3' || siderIdx == '1-4')">订单详情</el-breadcrumb-item>
-                <!-- <el-breadcrumb-item v-if="siderIdx == '1-5' && (userRole == 2 || userRole == 5 || userRole == 3)">实况查询</el-breadcrumb-item> -->
                 <!-- 开票管理导航 -->
                 <el-breadcrumb-item v-if="siderIdx == '4'">开票管理</el-breadcrumb-item>
                 <!-- 用户管理导航 -->
@@ -147,7 +144,7 @@ export default {
       showDetail: state => state.showDetail,
       showMap: state => state.showMap,
       ifSJOrderSearch: state => state.ifSJOrderSearch,
-      userRole: state => state.userRole // 1-承运商主 2-货主主 4-承运商子 5-货主子 3-个人 searchOrderId: state => state.searchOrderId,
+      userRole: state => state.userRole
     })
   },
   methods: {
@@ -158,41 +155,31 @@ export default {
       'changeShowMap',
       'changeIfSJOrderSearch'
     ]),
+    // 返回订单列表
     backOrderList () {
       this.changeShowDetail(false)
       this.changeShowMap(false)
       this.changeIfSJOrderSearch(false)
     },
-    // 订单查询司机列表
+    // 返回订单查询司机列表
     backSjList () {
       this.changeIfSJOrderSearch(true)
       this.changeShowDetail(false)
       this.changeShowMap(false)
     },
     changeSideMenu (index, keyPath) {
-      // console.log(index)
-      // console.log(keyPath)
       let levelCount = keyPath.length
       if (levelCount > 1) {
         this.changeSiderIdx(keyPath[levelCount - 1])
         this.changeIfSJOrderSearch(false)
         this.changeShowDetail(false)
         this.changeShowMap(false)
-        // if (levelCount === 3) {
-        //   this.changeAddOrderType(index)
-        // }
       } else {
         this.changeSiderIdx(keyPath[0])
         this.changeIfSJOrderSearch(false)
         this.changeShowDetail(false)
         this.changeShowMap(false)
       }
-    },
-    handleOpen (key, keyPath) {
-      // console.log(key, keyPath)
-    },
-    handleClose (key, keyPath) {
-      // console.log(key, keyPath)
     }
   }
 }

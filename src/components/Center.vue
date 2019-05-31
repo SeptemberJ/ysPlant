@@ -127,18 +127,22 @@
             label="交易类型"
             width="100">
           </el-table-column>
-          <el-table-column label="操作" width="100">
+          <el-table-column label="操作" width="200">
             <template slot-scope="scope">
               <el-button
                 size="mini"
                 type="danger"
-                v-if="scope.row.fstatus == 1 && scope.row.forigin == 2">成功
+                v-if="scope.row.fstatus == 0 && scope.row.forigin == 2" @click="sureConfirm(scope.$index, scope.row)">确认打款
               </el-button>
               <el-button
                 size="mini"
                 type="default"
-                disabled
-                v-if="scope.row.fstatus != 1 && scope.row.forigin == 2">暂未到账
+                v-if="scope.row.fstatus == 1 && scope.row.forigin == 2">到账成功
+              </el-button>
+              <el-button
+                size="mini"
+                type="default"
+                v-if="scope.row.fstatus == 0 && scope.row.forigin == 2">暂未到账
               </el-button>
             </template>
           </el-table-column>
@@ -159,7 +163,6 @@
 
 <script>
 import { mapState } from 'vuex'
-import {send} from '../util/send'
 export default {
   name: 'Center',
   data () {
@@ -259,7 +262,7 @@ export default {
         amount: this.formCharge.amount,
         type: this.formCharge.payWay === '支付宝' ? 0 : (this.formCharge.payWay === '微信' ? 1 : '2') // 充值方式 0-支付宝 1-微信 2-公对公打款
       }
-      send({
+      this.send({
         name: '/yqzlController/recharge?rechargeInfo=' + JSON.stringify(rechargeInfo),
         method: 'POST',
         data: {
@@ -273,6 +276,35 @@ export default {
           this.dialogVisibleCharge = false
           this.getBasicInfo()
           this.getCapitalFlow()
+        } else {
+          this.$message({
+            message: '充值失败!',
+            type: 'error'
+          })
+        }
+      }).catch((res) => {
+        console.log(res)
+      })
+    },
+    // 确认打款
+    sureConfirm (idx, row) {
+      this.send({
+        name: '/yqzlController/confirm?id=' + row.id,
+        method: 'GET',
+        data: {
+        }
+      }).then(res => {
+        if (res.data.respCode === '0') {
+          this.$message({
+            message: '确认成功!',
+            type: 'success'
+          })
+          this.getCapitalFlow()
+        } else {
+          this.$message({
+            message: res.data.message + '，确认失败！',
+            type: 'error'
+          })
         }
       }).catch((res) => {
         console.log(res)
@@ -284,7 +316,7 @@ export default {
     },
     // 获取基本信息
     getBasicInfo () {
-      send({
+      this.send({
         name: '/zRegisterController/' + this.userId,
         method: 'GET',
         data: {
@@ -327,7 +359,7 @@ export default {
       this.getCapitalFlow()
     },
     getCapitalFlow () {
-      send({
+      this.send({
         name: '/zPayAccountRegisterController/list/' + this.currentPage + '/' + this.pageSize + '/' + this.userId + '/{pay_type}',
         method: 'GET',
         data: {

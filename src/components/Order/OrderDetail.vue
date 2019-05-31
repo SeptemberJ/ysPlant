@@ -284,7 +284,6 @@
 
 <script>
 import { mapState, mapActions } from 'vuex'
-import {send} from '../../util/send'
 export default {
   name: 'AddOrder',
   data () {
@@ -301,7 +300,7 @@ export default {
       if (value > this.formAdd.max_price) {
         callback(new Error('超出了最高限价！'))
       } else if (value === '' || value === 0) {
-        callback(new Error('请输入可接受的最高价！'))
+        callback(new Error('请输入报价！'))
       } else {
         callback()
       }
@@ -322,8 +321,8 @@ export default {
       scityPid: '',
       sareaPid: '',
       cityDistance: 0,
-      unitPrice: 0,
-      totalSum: 0,
+      // unitPrice: 0,
+      // totalSum: 0,
       appointName: '',
       formAdd: {
         fprovince: '',
@@ -430,8 +429,6 @@ export default {
           { required: true, message: '请选择所属区!', trigger: 'change' }
         ]
       },
-      carTypeList: [],
-      goodsTypeList: [],
       pickerOptionsStart: {
         disabledDate (time) {
           return time.getTime() < Date.now() - 8.64e7
@@ -445,7 +442,9 @@ export default {
       userCode: state => state.userCode,
       userId: state => state.userId,
       searchOrderId: state => state.searchOrderId,
-      ImgURL_PREFIX: state => state.ImgURL_PREFIX
+      ImgURL_PREFIX: state => state.ImgURL_PREFIX,
+      carTypeList: state => state.carTypeList,
+      goodsTypeList: state => state.goodsTypeList
     }),
     totalWeight: function () {
       let sum = 0
@@ -457,19 +456,17 @@ export default {
   },
   created () {
     this.getOrderDetail()
-
-    // this.getProvince()
   },
   watch: {
-    cityDistance: function (value) {
-      this.totalSum = (value * this.totalWeight / 1000 * this.unitPrice).toFixed(2)
-    },
-    totalWeight: function (value) {
-      this.totalSum = (this.cityDistance * value / 1000 * this.unitPrice).toFixed(2)
-    },
-    unitPrice: function (value) {
-      this.totalSum = (this.cityDistance * this.totalWeight / 1000 * value).toFixed(2)
-    },
+    // cityDistance: function (value) {
+    //   this.totalSum = (value * this.totalWeight / 1000 * this.unitPrice).toFixed(2)
+    // },
+    // totalWeight: function (value) {
+    //   this.totalSum = (this.cityDistance * value / 1000 * this.unitPrice).toFixed(2)
+    // },
+    // unitPrice: function (value) {
+    //   this.totalSum = (this.cityDistance * this.totalWeight / 1000 * value).toFixed(2)
+    // },
     'formAdd.ifUseOilCard': function (value) {
       if (value === 0) {
         this.formAdd.oilCard = 0
@@ -501,7 +498,7 @@ export default {
     changeCarType (typeId) {
       this.carTypeList.map(item => {
         if (item.id === typeId) {
-          this.unitPrice = item.fprice
+          // this.unitPrice = item.fprice
           if (this.formAdd.goodsName !== '') {
             this.getMaxFee()
           }
@@ -520,7 +517,7 @@ export default {
     },
     // 获取最高限价
     getMaxFee () {
-      send({
+      this.send({
         name: '/zFareRuleController/getMaxPrice?goods_type=' + this.formAdd.goodsName + '&cartype=' + this.formAdd.carType + '&fkm=622',
         method: 'GET',
         data: ''
@@ -587,7 +584,7 @@ export default {
         isBox: this.formAdd.isBox
       }
       this.ifLoading = true
-      send({
+      this.send({
         name: '/orderController/' + this.searchOrderId,
         method: 'PUT',
         data: DATA
@@ -622,7 +619,7 @@ export default {
       })
     },
     surePay () {
-      send({
+      this.send({
         name: '/zPayAccountRegisterController',
         method: 'POST',
         data: {
@@ -638,9 +635,6 @@ export default {
             message: '支付成功!',
             type: 'success'
           })
-          // this.dialogVisibleCharge = false
-          // this.getBasicInfo()
-          // this.getCapitalFlow()
         }
       }).catch((res) => {
         console.log(res)
@@ -679,7 +673,7 @@ export default {
         ifUseOilCard: 0,
         oilCard: 0
       }
-      // tolist
+      // 返回列表
       this.changeSiderIdx('1-1')
     },
     // 返回订单列表页
@@ -688,7 +682,7 @@ export default {
     },
     // 获取订单详情
     getOrderDetail () {
-      send({
+      this.send({
         name: '/orderController/' + this.searchOrderId,
         method: 'GET',
         data: {}
@@ -739,9 +733,8 @@ export default {
           this.changeScity(temp.scity, 1)
           // 价格
           this.getDistanceDefault(temp.farea, temp.sarea)
-          // 车型
-          this.getCarType(Info.car_type)
-          this.getGoodsType()
+          // 车型单价
+          // this.getCartUnitPrice(Info.car_type)
           // 查询最高限价
           this.getMaxFee()
         } else {
@@ -756,7 +749,7 @@ export default {
     },
     // 回单确认
     huidanConfirm () {
-      send({
+      this.send({
         name: '/orderController/huidan/' + this.searchOrderId,
         method: 'POST'
       }).then(res => {
@@ -782,7 +775,7 @@ export default {
     },
     // 获取初始发货地与收货地的距离
     getDistanceDefault (fh, sh) {
-      send({
+      this.send({
         name: '/orderController/cityDistance?fh=' + fh + '&sh=' + sh,
         method: 'GET',
         data: {
@@ -839,7 +832,7 @@ export default {
     },
     // 获取省下拉
     getProvince () {
-      send({
+      this.send({
         name: '/registerDriverController/regionSelect?pid=1',
         method: 'GET',
         data: {
@@ -855,7 +848,7 @@ export default {
     },
     // 获取市下拉
     getCity (id, property) {
-      send({
+      this.send({
         name: '/registerDriverController/regionSelect?pid=' + id,
         method: 'GET',
         data: {
@@ -870,7 +863,7 @@ export default {
     },
     // 获取区下拉
     getArea (id, property) {
-      send({
+      this.send({
         name: '/registerDriverController/regionSelect?pid=' + id,
         method: 'GET',
         data: {
@@ -883,45 +876,17 @@ export default {
         console.log(res)
       })
     },
-    // 获取车型下拉
-    getCarType (carTypeId) {
-      send({
-        name: '/zCarTypeController/list',
-        method: 'GET',
-        data: {
+    // 获取车型单价
+    getCartUnitPrice (carTypeId) {
+      this.unitPrice = this.carTypeList.find(carType => {
+        if (carType.id === carTypeId) {
+          return carType.fprice
         }
-      }).then(res => {
-        if (res.data.respCode === '0') {
-          let carList = res.data.data
-          this.carTypeList = carList
-          this.unitPrice = carList.find(carType => {
-            if (carType.id === carTypeId) {
-              return carType.fprice
-            }
-          })
-        }
-      }).catch((res) => {
-        console.log(res)
-      })
-    },
-    // 获取货物类型下拉
-    getGoodsType () {
-      send({
-        name: '/typeController/list',
-        method: 'GET',
-        data: {
-        }
-      }).then(res => {
-        if (res.data.respCode === '0') {
-          this.goodsTypeList = res.data.data
-        }
-      }).catch((res) => {
-        console.log(res)
       })
     },
     // 获取发货地与收货地的距离
     getDistance () {
-      send({
+      this.send({
         name: '/orderController/cityDistance?fh=' + this.formAdd.farea + '&sh=' + this.formAdd.sarea,
         method: 'GET',
         data: {

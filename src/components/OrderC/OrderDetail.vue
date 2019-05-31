@@ -302,7 +302,6 @@
 
 <script>
 import { mapState, mapActions } from 'vuex'
-import {send} from '../../util/send'
 export default {
   name: 'AddOrder',
   props: ['searchType'],
@@ -332,8 +331,8 @@ export default {
       scityPid: '',
       sareaPid: '',
       cityDistance: 0,
-      unitPrice: 0,
-      totalSum: 0,
+      // unitPrice: 0,
+      // totalSum: 0,
       appointName: '',
       // fprovinceName: '',
       // sprovinceName: '',
@@ -443,8 +442,6 @@ export default {
       maxFee: '',
       offer: '', // 输入的报价
       offerNote: '', // 报价备注
-      carTypeList: [],
-      goodsTypeList: [],
       LogisticsList: [],
       choosedLogistic: '',
       pickerOptionsStart: {
@@ -460,7 +457,9 @@ export default {
       userId: state => state.userId,
       userCode: state => state.userCode,
       searchOrderId: state => state.searchOrderId,
-      ImgURL_PREFIX: state => state.ImgURL_PREFIX
+      ImgURL_PREFIX: state => state.ImgURL_PREFIX,
+      carTypeList: state => state.carTypeList,
+      goodsTypeList: state => state.goodsTypeList
     }),
     totalWeight: function () {
       let sum = 0
@@ -474,15 +473,15 @@ export default {
     this.getOrderDetail()
   },
   watch: {
-    cityDistance: function (value) {
-      this.totalSum = (value * this.totalWeight / 1000 * this.unitPrice).toFixed(2)
-    },
-    totalWeight: function (value) {
-      this.totalSum = (this.cityDistance * value / 1000 * this.unitPrice).toFixed(2)
-    },
-    unitPrice: function (value) {
-      this.totalSum = (this.cityDistance * this.totalWeight / 1000 * value).toFixed(2)
-    }
+    // cityDistance: function (value) {
+    //   this.totalSum = (value * this.totalWeight / 1000 * this.unitPrice).toFixed(2)
+    // },
+    // totalWeight: function (value) {
+    //   this.totalSum = (this.cityDistance * value / 1000 * this.unitPrice).toFixed(2)
+    // },
+    // unitPrice: function (value) {
+    //   this.totalSum = (this.cityDistance * this.totalWeight / 1000 * value).toFixed(2)
+    // }
   },
   components: {
   },
@@ -496,8 +495,7 @@ export default {
     },
     // 获取订单详情
     getOrderDetail () {
-      send({
-        // name: '/orderController/' + this.searchOrderId,
+      this.send({
         name: '/orderController/orderDetail?id=' + this.searchOrderId + '&register_id=' + this.userId,
         method: 'GET',
         data: {}
@@ -547,9 +545,8 @@ export default {
           this.changeScity(temp.scity, 1)
           // 价格
           this.getDistanceDefault(temp.farea, temp.sarea)
-          // 车型
-          this.getCarType(Info.car_type)
-          this.getGoodsType()
+          // 车型单价
+          // this.getCartUnitPrice(Info.carType)
           // 查询最高限价
           this.getMaxFee()
         } else {
@@ -564,7 +561,7 @@ export default {
     },
     // 获取初始发货地与收货地的距离
     getDistanceDefault (fh, sh) {
-      send({
+      this.send({
         name: '/orderController/cityDistance?fh=' + fh + '&sh=' + sh,
         method: 'GET',
         data: {
@@ -621,7 +618,7 @@ export default {
     },
     // 获取省下拉
     getProvince () {
-      send({
+      this.send({
         name: '/registerDriverController/regionSelect?pid=1',
         method: 'GET',
         data: {
@@ -630,14 +627,6 @@ export default {
         if (res.data.respCode === '0') {
           this.fprovinceList = res.data.data
           this.sprovinceList = res.data.data
-          // res.data.data.find(item => {
-          //   if (item.id === this.formAdd.fprovince) {
-          //     this.fprovinceName = item.name
-          //   }
-          //   if (item.id === this.formAdd.sprovince) {
-          //     this.sprovinceName = item.name
-          //   }
-          // })
         }
       }).catch((res) => {
         console.log(res)
@@ -645,7 +634,7 @@ export default {
     },
     // 获取市下拉
     getCity (id, property) {
-      send({
+      this.send({
         name: '/registerDriverController/regionSelect?pid=' + id,
         method: 'GET',
         data: {
@@ -653,14 +642,6 @@ export default {
       }).then(res => {
         if (res.data.respCode === '0') {
           this[property] = res.data.data
-          // res.data.data.find(item => {
-          //   if (item.id === this.formAdd.fcity) {
-          //     this.fcityName = item.name
-          //   }
-          //   if (item.id === this.formAdd.scity) {
-          //     this.scityName = item.name
-          //   }
-          // })
         }
       }).catch((res) => {
         console.log(res)
@@ -668,7 +649,7 @@ export default {
     },
     // 获取区下拉
     getArea (id, property) {
-      send({
+      this.send({
         name: '/registerDriverController/regionSelect?pid=' + id,
         method: 'GET',
         data: {
@@ -676,58 +657,22 @@ export default {
       }).then(res => {
         if (res.data.respCode === '0') {
           this[property] = res.data.data
-          // res.data.data.find(item => {
-          //   if (item.id === this.formAdd.farea) {
-          //     this.fareaName = item.name
-          //   }
-          //   if (item.id === this.formAdd.sarea) {
-          //     this.sareaName = item.name
-          //   }
-          // })
         }
       }).catch((res) => {
         console.log(res)
       })
     },
-    // 获取车型下拉
-    getCarType (carType) {
-      send({
-        name: '/zCarTypeController/list',
-        method: 'GET',
-        data: {
+    // 获取车型单价
+    getCartUnitPrice (carTypeId) {
+      this.unitPrice = this.carTypeList.find(carType => {
+        if (carType.id === carTypeId) {
+          return carType.fprice
         }
-      }).then(res => {
-        if (res.data.respCode === '0') {
-          let carList = res.data.data
-          this.carTypeList = carList
-          carList.map(item => {
-            if (item.typeValue === carType) {
-              this.unitPrice = item.fprice
-            }
-          })
-        }
-      }).catch((res) => {
-        console.log(res)
-      })
-    },
-    // 获取货物类型下拉
-    getGoodsType () {
-      send({
-        name: '/typeController/list',
-        method: 'GET',
-        data: {
-        }
-      }).then(res => {
-        if (res.data.respCode === '0') {
-          this.goodsTypeList = res.data.data
-        }
-      }).catch((res) => {
-        console.log(res)
       })
     },
     // 获取最高限价
     getMaxFee () {
-      send({
+      this.send({
         name: '/zFareRuleController/getMaxPrice?goods_type=' + this.formAdd.goodsName + '&cartype=' + this.formAdd.carType + '&fkm=622',
         method: 'GET',
         data: ''
@@ -746,7 +691,7 @@ export default {
     },
     // 获取发货地与收货地的距离
     getDistance () {
-      send({
+      this.send({
         name: '/orderController/cityDistance?fh=' + this.formAdd.farea + '&sh=' + this.formAdd.sarea,
         method: 'GET',
         data: {
@@ -765,11 +710,6 @@ export default {
     },
     sureOperation () {
       this.sureOffer()
-      // if (this.hasOffered) {
-      //   this.changeOffer()
-      // } else {
-      //   this.sureOffer()
-      // }
     },
     // 报价
     sureOffer () {
@@ -790,7 +730,7 @@ export default {
         createDate: new Date()
       }
       console.log(DATA)
-      send({
+      this.send({
         name: '/driverOrderController',
         method: 'POST',
         data: DATA
@@ -814,7 +754,7 @@ export default {
     },
     // 修改报价
     changeOffer () {
-      send({
+      this.send({
         name: '/driverOrderController/modifyDriverOrderFfee?id=' + this.searchOrderId + '&ffee=' + this.offer,
         method: 'GET',
         data: {
@@ -826,21 +766,13 @@ export default {
         })
         this.backOrderList()
         this.dialogFormVisible = false
-        // if (res.data.code === 1) {
-        //   this.LogisticsList = res.data.driverList
-        // } else {
-        //   this.$message({
-        //     message: res.data.message + '！',
-        //     type: 'error'
-        //   })
-        // }
       }).catch((res) => {
         console.log(res)
       })
     },
     // 获取司机下拉
     getDriverList () {
-      send({
+      this.send({
         name: '/zRegisterController/driverListNoPage?fid=' + this.userId,
         method: 'GET',
         data: {

@@ -4,34 +4,6 @@
       <span class="mapNavItem CursorPointer" v-for="(item) in searchConditionC" :key="item.value">
         <el-tag :type="item.value == Condition ? 'danger' :''" @click="changeCondition(item.value)">{{item.label}}</el-tag>
       </span>
-      <!-- <div>
-        <span class="MarginR_10 FontSize_12">车型</span>
-        <span class="MarginR_10">
-          <el-select v-model="carType" placeholder="请选择" size="mini">
-            <el-option
-              v-for="(carType, idx) in carTypeList"
-              :key="idx"
-              :label="carType.typeName"
-              :value="carType.id">
-            </el-option>
-          </el-select>
-        </span>
-      </div> -->
-    <!-- 111111111111111111111111111111111111111111 -->
-     <!--  <div>
-        <span class="MarginR_10">查询类型</span>
-        <span class="MarginR_10">
-          <el-select v-model="Condition" placeholder="请选择">
-            <el-option
-              v-for="item in searchCondition"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value">
-            </el-option>
-          </el-select>
-        </span>
-        <span><el-button type="primary" icon="el-icon-search">查询</el-button></span>
-      </div> -->
     </section>
     <Trajectory v-if="Condition == 0 && (userRole == 2 || userRole == 5)"/>
     <TrajectorycC v-if="Condition == 0 && (userRole == 1 || userRole == 3 || userRole == 4)"/>
@@ -43,7 +15,6 @@
 <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=i958ho3aKFiiVfxOIwAZOO05sHDDsAGK"></script>
 <script>
 import { mapState } from 'vuex'
-import {send} from '../../util/send'
 import Car from './Car.vue'
 import Temperature from './Temperature.vue'
 import Box from './Box.vue'
@@ -91,7 +62,7 @@ export default {
     },
     // 获取车型下拉
     getCarType () {
-      send({
+      this.send({
         name: '/zCarTypeController/list',
         method: 'GET',
         data: {

@@ -51,10 +51,9 @@
 </template>
 <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=i958ho3aKFiiVfxOIwAZOO05sHDDsAGK"></script>
 <script>
-import {send} from '../../util/send'
 import {setZoom} from '../../util/utils'
 export default {
-  name: 'Car',
+  name: 'TrajectoryC',
   data () {
     return {
       carTypeList: [],
@@ -66,8 +65,6 @@ export default {
   },
   mounted () {
     this.getData()
-  },
-  created () {
   },
   methods: {
     // PointData
@@ -151,7 +148,6 @@ export default {
           })
           map.addOverlay(marker)
         }
-        // marker = new BMap.Marker(point, {icon:IconCarBlue})
         // map.addOverlay(marker)
         linePoint.push(new BMap.Point(item.lng, item.lat))
         // 信息框
@@ -197,7 +193,7 @@ export default {
       }
     },
     getData() {
-      send({
+      this.send({
         name: '/orderController/trail/' + localStorage['MapId'] + '/{pay_type}',
         method: 'GET',
         data: {
@@ -230,28 +226,28 @@ export default {
     // 查看轨迹
     seeTrack (idx, row) {
       this.dialogTrackVisible = true
-      send({
+      this.send({
         name: '/orderController/trail/' + row.fid + '/2',
         method: 'GET',
         data: {
         }
       }).then(res => {
-        var data1 = [
-          {
-            lng: 127.7757,
-            lat: 37.254095,
-            address: '上海',
-            submitTime: "2019-04-18 10:10:49"
-          },
-          {
-            lng: 117.7757,
-            lat: 36.254095,
-            address: '厦门',
-            submitTime: "2019-04-18 10:10:49"
-          }
-        ]
-        // this.setMap(res.data.data, 'TrajectoryHistory')
-        this.setMapTrack(data1, 'TrajectoryHistory')
+        // var data1 = [
+        //   {
+        //     lng: 127.7757,
+        //     lat: 37.254095,
+        //     address: '上海',
+        //     submitTime: "2019-04-18 10:10:49"
+        //   },
+        //   {
+        //     lng: 117.7757,
+        //     lat: 36.254095,
+        //     address: '厦门',
+        //     submitTime: "2019-04-18 10:10:49"
+        //   }
+        // ]
+        // this.setMap(data1, 'TrajectoryHistory')
+        this.setMapTrack(res.data.data, 'TrajectoryHistory')
       }).catch((res) => {
         console.log(res)
       })

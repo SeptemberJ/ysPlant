@@ -26,7 +26,7 @@ key.importKey(userPrivateKey, 'pkcs1-private') // 导入密钥并设定格式
 let text = 'app_id=2016090800462854&biz_content={"out_trade_no":"1557900534524","product_code":"FAST_INSTANT_TRADE_PAY","subject":"无车承运订单定金","total_amount":"16.00"}&charset=utf-8&method=alipay.trade.page.pay&sign_type=RSA2&timestamp=2019-01-24 09:01:42&version=1.0'
 let buffer = Buffer.from(text)
 let signature = key.sign(buffer).toString('base64')
-console.log(signature)
+// console.log(signature)
 export default {
   name: 'Login',
   data () {
@@ -68,7 +68,6 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="less" scoped>
 
 </style>

@@ -7,25 +7,14 @@
 <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=i958ho3aKFiiVfxOIwAZOO05sHDDsAGK"></script>
 <script>
 import {setZoom} from '../../util/utils'
-import {send} from '../../util/send'
 export default {
   name: 'Car',
   data () {
     return {
-			// pointArray2: [
-	  //     {lng: 108.112917, lat: 24.435153, kind: 0, tips: '37'},
-	  //     {lng: 119.532937, lat: 31.435183, kind: 0, tips: '38'},
-	  //     {lng: 121.122987, lat: 28.435173, kind: 1, tips: '23'},
-	  //     {lng: 119.212917, lat: 25.535153, kind: 1, tips: '24'},
-	  //     {lng: 115.122987, lat: 28.435173, kind: 2, tips: '18'},
-	  //     {lng: 117.212917, lat: 25.535153, kind: 2, tips: '14'},
-	  //     {lng: 107.212917, lat: 29.535153, kind: 3, tips: '-1'},
-	  //     {lng: 120.1006487, lat: 30.435153, kind: 3, tips: '-3'}
-	  //   ]
     }
   },
   mounted () {
-		this.getData()
+		this.InitMap()
   },
   watch: {
 		// pointArray: function (val) {
@@ -37,7 +26,7 @@ export default {
   methods: {
 		setMap (PointData) {
 	    var map = new BMap.Map('mapTemperature')
-	    // map.centerAndZoom(new BMap.Point(118.10000, 24.46667), 11)
+	    map.centerAndZoom(new BMap.Point(PointData[0].lng, PointData[0].lat), 9)
 	    map.enableScrollWheelZoom(true)
 	    // 图标
 	    var IconTemperatureBlue = new BMap.Icon('../../../static/images/icon/wenduBlue.png', new BMap.Size(50,50), {anchor: new BMap.Size(20, 5)})
@@ -61,6 +50,8 @@ export default {
 	        case 3:
 	          marker = new BMap.Marker(point, {icon:IconTemperatureBlue})
 	          break
+	        default:
+	          marker = new BMap.Marker(point, {icon:IconTemperatureRed})
 	      }
 	      map.addOverlay(marker)
 	      // 信息框
@@ -69,38 +60,39 @@ export default {
 	        height: 50,
 	        title : '温度',
 	        enableMessage:true,
-	        message: item.tips
+	        message: item.tmp1
 	      }
-	      let infoWindow = new BMap.InfoWindow(item.tips + '℃', opts)
+	      let infoWindow = new BMap.InfoWindow(item.tmp1 + '℃', opts)
 	      marker.addEventListener('click', function(){
 	        map.openInfoWindow(infoWindow,point)
 	      })
 	    })
 	    setZoom(PointData, map, BMap)
 	  },
-		getData() {
-			send({
-				name: '/tokens/serwdjs',
-				method: 'GET',
-				data: {
-				}
-			}).then(res => {
-				// console.log(res.data.resultStr.NewDataSet)
-				let tempArray = []
-				res.data.resultStr.NewDataSet.map( item => {
-					let obj = {
-						lat: item.Lat,
-						lng: item.Lon,
-						kind: 0,
-						tips: item.tmp1
-					}
-					tempArray.push(obj)
-				})
-				this.setMap(tempArray)
-			}).catch((res) => {
-				console.log(res)
-			})
-		}
+	  async InitMap() {
+			const tempPointArray = await this.getData()
+			this.setMap(tempPointArray)
+	  },
+		getData () {
+      return new Promise((resolve, reject) => {
+        this.send({
+          name: '/tokens/serwdjs',
+					method: 'GET',
+          data: {
+          }
+        }).then(_res => {
+					resolve(_res.data.resultStr.NewDataSet.map( (item, idx) => {
+						item.lat = item.Lat
+						item.lng = item.Lon
+						// item.kind = 3
+						return item
+					}))
+        }).catch((_res) => {
+          console.log(_res)
+          this.$Message.error('Interface Error!')
+        })
+      })
+    },
   }
 }
 </script>

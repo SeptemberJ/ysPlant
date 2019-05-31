@@ -270,7 +270,7 @@
         </el-col>
       </el-row>
       <p class="TextAlignL MarginB_20 colorRed" >请选择输入一个查询条件进行查询</p>
-      <!-- 承运商 -->
+      <!-- carrier -->
       <el-row class="MarginTB_20" v-if="appointType == 0">
         <el-col :span="12" class="TextAlignL">
           <span>公司名称：</span>
@@ -281,7 +281,7 @@
           <el-input class="MarginT_10" v-model="appointCompanyPhone" placeholder="" clearable></el-input>
         </el-col>
       </el-row>
-      <!-- 司机 -->
+      <!-- driver -->
       <el-row class="MarginTB_20" v-if="appointType == 1">
         <el-col :span="7" class="TextAlignL">
           <span>司机手机号：</span>
@@ -354,26 +354,12 @@
       <el-row>
         <el-button type="primary" @click="searchAppoint">查询</el-button>
       </el-row>
-      <!-- 原本输入手机号查询指派人员
-      <el-row class="MarginTB_20">
-        <el-col :span="6" class="TextAlignL">
-          <span>承运商 / 司机手机号：</span>
-        </el-col>
-         <el-col :span="17" :offset="1">
-          <el-input v-model="appointPhone" placeholder="请输入指派的司机/承运商手机号" clearable></el-input>
-        </el-col>
-      </el-row>
-      <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="searchAppoint">指定</el-button>
-      </div> -->
     </el-dialog>
-
   </div>
 </template>
 
 <script>
 import { mapState, mapActions } from 'vuex'
-import {send} from '../../util/send'
 export default {
   name: 'AddOrder',
   props: ['orderType'],
@@ -391,7 +377,7 @@ export default {
       if (value > this.formAdd.max_price) {
         callback(new Error('超出了最高限价！'))
       } else if (value.trim() === '' || value === 0) {
-        callback(new Error('请输入可接受的最高价！'))
+        callback(new Error('请输入报价！'))
       } else {
         callback()
       }
@@ -413,12 +399,12 @@ export default {
       sareaPid: '',
       cityDistance: 0,
       unitPrice: 0,
-      totalSum: 0,
+      // totalSum: 0,
       appointType: 0, // 指派类型 0承运商 1个体司机
       appointName: '',
-      appointPhone: '', // 13734567890
-      appointCompany: '', // 承运商公司名称
-      appointCompanyPhone: '', // 承运商公司手机号
+      appointPhone: '',
+      appointCompany: '', // 公司名称
+      appointCompanyPhone: '', // 承运商手机号
       appointNameSJ: '', // 司机姓名
       appointPhoneSJ: '', // 司机手机号
       appointIDSJ: '', // 司机身份证号
@@ -524,10 +510,6 @@ export default {
           { required: true, message: '请选择收货地所属区!', trigger: 'change' }
         ]
       },
-      carTypeList: [],
-      // carTypeId: '',
-      goodsTypeList: [],
-      // goodsTypeId: '',
       pickerOptionsStart: {
         disabledDate (time) {
           return time.getTime() < Date.now() - 8.64e7
@@ -538,7 +520,9 @@ export default {
   computed: {
     ...mapState({
       userRole: state => state.userRole,
-      userCode: state => state.userCode
+      userCode: state => state.userCode,
+      carTypeList: state => state.carTypeList,
+      goodsTypeList: state => state.goodsTypeList
     }),
     totalWeight: function () {
       let sum = 0
@@ -549,15 +533,15 @@ export default {
     }
   },
   watch: {
-    cityDistance: function (value) {
-      this.totalSum = (value * this.totalWeight / 1000 * this.unitPrice).toFixed(2)
-    },
-    totalWeight: function (value) {
-      this.totalSum = (this.cityDistance * value / 1000 * this.unitPrice).toFixed(2)
-    },
-    unitPrice: function (value) {
-      this.totalSum = (this.cityDistance * this.totalWeight / 1000 * value).toFixed(2)
-    },
+    // cityDistance: function (value) {
+    //   this.totalSum = (value * this.totalWeight / 1000 * this.unitPrice).toFixed(2)
+    // },
+    // totalWeight: function (value) {
+    //   this.totalSum = (this.cityDistance * value / 1000 * this.unitPrice).toFixed(2)
+    // },
+    // unitPrice: function (value) {
+    //   this.totalSum = (this.cityDistance * this.totalWeight / 1000 * value).toFixed(2)
+    // },
     orderType: function (value) {
       this.diffOrderType(value)
     },
@@ -584,8 +568,6 @@ export default {
   },
   created () {
     this.getProvince()
-    this.getCarType()
-    this.getGoodsType()
     // 判断下单的类型
     this.diffOrderType(this.orderType)
   },
@@ -633,7 +615,7 @@ export default {
     },
     // 获取最高限价
     getMaxFee () {
-      send({
+      this.send({
         name: '/zFareRuleController/getMaxPrice?goods_type=' + this.formAdd.goodsName + '&cartype=' + this.formAdd.carType + '&fkm=' + parseInt(this.cityDistance),
         method: 'GET',
         data: ''
@@ -696,12 +678,12 @@ export default {
     searchCYS () {
       if (this.appointCompany && this.appointCompanyPhone) {
         this.$message({
-          message: '请输入一个查询项！',
+          message: '请至少输入一个查询项！',
           type: 'warning'
         })
         return false
       }
-      send({
+      this.send({
         name: (this.appointCompany && !this.appointCompanyPhone ? '/zRegisterController/appointDriver?ftype=0&company_name=' + this.appointCompany : '/zRegisterController/appointDriver?ftype=0&fmobile_carrier=' + this.appointCompanyPhone),
         method: 'GET',
         data: ''
@@ -728,7 +710,7 @@ export default {
       let cd4 = this.appointPhoneSJ && this.appointIDSJ
       if (cd1 || cd2 || cd3 || cd4) {
         this.$message({
-          message: '请输入一个查询项！',
+          message: '请至少输入一个查询项！',
           type: 'warning'
         })
         return false
@@ -742,7 +724,7 @@ export default {
       if (!this.appointNameSJ && !this.appointPhoneSJ && this.appointIDSJ) {
         url = '/zRegisterController/appointDriver?ftype=1&carNO_individual=' + this.appointIDSJ
       }
-      send({
+      this.send({
         name: url,
         method: 'GET',
         data: ''
@@ -823,9 +805,8 @@ export default {
         boxNo: this.formAdd.boxNo,
         isBox: this.formAdd.isBox
       }
-      // console.log(DATA)
       this.ifLoading = true
-      send({
+      this.send({
         name: '/orderController',
         method: 'POST',
         data: DATA
@@ -923,7 +904,7 @@ export default {
     },
     // 获取省下拉
     getProvince () {
-      send({
+      this.send({
         name: '/registerDriverController/regionSelect?pid=' + this.fProvincePid,
         method: 'GET',
         data: {
@@ -932,6 +913,11 @@ export default {
         if (res.data.respCode === '0') {
           this.fprovinceList = res.data.data
           this.sprovinceList = res.data.data
+        } else {
+          this.$message({
+            message: '获取省份信息失败',
+            type: 'error'
+          })
         }
       }).catch((res) => {
         console.log(res)
@@ -939,7 +925,7 @@ export default {
     },
     // 获取市下拉
     getCity (id, property) {
-      send({
+      this.send({
         name: '/registerDriverController/regionSelect?pid=' + id,
         method: 'GET',
         data: {
@@ -947,6 +933,11 @@ export default {
       }).then(res => {
         if (res.data.respCode === '0') {
           this[property] = res.data.data
+        } else {
+          this.$message({
+            message: '获取省份信息失败',
+            type: 'error'
+          })
         }
       }).catch((res) => {
         console.log(res)
@@ -954,7 +945,7 @@ export default {
     },
     // 获取区下拉
     getArea (id, property) {
-      send({
+      this.send({
         name: '/registerDriverController/regionSelect?pid=' + id,
         method: 'GET',
         data: {
@@ -962,36 +953,11 @@ export default {
       }).then(res => {
         if (res.data.respCode === '0') {
           this[property] = res.data.data
-        }
-      }).catch((res) => {
-        console.log(res)
-      })
-    },
-    // 获取车型下拉
-    getCarType () {
-      send({
-        name: '/zCarTypeController/list',
-        method: 'GET',
-        data: {
-        }
-      }).then(res => {
-        if (res.data.respCode === '0') {
-          this.carTypeList = res.data.data
-        }
-      }).catch((res) => {
-        console.log(res)
-      })
-    },
-    // 获取货物类型下拉
-    getGoodsType () {
-      send({
-        name: '/typeController/list',
-        method: 'GET',
-        data: {
-        }
-      }).then(res => {
-        if (res.data.respCode === '0') {
-          this.goodsTypeList = res.data.data
+        } else {
+          this.$message({
+            message: '获取省份信息失败',
+            type: 'error'
+          })
         }
       }).catch((res) => {
         console.log(res)
@@ -999,7 +965,7 @@ export default {
     },
     // 获取发货地与收货地的距离
     getDistance () {
-      send({
+      this.send({
         name: '/orderController/cityDistance?fh=' + this.formAdd.farea + '&sh=' + this.formAdd.sarea,
         method: 'GET',
         data: {
@@ -1010,6 +976,11 @@ export default {
           if (this.formAdd.goodsName !== '' && this.formAdd.carType !== '') {
             this.getMaxFee()
           }
+        } else {
+          this.$message({
+            message: '获取发货地和收货地距离失败',
+            type: 'error'
+          })
         }
       }).catch((res) => {
         console.log(res)
@@ -1019,7 +990,6 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="less" scoped>
 .AddOrder{
   margin: 20px 20px 60px 20px;

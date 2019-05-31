@@ -70,7 +70,6 @@
 
 <script>
 import { mapState, mapActions } from 'vuex'
-import {send} from '../../util/send'
 import Add from './Add.vue'
 export default {
   name: 'Ticket',
@@ -114,7 +113,7 @@ export default {
     },
     // 开票列表
     getTicketList () {
-      send({
+      this.send({
         name: '/invoiceController/list/' + this.currentPage + '/' + this.pageSize + '/' + this.userId,
         method: 'GET',
         data: {

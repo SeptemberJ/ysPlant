@@ -30,7 +30,7 @@
             </el-col>
             <el-col :span="7" :offset="1">
               <el-form-item prop="farea" label="发货区">
-                <el-select v-model="formCondition.farea" size="mini" placeholder="请选择" @change="changeFarea" style="width: 120px;">
+                <el-select v-model="formCondition.farea" size="mini" placeholder="请选择" style="width: 120px;">
                   <el-option
                     v-for="(farea, idx) in fareaList"
                     :key="idx"
@@ -68,7 +68,7 @@
             </el-col>
             <el-col :span="7" :offset="1">
               <el-form-item prop="sarea" label="收货区">
-                <el-select v-model="formCondition.sarea" size="mini" placeholder="请选择" @change="changeSarea" style="width: 120px;">
+                <el-select v-model="formCondition.sarea" size="mini" placeholder="请选择" style="width: 120px;">
                   <el-option
                     v-for="(sarea, idx) in sareaList"
                     :key="idx"
@@ -101,6 +101,9 @@
       </el-col>
       <el-col :span="24" style="width: 100%;height: 10px; border-bottom: 1px dashed #ccc;">
       </el-col> -->
+      <el-col :span="24"  class="MarginT_20 MarginB_20 TextAlignR">
+        <el-button type="success" size="mini" icon="el-icon-printer" @click="exportExcell">导出</el-button>
+      </el-col>
       <el-col :span="24"  class="MarginT_20 MarginB_20">
         <el-table
           id="rebateSetTable"
@@ -172,7 +175,6 @@
       </el-col>
       <el-col :span="24" class="MarginTB_20 TextAlignR" v-if="orderList.length > 0">
         <el-pagination
-        @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         :current-page.sync="currentPage"
         :page-size="10"
@@ -240,7 +242,6 @@
 
 <script>
 import { mapState, mapActions } from 'vuex'
-import {send} from '../../util/send'
 import {secondToFormat} from '../../util/utils'
 import OrderDetail from './OrderDetail.vue'
 import Map from '../Map/Map.vue'
@@ -276,36 +277,9 @@ export default {
       sProvincePid: 1,
       scityPid: '',
       sareaPid: '',
-      //
       orderList: [],
-      carTypeList: [],
-      goodsTypeList: [],
       selectedOrder: [],
-      // jsonFields: {
-      //   order_no: 'String',
-      //   fstatusTxt: 'String',
-      //   goods_name: 'String',
-      //   fh_name: 'String',
-      //   fh_telephone: 'String',
-      //   origin: 'String',
-      //   fh_address: 'String',
-      //   sh_name: 'String',
-      //   sh_telephone: 'String',
-      //   destination: 'String',
-      //   sh_address: 'String',
-      //   carType: 'String',
-      //   zhTime: 'String',
-      //   isFapiao: 'String',
-      //   ffee: 'String'
-      // },
-      // json_meta: [
-      //   [{
-      //     key: 'charset',
-      //     value: 'utf-8'
-      //   }]
-      // ],
       offerList: []
-      // positionData: [{ID: '00', Name: '123'}]
     }
   },
   computed: {
@@ -314,13 +288,13 @@ export default {
       userCode: state => state.userCode,
       showDetail: state => state.showDetail,
       showMap: state => state.showMap,
-      searchOrderId: state => state.searchOrderId
+      searchOrderId: state => state.searchOrderId,
+      carTypeList: state => state.carTypeList,
+      goodsTypeList: state => state.goodsTypeList
     })
   },
   created () {
     this.getOrderList()
-    this.getCarType()
-    this.getGoodsType()
     this.getProvince()
   },
   components: {
@@ -369,18 +343,10 @@ export default {
     viewingPath (index, row) {
       this.changeShowMap(true)
       localStorage['MapId'] = row.id
-      // send({
-      //   name: '/orderController/trail/2c979074687943f3016879727bc70001/0',
-      //   method: 'GET',
-      //   data: {}
-      // }).then(res => {
-      // }).catch((res) => {
-      //   console.log(res)
-      // })
     },
     // 查看报价
     getOfferList (idx, row) {
-      send({
+      this.send({
         name: '/orderController/driverPriceList?order_id=' + row.id,
         method: 'GET',
         data: {}
@@ -400,7 +366,7 @@ export default {
     },
     // 确认报价
     sureOffer (idx, row) {
-      send({
+      this.send({
         name: '/orderController/confirmOrder?driver_id=' + row.driver_id + '&order_id=' + row.order_id + '&ffee=' + row.ffee,
         method: 'GET'
       }).then(res => {
@@ -432,7 +398,7 @@ export default {
       })
     },
     sureCancel (id) {
-      send({
+      this.send({
         name: '/orderController/cancelOrder?id=' + id,
         method: 'POST',
         data: {}
@@ -453,8 +419,6 @@ export default {
         console.log(res)
       })
     },
-    handleSizeChange () {
-    },
     handleCurrentChange () {
       this.getOrderList()
     },
@@ -472,7 +436,7 @@ export default {
       if (this.userRole === '4' || this.userRole === '5') {
         urlName = '/orderController/subOrderList?number=10&page_num=' + this.currentPage + '&sub_usercode=' + this.userCode
       }
-      send({
+      this.send({
         name: urlName,
         method: 'GET',
         data: {}
@@ -483,9 +447,7 @@ export default {
             order.zhDate = secondToFormat(order.zh_time.time)
             order.fstatusTxt = (order.fstatus === '0' ? '待接单' : (order.fstatus === '1' ? '已接单' : (order.fstatus === '2' ? '已撤单' : (order.fstatus === '3' ? '运输中' : (order.fstatus === '4' ? '已签收待确认' : (order.fstatus === '5' ? '待付款' : (order.fstatus === '7' ? '已结单' : ('已取消2'))))))))
             return order
-            // order.fstatusTxt = (order.fstatus === '0' ? '待接单' : (order.fstatus === '1' ? '已接单' : (order.fstatus === '2' ? '已撤单' : (order.fstatus === '3' ? '运输中' : (order.fstatus === '4' ? '已签收待确认' : (order.fstatus === '5' ? '待付款' : (order.fstatus === '7' ? '已结单' : '已取消')))))))
           })
-          // this.orderList = res.data.orderList
         } else {
           this.$message({
             message: res.data.message + '！',
@@ -496,20 +458,6 @@ export default {
       }).catch((res) => {
         console.log(res)
         this.loading = false
-      })
-    },
-    getGoodsType () {
-      send({
-        name: '/typeController/list',
-        method: 'GET',
-        data: {
-        }
-      }).then(res => {
-        if (res.data.respCode === '0') {
-          this.goodsTypeList = res.data.data
-        }
-      }).catch((res) => {
-        console.log(res)
       })
     },
     checkCarType (carTypeId) {
@@ -528,20 +476,6 @@ export default {
           return this.goodsTypeList[i].name
         }
       }
-    },
-    getCarType () {
-      send({
-        name: '/zCarTypeController/list',
-        method: 'GET',
-        data: {
-        }
-      }).then(res => {
-        if (res.data.respCode === '0') {
-          this.carTypeList = res.data.data
-        }
-      }).catch((res) => {
-        console.log(res)
-      })
     },
     exportExcell () {
       if (this.selectedOrder.length === 0) {
@@ -574,9 +508,6 @@ export default {
       this.getArea(id, 'fareaList')
       this.formCondition.farea = ''
     },
-    // 改变发货地区
-    changeFarea (id) {
-    },
     // 改变收货地省
     changeSprovince (id) {
       this.getCity(id, 'scityList')
@@ -588,12 +519,9 @@ export default {
       this.getArea(id, 'sareaList')
       this.formCondition.sarea = ''
     },
-    // 改变收货地区
-    changeSarea (id) {
-    },
     // 获取省下拉
     getProvince () {
-      send({
+      this.send({
         name: '/registerDriverController/regionSelect?pid=' + this.fProvincePid,
         method: 'GET',
         data: {
@@ -609,7 +537,7 @@ export default {
     },
     // 获取市下拉
     getCity (id, property) {
-      send({
+      this.send({
         name: '/registerDriverController/regionSelect?pid=' + id,
         method: 'GET',
         data: {
@@ -624,7 +552,7 @@ export default {
     },
     // 获取区下拉
     getArea (id, property) {
-      send({
+      this.send({
         name: '/registerDriverController/regionSelect?pid=' + id,
         method: 'GET',
         data: {

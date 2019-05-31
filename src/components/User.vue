@@ -140,7 +140,6 @@
 
 <script>
 import { mapState, mapActions } from 'vuex'
-import {send} from '../util/send'
 export default {
   name: 'User',
   data () {
@@ -176,9 +175,6 @@ export default {
         LogisticPsd: [
           { required: true, message: '请输入密码！', trigger: 'blur' }
         ]
-        // LogisticCompany: [
-        //   { required: true, message: '请输入公司名称！', trigger: 'blur' }
-        // ]
       }
     }
   },
@@ -237,7 +233,7 @@ export default {
       this.$refs[formName].validate((valid) => {
         if (valid) {
           this.loading = true
-          send({
+          this.send({
             name: '/zRegisterController/registerDriverByLogistics?fid=' + this.userId + '&fname=' + this.form.LogisticName + '&fmobile=' + this.form.LogisticPhone + '&fpassword=' + this.form.LogisticPsd + '&company_name=' + this.form.LogisticCompany,
             method: 'POST',
             data: {
@@ -297,7 +293,7 @@ export default {
         mainUsercode: this.userCode
       }
       let stObj = JSON.stringify(DATA)
-      send({
+      this.send({
         name: '/zRegisterController/subAccountCreate?zRegisterJson=' + stObj,
         method: 'POST',
         data: {
@@ -326,7 +322,7 @@ export default {
         confirmButtonText: '确定',
         cancelButtonText: '取消'
       }).then(({ value }) => {
-        send({
+        this.send({
           name: '/zRegisterController/subAccountChangePsw?usercode=' + row.usercode + '&fpassword=' + this.password,
           method: 'POST',
           data: {
@@ -366,7 +362,7 @@ export default {
     },
     // 删除子账户
     sureDeleteUser (id) {
-      send({
+      this.send({
         name: '/zRegisterController/subAccountDel?id=' + id,
         method: 'POST',
         data: {
@@ -390,7 +386,7 @@ export default {
     },
     // 删除司机
     sureDeleteLogistic (id) {
-      send({
+      this.send({
         name: '/zRegisterController/delDriver?id=' + id,
         method: 'GET',
         data: {
@@ -415,7 +411,7 @@ export default {
     // 获取子账户账户名
     getUserName () {
       return new Promise((resolve, reject) => {
-        send({
+        this.send({
           name: '/zRegisterController/subAccount?id=' + this.userId,
           method: 'POST',
           data: {
@@ -437,7 +433,7 @@ export default {
     // 获取子账户列表
     getUserList () {
       this.loading = true
-      send({
+      this.send({
         name: '/zRegisterController/subAccountList?main_usercode=' + this.userCode + '&number=10&page_num=' + this.currentPage,
         method: 'GET',
         data: {
@@ -461,7 +457,7 @@ export default {
     // 获取司机列表
     getLogisticsList () {
       this.loading = true
-      send({
+      this.send({
         name: '/zRegisterController/driverList?fid=' + this.userId + '&number=10&page_num=' + this.currentPage,
         method: 'GET',
         data: {

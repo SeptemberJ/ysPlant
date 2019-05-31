@@ -57,7 +57,7 @@
       <el-col :span="24" class="BgWhite TextAlignR">
         <el-form :inline="true" :model="formCondition" class="demo-form-inline">
           <el-form-item label="订单状态">
-            <el-select v-model="formCondition.status" placeholder="订单状态" @change="searchOrder">
+            <el-select v-model="formCondition.status" placeholder="订单状态" size="mini" @change="searchOrder">
               <el-option label="预接单" value="5"></el-option>
               <!-- <el-option label="待货主确认" value="2"></el-option> -->
               <el-option label="接单" value="0"></el-option>
@@ -67,7 +67,7 @@
             </el-select>
           </el-form-item>
           <el-form-item>
-            <el-button type="success" icon="el-icon-printer" @click="exportExcell">导出</el-button>
+            <el-button size="mini" type="success" icon="el-icon-printer" @click="exportExcell">导出</el-button>
           </el-form-item>
         </el-form>
       </el-col>
@@ -102,7 +102,7 @@
           </el-table-column>
           <el-table-column
             prop="ffee"
-            label="报价"
+            label="报价(¥)"
             show-overflow-tooltip>
           </el-table-column>
           <el-table-column
@@ -147,7 +147,6 @@
 
 <script>
 import { mapState, mapActions } from 'vuex'
-import {send} from '../../util/send'
 import OrderDetail from './OrderDetail.vue'
 export default {
   name: 'Order',
@@ -163,9 +162,7 @@ export default {
       },
       LogisticsList: [],
       orderList: [],
-      selectedOrder: [],
-      carTypeList: [],
-      goodsTypeList: []
+      selectedOrder: []
     }
   },
   computed: {
@@ -176,13 +173,13 @@ export default {
       userId: state => state.userId,
       ifSJOrderSearch: state => state.ifSJOrderSearch,
       searchOrderId: state => state.searchOrderId,
-      searchSjId: state => state.searchSjId
+      searchSjId: state => state.searchSjId,
+      carTypeList: state => state.carTypeList,
+      goodsTypeList: state => state.goodsTypeList
     })
   },
   created () {
     this.getLogisticsList()
-    this.getCarType()
-    this.getGoodsType()
     if (this.ifSJOrderSearch) {
       this.getStatusOrderList()
     }
@@ -247,7 +244,7 @@ export default {
     getLogisticsList () {
       this.loading = true
       let oldPage = this.currentPage
-      send({
+      this.send({
         name: '/zRegisterController/driverList?fid=' + this.userId + '&number=10&page_num=' + this.currentPage,
         method: 'GET',
         data: {
@@ -292,7 +289,7 @@ export default {
     // 获取某司机某类订单列表
     getStatusOrderList () {
       this.loading = true
-      send({
+      this.send({
         name: '/driverOrderController/order/' + this.currentPageOrder + '/10?id=' + this.searchSjId + '&status=' + this.formCondition.status,
         method: 'GET',
         data: {}
@@ -300,7 +297,6 @@ export default {
         if (res.data.respCode === '0') {
           this.sumOrder = res.data.size
           this.orderList = res.data.data
-          // this.orderList = res.data.orderList
         } else if (res.data.code === 0) {
           this.sumOrder = 0
           this.orderList = []
@@ -321,21 +317,6 @@ export default {
         this.loading = false
       })
     },
-    // 获取车型下拉
-    getCarType (carType) {
-      send({
-        name: '/zCarTypeController/list',
-        method: 'GET',
-        data: {
-        }
-      }).then(res => {
-        if (res.data.respCode === '0') {
-          this.carTypeList = res.data.data
-        }
-      }).catch((res) => {
-        console.log(res)
-      })
-    },
     // 获取车型名称
     checkCarType (carTypeId) {
       let len = this.carTypeList.length
@@ -344,21 +325,6 @@ export default {
           return this.carTypeList[i].typeName
         }
       }
-    },
-    // 获取货物类型下拉
-    getGoodsType () {
-      send({
-        name: '/typeController/list',
-        method: 'GET',
-        data: {
-        }
-      }).then(res => {
-        if (res.data.respCode === '0') {
-          this.goodsTypeList = res.data.data
-        }
-      }).catch((res) => {
-        console.log(res)
-      })
     },
     // 获取货物类型名称
     checkGoodsType (goodsTypeId) {
@@ -380,7 +346,7 @@ export default {
       }
       require.ensure([], () => {
         const { exportJsonToExcel } = require('@/vendor/Export2Excel.js')
-        const tHeader = ['订单号', '订单状态', '货物类型', '发货人', '手机号', '发货地', '街道', '发货人', '手机号', '收货地', '街道', '车型', '装货日期', '开具发票', '报价']
+        const tHeader = ['订单号', '订单状态', '货物类型', '发货人', '手机号', '发货地', '街道', '发货人', '手机号', '收货地', '街道', '车型', '装货日期', '开具发票', '报价(¥)']
         const filterVal = ['order_no', 'fstatusTxt', 'goods_name', 'fh_name', 'fh_telephone', 'origin', 'fh_address', 'sh_name', 'sh_telephone', 'destination', 'sh_address', 'carType', 'zhTime', 'isFapiao', 'ffee']
         const data = this.formatJson(filterVal, this.selectedOrder)
         exportJsonToExcel(tHeader, data, '订单')
