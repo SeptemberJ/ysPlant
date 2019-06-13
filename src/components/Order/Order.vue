@@ -127,7 +127,7 @@
             width="100"
             >
             <template slot-scope="scope">
-              <span>{{scope.row.fstatusTxt}}</span>
+              <span :class="[scope.row.fstatus == 8 ? 'ColorRed' : '']">{{scope.row.fstatusTxt}}</span>
             </template>
           </el-table-column>
           <el-table-column
@@ -242,7 +242,7 @@
 
 <script>
 import { mapState, mapActions } from 'vuex'
-import {secondToFormat} from '../../util/utils'
+// import {secondToFormat} from '../../util/utils'
 import OrderDetail from './OrderDetail.vue'
 import Map from '../Map/Map.vue'
 export default {
@@ -351,9 +351,9 @@ export default {
         method: 'GET',
         data: {}
       }).then(res => {
-        if (res.data.code === 1) {
+        if (res.data.respCode === '0') {
           this.dialogFormVisible = true
-          this.offerList = res.data.driverPriceList
+          this.offerList = res.data.data
         } else {
           this.$message({
             message: res.data.message + '！',
@@ -370,7 +370,7 @@ export default {
         name: '/orderController/confirmOrder?driver_id=' + row.driver_id + '&order_id=' + row.order_id + '&ffee=' + row.ffee,
         method: 'GET'
       }).then(res => {
-        if (res.data.code === 1) {
+        if (res.data.respCode === '0') {
           this.dialogFormVisible = false
           this.$message({
             message: '确认成功！',
@@ -403,11 +403,11 @@ export default {
         method: 'POST',
         data: {}
       }).then(res => {
-        if (res.data.code === '1' || res.data.code === 1) {
+        if (res.data.respCode === '0') {
           this.getOrderList()
           this.$message({
             type: 'success',
-            message: '删除成功!'
+            message: '订单取消成功!'
           })
         } else {
           this.$message({
@@ -441,11 +441,12 @@ export default {
         method: 'GET',
         data: {}
       }).then(res => {
-        if (res.data.code === 1) {
-          this.sum = res.data.sum_number
-          this.orderList = res.data.orderList.map(order => {
-            order.zhDate = secondToFormat(order.zh_time.time)
-            order.fstatusTxt = (order.fstatus === '0' ? '待接单' : (order.fstatus === '1' ? '已接单' : (order.fstatus === '2' ? '已撤单' : (order.fstatus === '3' ? '运输中' : (order.fstatus === '4' ? '已签收待确认' : (order.fstatus === '5' ? '待付款' : (order.fstatus === '7' ? '已结单' : ('已取消2'))))))))
+        if (res.data.respCode === '0') {
+          this.sum = res.data.size
+          this.orderList = res.data.data.map(order => {
+            order.zhDate = order.zh_time // secondToFormat(order.zh_time.time)
+            order.fstatusTxt = (order.fstatus === '0' ? '待接单' : (order.fstatus === '1' ? '已接单' : (order.fstatus === '2' ? '已撤单' : (order.fstatus === '3' ? '运输中' : (order.fstatus === '4' ? '已签收待确认' : (order.fstatus === '5' ? '待付款' : (order.fstatus === '7' ? '已结单' : (order.fstatus === '8' ? '待支付' : '已取消'))))))))
+            // order.fstatusTxt = (order.fstatus === '0' ? '待接单' : (order.fstatus === '1' ? '已接单' : (order.fstatus === '2' ? '已撤单' : (order.fstatus === '3' ? '运输中' : (order.fstatus === '4' ? '已签收待确认' : (order.fstatus === '5' ? '待付款' : (order.fstatus === '7' ? '已结单' : ('已取消2'))))))))
             return order
           })
         } else {

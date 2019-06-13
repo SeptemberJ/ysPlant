@@ -190,12 +190,18 @@
               <span class="MarginR_10" v-if="appointName">{{appointName}}</span>
               <!-- <el-button type="text" size="small" @click="chooseSJ">去选择<i class="el-icon-d-arrow-right el-icon--right"></i></el-button> -->
             </el-form-item>
-            <el-form-item label="开具发票" prop="isFapiao">
+            <!-- <el-form-item label="开具发票" prop="isFapiao">
               <el-radio-group v-model="formAdd.isFapiao" style="float: left">
                 <el-radio label="0" border :disabled="formAdd.fstatus != 0">不需要</el-radio>
                 <el-radio label="1" border :disabled="formAdd.fstatus != 0">需要</el-radio>
               </el-radio-group>
-            </el-form-item>
+            </el-form-item> -->
+            <el-form-item label="支付方式" prop="payWay">
+            <el-radio-group v-model="formAdd.payWay" style="float: left">
+              <el-radio :label="0" border :disabled="formAdd.fstatus != 0">线上</el-radio>
+              <el-radio :label="1" border :disabled="formAdd.fstatus != 0">线下</el-radio>
+            </el-radio-group>
+          </el-form-item>
             <el-form-item label="接受拼箱" prop="isBox">
               <el-radio-group v-model="formAdd.isBox" style="float: left">
                 <el-radio label="1" border disabled>不接受</el-radio>
@@ -205,7 +211,7 @@
           </div>
         </el-card>
         <!-- cost -->
-        <el-card class="box-card MarginTB_20">
+        <el-card class="box-card MarginTB_20" v-if="formAdd.payWay == 0">
           <div slot="header" class="clearfix TextAlignL">
             <span>费用</span>
           </div>
@@ -271,7 +277,8 @@
         <el-row>
           <el-col :span="12" class="TextAlignC" >
             <el-button type="primary" :loading="ifLoading" @click="onSubmit('formAdd')" v-if="formAdd.fstatus == 0">保存修改</el-button>
-            <el-button type="primary" :loading="ifLoading" @click="payment" v-if="formAdd.fstatus == 5">确认付款</el-button>
+            <el-button type="primary" :loading="ifLoading" @click="payment" v-if="formAdd.frece == 1 && formAdd.fstatus != 7">确认支付</el-button>
+            <el-button type="primary" :loading="ifLoading" disabled v-if="formAdd.fstatus == 7">已结单</el-button>
           </el-col>
           <el-col :span="12" class="TextAlignC" style="float:right;">
             <el-button @click="backOrderList" style="width: 100px;">返回</el-button>
@@ -350,6 +357,7 @@ export default {
         goodsName: '',
         orderGoodsList: [],
         goodsTypeList: [],
+        payWay: 0, // 0-线上 1-线下
         isFapiao: '0', // 0-不要 1-要
         isBox: '', // 0-要 1-不要
         boxNo: '',
@@ -400,6 +408,9 @@ export default {
         ],
         goodsWeight: [
           { required: true, message: '请输入货物数量!', trigger: 'blur' }
+        ],
+        payWay: [
+          { required: true, message: '请选择支付方式!', trigger: 'blur' }
         ],
         isFapiao: [
           { required: true, message: '请选择是否需要开具发票!', trigger: 'blur' }
@@ -522,8 +533,8 @@ export default {
         method: 'GET',
         data: ''
       }).then(res => {
-        if (res.data.code === 1) {
-          this.formAdd.max_price = res.data.max_price
+        if (res.data.respCode === '0') {
+          this.formAdd.max_price = res.data.data
         } else {
           this.$message({
             message: res.data.message + '！',
@@ -558,7 +569,7 @@ export default {
     sureAdd () {
       let DATA = {
         fmaxFee: this.formAdd.fmaxFee,
-        ffee: this.formAdd.ffee,
+        ffee: this.formAdd.payWay === 0 ? this.formAdd.ffee : 0,
         foilCard: this.formAdd.oilCard,
         fweight: this.totalWeight,
         id: this.formAdd.id,
@@ -579,7 +590,8 @@ export default {
         zhTime: this.formAdd.zhTime,
         goodsName: this.formAdd.goodsName,
         orderGoodsList: this.formAdd.orderGoodsList,
-        isFapiao: this.formAdd.isFapiao,
+        ftype: this.formAdd.payWay, // 0线上 1线下
+        // isFapiao: this.formAdd.isFapiao,
         boxNo: this.formAdd.boxNo,
         isBox: this.formAdd.isBox
       }
@@ -620,14 +632,9 @@ export default {
     },
     surePay () {
       this.send({
-        name: '/zPayAccountRegisterController',
+        name: '/orderController/pay/' + this.searchOrderId,
         method: 'POST',
         data: {
-          fmoney: this.formAdd.ffee,
-          payType: 1,
-          orderNo: this.order_no,
-          orderId: this.searchOrderId,
-          registerId: this.userId
         }
       }).then(res => {
         if (res.data.respCode === '0') {
@@ -635,11 +642,43 @@ export default {
             message: '支付成功!',
             type: 'success'
           })
+          this.getOrderDetail()
+        } else {
+          this.$message({
+            message: '支付失败!',
+            type: 'error'
+          })
         }
       }).catch((res) => {
         console.log(res)
+        this.$message({
+          message: 'interface error!',
+          type: 'error'
+        })
       })
     },
+    // surePay () {
+    //   this.send({
+    //     name: '/zPayAccountRegisterController',
+    //     method: 'POST',
+    //     data: {
+    //       fmoney: this.formAdd.ffee,
+    //       payType: 1,
+    //       orderNo: this.order_no,
+    //       orderId: this.searchOrderId,
+    //       registerId: this.userId
+    //     }
+    //   }).then(res => {
+    //     if (res.data.respCode === '0') {
+    //       this.$message({
+    //         message: '支付成功!',
+    //         type: 'success'
+    //       })
+    //     }
+    //   }).catch((res) => {
+    //     console.log(res)
+    //   })
+    // },
     // 数据清空恢复初始化
     clearDataABack () {
       this.formAdd = {
@@ -714,6 +753,7 @@ export default {
           temp.shArea = Info.sh_area
           temp.shName = Info.sh_name
           temp.shTelephone = Info.sh_telephone
+          temp.payWay = Info.ftype
           temp.isFapiao = Info.is_fapiao
           temp.isBox = Info.is_box
           temp.boxNo = Info.box_no

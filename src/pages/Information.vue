@@ -26,6 +26,9 @@
       <el-form-item v-if="userRole == 1 || userRole == 2" label="银行账号" prop="bankNo">
         <el-input v-model="formInfo.bankNo" placeholder="请输入银行账号" clearable></el-input>
       </el-form-item>
+      <el-form-item v-if="userRole == 1 || userRole == 2" label="开户地址" prop="faddress">
+        <el-input v-model="formInfo.faddress" placeholder="请输入开户地址" clearable></el-input>
+      </el-form-item>
       <el-form-item v-if="userRole == 1 || userRole == 2" label="税号" prop="tax">
         <el-input v-model="formInfo.tax" placeholder="请输入税号" clearable></el-input>
       </el-form-item>
@@ -91,7 +94,7 @@
         <el-checkbox v-model="agreed">我已阅读并同意</el-checkbox><span class="CursorPointer" style="color:#409EFF" @click="showAgreement">使用许可及服务协议</span>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" :disabled="checkStatus == 0" @click="onSubmit('formInfo')" style="width: 100px;" :loading="ifLoading">{{checkStatus == -1 ? '提交信息' :'保存修改'}}{{checkStatus}}</el-button>
+        <el-button type="primary" :disabled="checkStatus == 0" @click="onSubmit('formInfo')" style="width: 100px;" :loading="ifLoading">{{checkStatus == -1 ? '提交信息' :'保存修改'}}</el-button>
       </el-form-item>
       <div class="BgBlock"></div>
     </el-form>
@@ -134,6 +137,7 @@ export default {
         company: '',
         bank: '',
         bankNo: '',
+        faddress: '',
         taitou: '',
         tax: '',
         ID: '',
@@ -155,6 +159,9 @@ export default {
         ],
         bankNo: [
           { required: true, message: '请输入银行账号！', trigger: 'blur' }
+        ],
+        faddress: [
+          { required: true, message: '请输入开户地址！', trigger: 'blur' }
         ],
         tax: [
           { required: true, message: '请输入税号！', trigger: 'blur' }
@@ -302,7 +309,7 @@ export default {
     // 上传图片
     uploadImg (property, img, floder, type) {
       // axios.post('http://172.16.52.63:8080/rest/registerDriverController/photo?kind=0&folder=' + floder + '&type=' + type, img, {
-      axios.post('http://116.62.171.244:8082/yingsu/rest/registerDriverController/photo?kind=0&folder=' + floder + '&type=' + type, img, {
+      axios.post(this.ImgURL_PREFIX + 'rest/registerDriverController/photo?kind=0&folder=' + floder + '&type=' + type, img, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'X-AUTH-TOKEN': getCookie('btwccy_cookie')
@@ -354,6 +361,7 @@ export default {
         tai_tou: this.formInfo.taitou,
         f_bank: this.formInfo.bank,
         f_bank_no: this.formInfo.bankNo,
+        faddress: this.formInfo.faddress,
         tax_number: this.formInfo.tax
       }
       let stObg = JSON.stringify(DATA)
@@ -364,7 +372,7 @@ export default {
         data: {
         }
       }).then(res => {
-        if (res.data.code === 1) {
+        if (res.data.respCode === '0') {
           this.checkStatus = 0
           this.$message({
             message: '信息提交成功，等待审核！',
@@ -395,6 +403,7 @@ export default {
         tai_tou: this.formInfo.taitou,
         f_bank: this.formInfo.bank,
         f_bank_no: this.formInfo.bankNo,
+        faddress: this.formInfo.faddress,
         tax_number: this.formInfo.tax
       }
       let stObg = JSON.stringify(DATA)
@@ -405,7 +414,7 @@ export default {
         data: {
         }
       }).then(res => {
-        if (res.data.code === 1) {
+        if (res.data.respCode === '0') {
           this.checkStatus = 0
           this.$message({
             message: '信息提交成功，等待审核！',
@@ -440,7 +449,7 @@ export default {
         data: {
         }
       }).then(res => {
-        if (res.data.code === 1) {
+        if (res.data.respCode === '0') {
           this.checkStatus = 0
           this.$message({
             message: '信息提交成功，等待审核！',
@@ -484,23 +493,26 @@ export default {
 
           this.formInfo.tax = Info.taxNumber
           this.formInfo.taitou = Info.taiTou
-          this.formInfo.bank = Info.fBank
-          this.formInfo.bankNo = Info.fBankNO
+          this.formInfo.bank = Info.fbank
+          this.formInfo.bankNo = Info.fbankNo
+          this.formInfo.faddress = Info.faddress
 
-          this.formInfo.ID = Info.fIdentity
+          this.formInfo.ID = Info.fidentity
           // 货主 承运商
           if (this.userRole === '1' || this.userRole === '2') {
-            this.formInfo.license = Info.companyContract ? (this.ImgURL_PREFIX + Info.companyContract) : ''
-            this.formInfo.contract = Info.companyLicence ? (this.ImgURL_PREFIX + Info.companyLicence) : ''
+            this.formInfo.contract = Info.companyContract ? (this.ImgURL_PREFIX + Info.companyContract) : ''
+            this.formInfo.license = Info.companyLicence ? (this.ImgURL_PREFIX + Info.companyLicence) : ''
+            // this.formInfo.license = Info.companyContract ? (this.ImgURL_PREFIX + Info.companyContract) : ''
+            // this.formInfo.contract = Info.companyLicence ? (this.ImgURL_PREFIX + Info.companyLicence) : ''
             this.licenseImgName = Info.companyLicence
             this.contractImgName = Info.companyContract
           }
           // 个人
           if (this.userRole === '3') {
-            this.formInfo.license = Info.fIdentityFront ? (this.ImgURL_PREFIX + Info.fIdentityFront) : ''
-            this.formInfo.contract = Info.fIdentityBack ? (this.ImgURL_PREFIX + Info.fIdentityBack) : ''
-            this.licenseImgName = Info.fIdentityFront
-            this.contractImgName = Info.fIdentityBack
+            this.formInfo.license = Info.fidentityFront ? (this.ImgURL_PREFIX + Info.fidentityFront) : ''
+            this.formInfo.contract = Info.fidentityBack ? (this.ImgURL_PREFIX + Info.fidentityBack) : ''
+            this.licenseImgName = Info.fidentityFront
+            this.contractImgName = Info.fidentityBack
           }
         } else {
           this.$message({

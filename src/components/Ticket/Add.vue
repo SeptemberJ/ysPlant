@@ -1,6 +1,18 @@
 <template>
   <div class="AddTicket">
     <el-row class="AddMain">
+      <el-col :span="24" class="TextAlignL MarginB_20">
+        <span style="margin-right: 10px;padding-left: 10px;">{{rateIdx}}税率{{rateList[rateIdx].name}}-{{userBalance}}</span>
+        <el-select v-model="rateIdx" placeholder="税率" size="mini">
+          <el-option
+            v-for="(rate, idx) in rateList"
+            :key="idx"
+            :label="rate.name"
+            :value="rate.code">
+          </el-option>
+        </el-select>
+        <span style="padding-left: 10px;">%</span>
+      </el-col>
       <el-col :span="24">
         <el-row class="TextAlignL PaddingL_10 MarginB_10 ColorRed Bold">
           <el-col :span="8">总金额： {{sumPrice}} ¥</el-col>
@@ -51,6 +63,10 @@ export default {
       sumPrice: 0,
       sumTax: 0,
       sumTaxL: 0,
+      rateIdx: '0',
+      // rate: 0,
+      serviceCharge: 1,
+      rateList: [],
       orderList: [],
       choosedOrder: [],
       invoiceentry: []
@@ -59,15 +75,20 @@ export default {
   computed: {
     ...mapState({
       userId: state => state.userId,
-      userCode: state => state.userCode
+      userCode: state => state.userCode,
+      userBalance: state => state.userBalance
     })
   },
   created () {
     this.getOrderList()
+    this.getRateList()
   },
   watch: {
     sumPrice: function (newVal) {
-      this.sumTax = newVal * 0.11
+      this.sumTax = newVal * (this.rateList[this.rateIdx].name) / 100
+    },
+    rateIdx: function (newVal) {
+      this.sumTax = this.sumPrice * (this.rateList[newVal].name) / 100
     }
   },
   methods: {
@@ -88,7 +109,7 @@ export default {
           forderid: item.id,
           forderno: item.order_no,
           fprice: item.ffee - item.ftax,
-          frate: 11,
+          frate: this.rateList[this.rateIdx].name,
           ftaxmoney: item.ftax,
           funit: '次',
           id: ''
@@ -104,12 +125,22 @@ export default {
         })
         return false
       }
+      // 超出账户余额
+      if (this.userBalance < (this.sumTax + this.serviceCharge)) {
+        this.$message({
+          message: '对不起，您的开票申请所产生的税额和手续费总和超出了账户余额！',
+          type: 'warning'
+        })
+        return false
+      }
       let DATA = {
         fbillno: '',
         fbuyerid: this.userId,
         fdate: '',
         fexpress: '',
         fexpressno: '',
+        ftaxrate: this.rateList[this.rateIdx].name,
+        fee: this.serviceCharge,
         fmoney: this.sumPrice - this.sumTax,
         fsaleid: '',
         fstatus: '',
@@ -145,6 +176,25 @@ export default {
         this.ifLoading = false
       })
     },
+    getRateList () {
+      this.send({
+        name: '/invoiceController/rate',
+        method: 'GET',
+        data: {
+        }
+      }).then(res => {
+        if (res.data.respCode === '0') {
+          this.rateList = res.data.data
+        } else {
+          this.$message({
+            message: res.data.message + '！',
+            type: 'error'
+          })
+        }
+      }).catch((res) => {
+        console.log(res)
+      })
+    },
     // 获取未开票订单
     getOrderList () {
       this.send({
@@ -153,8 +203,8 @@ export default {
         data: {
         }
       }).then(res => {
-        if (res.data.code === 1) {
-          this.orderList = res.data.orderList.map(item => {
+        if (res.data.respCode === '0') {
+          this.orderList = res.data.data.map(item => {
             item.ftax = item.ffee * 0.11
             return item
           })

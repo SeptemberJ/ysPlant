@@ -201,7 +201,9 @@ export default {
       }).then(res => {
         // res.data.data.push({lng: 117.7757, lat: 35.254095, companyName: '123', fmobile: '111111', fname: 'sj', address: '上海市普陀区', submitTime: '2019-04-26 12:43:43'})
         this.tableData = res.data.data
-        this.setMap(res.data.data, 'TrajectoryC')
+        if (res.data.data.length > 0) {
+          this.setMap(res.data.data, 'TrajectoryC')
+        }
       }).catch((res) => {
         console.log(res)
       })

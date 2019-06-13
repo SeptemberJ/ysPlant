@@ -239,9 +239,9 @@ export default {
             data: {
             }
           }).then(res => {
-            if (res.data.code === 1) {
+            if (res.data.respCode === '0') {
               this.$message({
-                message: '新增用户成功！',
+                message: '新增司机成功！',
                 type: 'success'
               })
               this.dialogFormVisible = false
@@ -257,7 +257,7 @@ export default {
                 message: res.data.message + '！',
                 type: 'error'
               })
-              this.loading = true
+              this.loading = false
             }
           }).catch((res) => {
             console.log(res)
@@ -299,7 +299,7 @@ export default {
         data: {
         }
       }).then(res => {
-        if (res.data.code === 1) {
+        if (res.data.respCode === '0') {
           this.$message({
             message: '子账户新增成功！',
             type: 'success'
@@ -328,9 +328,9 @@ export default {
           data: {
           }
         }).then(res => {
-          if (res.data.code === 1) {
+          if (res.data.respCode === '0') {
             this.$message({
-              message: '密码重置成功！',
+              message: '子账号密码重置成功！',
               type: 'success'
             })
           } else {
@@ -368,9 +368,9 @@ export default {
         data: {
         }
       }).then(res => {
-        if (res.data.code === 1) {
+        if (res.data.respCode === '0') {
           this.$message({
-            message: '用户删除成功！',
+            message: '子账号删除成功！',
             type: 'success'
           })
           this.getUserList()
@@ -392,7 +392,7 @@ export default {
         data: {
         }
       }).then(res => {
-        if (res.data.code === 1) {
+        if (res.data.respCode === '0') {
           this.getLogisticsList()
           this.$message({
             message: '司机删除成功！',
@@ -417,8 +417,8 @@ export default {
           data: {
           }
         }).then(res => {
-          if (res.data.code === 1) {
-            resolve(res.data.usercode)
+          if (res.data.respCode === '0') {
+            resolve(res.data.data)
           } else {
             this.$message({
               message: res.data.message + '！',
@@ -439,9 +439,9 @@ export default {
         data: {
         }
       }).then(res => {
-        if (res.data.code === 1) {
-          this.sum = res.data.sum_number
-          this.UserList = res.data.subAccountList
+        if (res.data.respCode === '0') {
+          this.sum = res.data.size
+          this.UserList = res.data.data
         } else {
           this.$message({
             message: res.data.message + '！',
@@ -463,9 +463,9 @@ export default {
         data: {
         }
       }).then(res => {
-        if (res.data.code === 1) {
-          this.sum = res.data.sum_number
-          this.LogisticsList = res.data.driverList
+        if (res.data.respCode === '0') {
+          this.sum = res.data.size
+          this.LogisticsList = res.data.data
         } else {
           this.$message({
             message: res.data.message + '！',

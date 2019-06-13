@@ -58,9 +58,9 @@
         <el-form :inline="true" :model="formCondition" class="demo-form-inline">
           <el-form-item label="订单状态">
             <el-select v-model="formCondition.status" placeholder="订单状态" size="mini" @change="searchOrder">
-              <el-option label="预接单" value="5"></el-option>
+              <el-option label="待接单" value="5"></el-option>
               <!-- <el-option label="待货主确认" value="2"></el-option> -->
-              <el-option label="接单" value="0"></el-option>
+              <el-option label="已接单" value="0"></el-option>
               <el-option label="运输" value="1"></el-option>
               <el-option label="已取消" value="3"></el-option>
               <el-option label="签收" value="4"></el-option>
@@ -212,7 +212,7 @@ export default {
         let obj = {
           order_no: Order.order_no,
           fstatusTxt: (Order.fstatus === '0' ? '待接单' : (Order.fstatus === '1' ? '已接单' : (Order.fstatus === '2' ? '已撤单' : (Order.fstatus === '3' ? '运输中' : (Order.fstatus === '4' ? '已签收' : '已取消'))))),
-          goods_name: this.checkGoodsType(Order.goods_name),
+          goods_name: Order.goods_name, // this.checkGoodsType(Order.goods_name)
           fh_name: Order.fh_name,
           fh_telephone: Order.fh_telephone,
           origin: Order.origin,
@@ -221,7 +221,7 @@ export default {
           sh_telephone: Order.sh_telephone,
           destination: Order.destination,
           sh_address: Order.sh_address,
-          carType: this.checkCarType(Order.car_type),
+          carType: Order.car_type, // this.checkCarType(Order.car_type)
           zhTime: Order.zh_time,
           isFapiao: Order.is_fapiao === '0' ? '不需要' : '需要',
           ffee: Order.ffee
@@ -250,10 +250,10 @@ export default {
         data: {
         }
       }).then(res => {
-        if (res.data.code === 1) {
-          this.sum = res.data.sum_number
+        if (res.data.respCode === '0') {
+          this.sum = res.data.size
           this.currentPage = oldPage
-          this.LogisticsList = res.data.driverList
+          this.LogisticsList = res.data.data
         } else {
           this.$message({
             message: res.data.message + '！',

@@ -34,7 +34,7 @@ export default {
   data () {
     return {
       ifLoading: false,
-      phone: '18734567890', // 货主 18534567899 18734567890 承运商 13734567890  17734567890  SHZ 13783948780 个人 18834567890  18235567676
+      phone: '18734567890', // 货主 18734567890 17711111102 承运商 13734567890 17711111101 个人 17711111103
       password: '111111'
     }
   },
@@ -47,6 +47,9 @@ export default {
       'changeUserAccount',
       'changeUserRole',
       'changeUserCode',
+      'changeUserBalance',
+      'changUserFdepsta',
+      'changUserFsettle',
       'changeSiderIdx',
       'changeIfSJOrderSearch',
       'changeShowDetail'
@@ -90,29 +93,33 @@ export default {
         data: {
         }
       }).then(res => {
-        switch (res.data.code) {
-          case 1:
-            setCookie('btwccy_cookie', res.data.token, 6)
-            this.changeUserId(res.data.id)
+        switch (res.data.respCode) {
+          case '0':
+            let userInfo = res.data.data
+            setCookie('btwccy_cookie', userInfo.token, 6)
+            this.changeUserId(userInfo.zRegister.id)
             // mapUserId
-            localStorage['MapId'] = res.data.id
-            this.changeUserCode(res.data.usercode)
+            localStorage['MapId'] = userInfo.zRegister.id
+            this.changeUserCode(userInfo.zRegister.usercode)
+            this.changeUserBalance(userInfo.zRegister.faccount)
+            this.changUserFdepsta(userInfo.zRegister.fdepsta)
+            this.changUserFsettle(userInfo.zRegister.fsettle)
             // 1-承运商主 2-货主主 4-承运商子 5-货主子 3-个人
-            this.changeUserRole(res.data.ftype)
+            this.changeUserRole(userInfo.zRegister.ftype)
             this.$message({
               message: '登陆成功！',
               type: 'success'
             })
             this.ifLoading = false
             // 0-未审核 1-通过 2-退回 3-再次提交
-            if (res.data.checkStatus === '1' || res.data.checkStatus === '3') { // 主账户登陆
+            if (userInfo.zRegister.checkStatus === '1' || userInfo.zRegister.checkStatus === '3') { // 主账户登陆
               // 主页
               this.changeUserAccount(this.phone)
               this.$router.push({name: 'Home'})
               this.changeLocationIdx(2)
-            } else if (res.data.checkStatus === undefined) { // 子账户登陆
+            } else if (userInfo.zRegister.checkStatus === undefined) { // 子账户登陆
               // 主页
-              this.changeUserAccount(res.data.usercode)
+              this.changeUserAccount(userInfo.zRegister.usercode)
               this.$router.push({name: 'Home'})
               this.changeLocationIdx(2)
             } else { // 未通过审核
@@ -122,7 +129,7 @@ export default {
               this.changeLocationIdx(3)
             }
             // 判断进入的主页
-            if (res.data.ftype === '1' || res.data.ftype === '4') {
+            if (userInfo.zRegister.ftype === '1' || userInfo.zRegister.ftype === '4') {
               this.changeSiderIdx('1-3')
             } else {
               this.changeSiderIdx('1-1')

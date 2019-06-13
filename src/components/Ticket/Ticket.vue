@@ -12,11 +12,19 @@
           style="width: 100%">
           <el-table-column
             type="index"
+            fixed="left"
             width="55">
+          </el-table-column>
+          <el-table-column
+            prop="fstatusTxt"
+            label="状态"
+            width="80"
+            show-overflow-tooltip>
           </el-table-column>
           <el-table-column
             prop="fbillno"
             label="申请单号"
+            width="150"
             show-overflow-tooltip>
           </el-table-column>
           <el-table-column
@@ -42,12 +50,24 @@
           <el-table-column
             prop="fexpress"
             label="快递公司"
+            width="150"
             show-overflow-tooltip>
           </el-table-column>
           <el-table-column
             prop="fexpressno"
             label="快递单号"
+            width="150"
             show-overflow-tooltip>
+          </el-table-column>
+          <el-table-column label="操作" width="100" fixed="right">
+            <template slot-scope="scope">
+              <el-button
+                size="mini"
+                type="danger"
+                :disabled="scope.row.fstatus != 1"
+                @click="cancelTicket(scope.$index, scope.row)">撤销
+              </el-button>
+            </template>
           </el-table-column>
         </el-table>
       </el-col>
@@ -111,6 +131,36 @@ export default {
     toAddTicket () {
       this.ifAdd = !this.ifAdd
     },
+    cancelTicket (idx, row) {
+      this.$confirm('此操作将撤回该开票申请, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.send({
+          name: '/invoiceController/refund/' + row.id,
+          method: 'GET',
+          data: {
+          }
+        }).then(res => {
+          if (res.data.respCode === '0') {
+            this.$message({
+              message: '撤销成功！',
+              type: 'success'
+            })
+            this.getTicketList()
+          } else {
+            this.$message({
+              message: res.data.message + '！',
+              type: 'error'
+            })
+          }
+        }).catch((res) => {
+          console.log(res)
+        })
+      }).catch(() => {
+      })
+    },
     // 开票列表
     getTicketList () {
       this.send({
@@ -120,7 +170,23 @@ export default {
         }
       }).then(res => {
         if (res.data.respCode === '0') {
-          this.ticketList = res.data.data
+          this.ticketList = res.data.data.map(item => {
+            switch (item.fstatus) {
+              case '0':
+                item.fstatusTxt = '已作废'
+                break
+              case '1':
+                item.fstatusTxt = '待开票'
+                break
+              case '2':
+                item.fstatusTxt = '已开票'
+                break
+              case '3':
+                item.fstatusTxt = '已寄出'
+                break
+            }
+            return item
+          })
           this.sum = res.data.size
         } else {
           this.$message({

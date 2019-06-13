@@ -115,7 +115,9 @@ export default {
         data: {
         }
       }).then(res => {
-        this.setMap(res.data.data)
+        if (res.data.data.length > 0) {
+          this.setMap(res.data.data)
+        }
       }).catch((res) => {
         console.log(res)
       })

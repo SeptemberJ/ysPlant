@@ -165,7 +165,7 @@ export default {
             data: {
             }
           }).then(res => {
-            if (res.data.code === 1) {
+            if (res.data.respCode === '0') {
               this.$message({
                 message: '密码修改成功！',
                 type: 'success'

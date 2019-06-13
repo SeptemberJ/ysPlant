@@ -2,7 +2,11 @@
   <div class="Center">
     <!-- 基本信息 -->
     <el-row v-if="userRole == 1 || userRole == 2">
-      <el-col :span="8" class="TextAlignL">
+      <el-col :span="12" class="TextAlignL">
+        <div class="MarginT_10">
+          <span class="LeftTit">当前账户：</span>
+          <span>{{userAccount}}</span>
+        </div>
         <div class="MarginT_10">
           <span class="LeftTit">企业名称：</span>
           <span>{{formInfo.company}}</span>
@@ -15,8 +19,17 @@
           <span class="LeftTit">联系电话：</span>
           <span>{{formInfo.tel}}</span>
         </div>
+        <div class="MarginT_10">
+          <span class="LeftTit">抬头：</span>
+          <span>{{formInfo.taitou}}</span>
+        </div>
       </el-col>
-      <el-col :span="8" class="TextAlignL">
+      <el-col :span="12" class="TextAlignL">
+        <div class="MarginT_10">
+          <span class="LeftTit">账户余额：</span>
+          <span>{{formInfo.faccount}} (¥)</span>
+          <el-button type = 'success' size="mini" class="MarginL_10" @click="recharge">充值</el-button>
+        </div>
         <div class="MarginT_10">
           <span class="LeftTit">银行账号：</span>
           <span>{{formInfo.bankNo}}</span>
@@ -26,15 +39,8 @@
           <span>{{formInfo.bank}}</span>
         </div>
         <div class="MarginT_10">
-          <span class="LeftTit">抬头：</span>
-          <span>{{formInfo.taitou}}</span>
-        </div>
-      </el-col>
-      <el-col :span="8" class="TextAlignL">
-        <div class="MarginT_10">
-          <span class="LeftTit">账户余额：</span>
-          <span>{{formInfo.faccount}} (¥)</span>
-          <el-button type = 'success' size="mini" class="MarginL_10" @click="recharge">充值</el-button>
+          <span class="LeftTit">开户地址：</span>
+          <span>{{formInfo.faddress}}</span>
         </div>
       </el-col>
     </el-row>
@@ -68,8 +74,10 @@
               <el-radio label="公对公打款" v-if="userRole != 3"></el-radio>
             </el-radio-group>
           </el-form-item>
-          <el-form-item label="" v-if="formCharge.payWay == '公对公打款' && userRole != 3">
-            <span>(请使用已绑定的 {{formInfo.bankNo}} 账户进行打款)</span>
+          <el-form-item label="" v-if="formCharge.payWay == '公对公打款' && userRole != 3" class="TextAlignL">
+            <span style="padding-left: 10px;">账号： {{formInfo.bankNo}}</span>
+            <br/>
+            <span style="padding-left: 10px;">账户名： {{formInfo.company}}</span>
           </el-form-item>
         </el-form>
       </div>
@@ -111,7 +119,9 @@
           </el-table-column>
           <el-table-column
             prop="tradeSn"
-            label="交易编号">
+            label="交易编号"
+            width="150"
+            show-overflow-tooltip>
           </el-table-column>
           <el-table-column
             prop="fmoney"
@@ -120,29 +130,38 @@
           </el-table-column>
           <el-table-column
             prop="orderNo"
-            label="订单号">
+            label="订单号"
+            width="150"
+            show-overflow-tooltip>
           </el-table-column>
           <el-table-column
             prop="typeTxt"
             label="交易类型"
             width="100">
           </el-table-column>
-          <el-table-column label="操作" width="200">
+          <el-table-column
+            prop="foriginTxt"
+            label="支付方式"
+            width="100">
+          </el-table-column>
+          <el-table-column label="到账情况" width="180">
             <template slot-scope="scope">
+              <span style="padding: 0 10px;" v-if="scope.row.fstatus == 1 && scope.row.forigin == 2">到账成功</span>
+              <!-- <el-button
+                size="mini"
+                type="default"
+                v-if="scope.row.fstatus == 1 && scope.row.forigin == 2">到账成功
+              </el-button> -->
+              <span style="padding: 0 10px;" v-if="scope.row.fstatus == 0 && scope.row.forigin == 2">暂未到账</span>
+             <!--  <el-button
+                size="mini"
+                type="default"
+                v-if="scope.row.fstatus == 0 && scope.row.forigin == 2">暂未到账
+              </el-button> -->
               <el-button
                 size="mini"
                 type="danger"
                 v-if="scope.row.fstatus == 0 && scope.row.forigin == 2" @click="sureConfirm(scope.$index, scope.row)">确认打款
-              </el-button>
-              <el-button
-                size="mini"
-                type="default"
-                v-if="scope.row.fstatus == 1 && scope.row.forigin == 2">到账成功
-              </el-button>
-              <el-button
-                size="mini"
-                type="default"
-                v-if="scope.row.fstatus == 0 && scope.row.forigin == 2">暂未到账
               </el-button>
             </template>
           </el-table-column>
@@ -162,7 +181,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapActions } from 'vuex'
 export default {
   name: 'Center',
   data () {
@@ -203,7 +222,7 @@ export default {
       },
       dialogVisibleCharge: false,
       formCharge: {
-        amount: '',
+        amount: 2000,
         payWay: '微信'
       },
       chargeRules: {
@@ -216,7 +235,7 @@ export default {
       },
       CapitalFlowData: [],
       currentPage: 1,
-      pageSize: 15,
+      pageSize: 10,
       sum: 0
     }
   },
@@ -225,6 +244,7 @@ export default {
       userAccount: state => state.userAccount,
       userId: state => state.userId,
       userRole: state => state.userRole,
+      userFdepsta: state => state.userFdepsta,
       ImgURL_PREFIX: state => state.ImgURL_PREFIX
     })
   },
@@ -233,6 +253,10 @@ export default {
     this.getCapitalFlow()
   },
   methods: {
+    ...mapActions([
+      'changUserFdepsta',
+      'changeUserBalance'
+    ]),
     // 充值
     recharge () {
       this.dialogVisibleCharge = true
@@ -245,7 +269,15 @@ export default {
     onSubmit (formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          this.sureRecharge()
+          if (this.userFdepsta === '0' && this.formCharge.amount < 2000) {
+            this.$message({
+              message: '押金至少2000¥!',
+              type: 'warning'
+            })
+            return false
+          } else {
+            this.sureRecharge()
+          }
         } else {
           this.$message({
             message: '请将信息填写完整！',
@@ -324,26 +356,30 @@ export default {
       }).then(res => {
         let Info = res.data.data
         if (res.data.respCode === '0') {
+          this.changUserFdepsta(Info.fdepsta)
+          this.changeUserBalance(Info.faccount)
+
           this.formInfo.company = Info.companyName
           this.formInfo.contact = Info.companyLxr
           this.formInfo.tel = Info.companyPhone
 
           this.formInfo.tax = Info.taxNumber
           this.formInfo.taitou = Info.taiTou
-          this.formInfo.bank = Info.fBank
-          this.formInfo.bankNo = Info.fBankNO
+          this.formInfo.bank = Info.fbank
+          this.formInfo.bankNo = Info.fbankNo
+          this.formInfo.faddress = Info.faddress
           this.formInfo.faccount = Info.faccount
 
-          this.formInfo.ID = Info.fIdentity
+          this.formInfo.ID = Info.fidentity
           // 货主 承运商
           if (this.userRole === '1' || this.userRole === '2') {
-            this.formInfo.license = Info.companyContract ? (this.ImgURL_PREFIX + Info.companyContract) : ''
-            this.formInfo.contract = Info.companyLicence ? (this.ImgURL_PREFIX + Info.companyLicence) : ''
+            this.formInfo.contract = Info.companyContract ? (this.ImgURL_PREFIX + Info.companyContract) : ''
+            this.formInfo.license = Info.companyLicence ? (this.ImgURL_PREFIX + Info.companyLicence) : ''
           }
           // 个人
           if (this.userRole === '3') {
-            this.formInfo.license = Info.fIdentityFront ? (this.ImgURL_PREFIX + Info.fIdentityFront) : ''
-            this.formInfo.contract = Info.fIdentityBack ? (this.ImgURL_PREFIX + Info.fIdentityBack) : ''
+            this.formInfo.license = Info.fidentityFront ? (this.ImgURL_PREFIX + Info.fidentityFront) : ''
+            this.formInfo.contract = Info.fidentityBack ? (this.ImgURL_PREFIX + Info.fidentityBack) : ''
           }
         } else {
           this.$message({
@@ -368,7 +404,27 @@ export default {
         if (res.data.respCode === '0') {
           this.sum = res.data.size
           this.CapitalFlowData = res.data.data.map((item) => {
-            // 0 - 充值 1- 接单扣款 2 - 押金支付 3 - 提现 4 - 订单收入 5 - 押金退回
+            // 充值方式 0-支付宝 1-微信 2-公对公打款
+            switch (item.forigin) {
+              case 0:
+                item.foriginTxt = '支付宝'
+                break
+              case 1:
+                item.foriginTxt = '微信'
+                break
+              case 2:
+                item.foriginTxt = '公对公打款'
+                break
+              case 3:
+                item.foriginTxt = '系统结算'
+                break
+              case 4:
+                item.foriginTxt = '余额'
+                break
+              default:
+                item.foriginTxt = '系统结算'
+            }
+            // 0 - 充值 1- 接单扣款 2 - 押金支付 3 - 提现 4 - 订单收入 5 - 押金退回 6 - 开票费用
             switch (item.payType) {
               case '0':
                 item.typeTxt = '充值'
@@ -387,6 +443,9 @@ export default {
                 break
               case '5':
                 item.typeTxt = '押金退回'
+                break
+              case '6':
+                item.typeTxt = '开票费用'
                 break
             }
             return item

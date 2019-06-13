@@ -27,7 +27,9 @@ export default {
 		setMap (PointData) {
 	    var map = new BMap.Map('mapTemperature')
 	    map.centerAndZoom(new BMap.Point(PointData[0].lng, PointData[0].lat), 9)
-	    map.enableScrollWheelZoom(true)
+	    // map.enableScrollWheelZoom(true)
+      map.addControl(new BMap.ScaleControl())
+      map.addControl(new BMap.NavigationControl({anchor: BMAP_ANCHOR_TOP_RIGHT, type: BMAP_NAVIGATION_CONTROL_LARGE }))
 	    // 图标
 	    var IconTemperatureBlue = new BMap.Icon('../../../static/images/icon/wenduBlue.png', new BMap.Size(50,50), {anchor: new BMap.Size(20, 5)})
 	    var IconTemperatureYellow = new BMap.Icon('../../../static/images/icon/wenduYellow.png', new BMap.Size(50,50), {anchor: new BMap.Size(20, 5)})
@@ -71,7 +73,9 @@ export default {
 	  },
 	  async InitMap() {
 			const tempPointArray = await this.getData()
-			this.setMap(tempPointArray)
+      if (tempPointArray.length > 0) {
+        this.setMap(tempPointArray)
+      }
 	  },
 		getData () {
       return new Promise((resolve, reject) => {
@@ -81,12 +85,13 @@ export default {
           data: {
           }
         }).then(_res => {
-					resolve(_res.data.resultStr.NewDataSet.map( (item, idx) => {
-						item.lat = item.Lat
-						item.lng = item.Lon
-						// item.kind = 3
-						return item
-					}))
+          let Info = JSON.parse(_res.data.data)
+          resolve(Info.NewDataSet.map( (item, idx) => {
+            item.lat = item.Lat
+            item.lng = item.Lon
+            // item.kind = 3
+            return item
+          }))
         }).catch((_res) => {
           console.log(_res)
           this.$Message.error('Interface Error!')

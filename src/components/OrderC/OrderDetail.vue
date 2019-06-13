@@ -279,7 +279,7 @@
               :label="item.fname"
               :value="item.id">
               <span style="float: left">{{ item.fname }}</span>
-              <span style="float: right; color: #8492a6; font-size: 13px">{{ item.company_name }} <span class="PaddingL_10">{{item.fmobile}}</span></span>
+              <span style="float: right; color: #8492a6; font-size: 13px"><span class="PaddingL_10">{{item.fmobile}}</span></span>
             </el-option>
           </el-select>
         </el-col>
@@ -677,8 +677,8 @@ export default {
         method: 'GET',
         data: ''
       }).then(res => {
-        if (res.data.code === 1) {
-          this.formAdd.max_price = res.data.max_price
+        if (res.data.respCode === '0') {
+          this.formAdd.max_price = res.data.data
         } else {
           this.$message({
             message: res.data.message + '！',
@@ -778,8 +778,8 @@ export default {
         data: {
         }
       }).then(res => {
-        if (res.data.code === 1) {
-          this.LogisticsList = res.data.driverList
+        if (res.data.respCode === '0') {
+          this.LogisticsList = res.data.data
         } else {
           this.$message({
             message: res.data.message + '！',

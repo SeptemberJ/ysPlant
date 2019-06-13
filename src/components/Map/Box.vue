@@ -33,7 +33,9 @@ export default {
 		setMap () {
 	    var map = new BMap.Map('mapBox')
 	    map.centerAndZoom(new BMap.Point(118.10000, 24.46667), 11)
-	    map.enableScrollWheelZoom(true)
+	    // map.enableScrollWheelZoom(true)
+      map.addControl(new BMap.ScaleControl())
+      map.addControl(new BMap.NavigationControl({anchor: BMAP_ANCHOR_TOP_RIGHT, type: BMAP_NAVIGATION_CONTROL_LARGE }))
 	    // 图标
 	    var IconBox = new BMap.Icon('../../../static/images/icon/box.png', new BMap.Size(50,50), {anchor: new BMap.Size(20, 5)})
 	    var IconBox2 = new BMap.Icon('../../../static/images/icon/box2.png', new BMap.Size(50,50), {anchor: new BMap.Size(20, 5)})

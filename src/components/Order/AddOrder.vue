@@ -196,10 +196,16 @@
               <i class="el-icon-question"></i>
             </el-tooltip> -->
           </el-form-item>
-          <el-form-item label="开具发票" prop="isFapiao">
+          <!-- <el-form-item label="开具发票" prop="isFapiao">
             <el-radio-group v-model="formAdd.isFapiao" style="float: left">
               <el-radio :label="0" border>不需要</el-radio>
               <el-radio :label="1" border>需要</el-radio>
+            </el-radio-group>
+          </el-form-item> -->
+          <el-form-item label="支付方式" prop="payWay">
+            <el-radio-group v-model="formAdd.payWay" style="float: left">
+              <el-radio :label="0" border>线上</el-radio>
+              <el-radio :label="1" border>线下</el-radio>
             </el-radio-group>
           </el-form-item>
           <el-form-item label="接受拼箱" prop="isBox">
@@ -211,7 +217,7 @@
         </div>
       </el-card>
       <!-- cost -->
-      <el-card class="box-card MarginTB_20">
+      <el-card class="box-card MarginTB_20" v-if="formAdd.payWay == 0">
         <div slot="header" class="clearfix TextAlignL">
           <span>预估费用</span>
         </div>
@@ -355,6 +361,19 @@
         <el-button type="primary" @click="searchAppoint">查询</el-button>
       </el-row>
     </el-dialog>
+    <!-- 去缴纳押金 -->
+    <el-dialog
+      title="提示"
+      :visible.sync="dialogVisibleCharge"
+      :show-close='false'
+      :close-on-click-modal='false'
+      width="350px">
+      <p class="TextAlignL">您还未缴纳押金或押金还未到账，请先去个人中心进行充值或确认是否到账。</p>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="toCenter">确 定</el-button>
+      </span>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -384,6 +403,7 @@ export default {
     }
     return {
       dialogVisible: false,
+      dialogVisibleCharge: false,
       ifLoading: false,
       fprovinceList: [],
       fcityList: [],
@@ -436,6 +456,7 @@ export default {
         zhTime: '',
         goodsName: '',
         orderGoodsList: [],
+        payWay: 0, // 0-线上 1-线下
         isFapiao: 0, // 0-不要 1-要
         isBox: 0, // 0-要 1-不要
         boxNo: '',
@@ -482,6 +503,9 @@ export default {
         goodsWeight: [
           { required: true, message: '请输入货物数量!', trigger: 'blur' }
         ],
+        payWay: [
+          { required: true, message: '请选择支付方式!', trigger: 'blur' }
+        ],
         isFapiao: [
           { required: true, message: '请选择是否需要开具发票!', trigger: 'blur' }
         ],
@@ -521,6 +545,7 @@ export default {
     ...mapState({
       userRole: state => state.userRole,
       userCode: state => state.userCode,
+      userFdepsta: state => state.userFdepsta,
       carTypeList: state => state.carTypeList,
       goodsTypeList: state => state.goodsTypeList
     }),
@@ -567,6 +592,10 @@ export default {
     }
   },
   created () {
+    // 没缴纳押金需先去缴纳押金
+    if (this.userFdepsta === '0') {
+      this.dialogVisibleCharge = true
+    }
     this.getProvince()
     // 判断下单的类型
     this.diffOrderType(this.orderType)
@@ -577,6 +606,9 @@ export default {
     ...mapActions([
       'changeSiderIdx'
     ]),
+    toCenter () {
+      this.changeSiderIdx('3-1')
+    },
     // 添加一行货物信息
     addOneLine () {
       let tempGoods = {
@@ -620,8 +652,8 @@ export default {
         method: 'GET',
         data: ''
       }).then(res => {
-        if (res.data.code === 1) {
-          this.formAdd.max_price = res.data.max_price
+        if (res.data.respCode === '0') {
+          this.formAdd.max_price = res.data.data
         } else {
           this.$message({
             message: res.data.message + '！',
@@ -688,8 +720,8 @@ export default {
         method: 'GET',
         data: ''
       }).then(res => {
-        if (res.data.code === 1) {
-          this.appointSearchResultC = res.data.userList
+        if (res.data.respCode === '0') {
+          this.appointSearchResultC = res.data.data
         } else {
           this.appointSearchResultC = []
           this.$message({
@@ -780,7 +812,7 @@ export default {
         appointId: this.formAdd.appointId,
         isAppoint: this.formAdd.appointId === '' ? 0 : 1,
         fmaxFee: this.formAdd.max_price,
-        ffee: this.formAdd.ffee,
+        ffee: this.formAdd.payWay === 0 ? this.formAdd.ffee : 0,
         foilCard: this.formAdd.oilCard,
         fweight: this.totalWeight,
         id: this.formAdd.id,
@@ -801,7 +833,8 @@ export default {
         zhTime: this.formAdd.zhTime,
         goodsName: this.formAdd.goodsName,
         orderGoodsList: this.formAdd.orderGoodsList,
-        isFapiao: this.formAdd.isFapiao,
+        ftype: this.formAdd.payWay, // 0线上 1线下
+        // isFapiao: this.formAdd.isFapiao,
         boxNo: this.formAdd.boxNo,
         isBox: this.formAdd.isBox
       }
@@ -971,8 +1004,8 @@ export default {
         data: {
         }
       }).then(res => {
-        if (res.data.code === 1) {
-          this.cityDistance = res.data.cityDistance
+        if (res.data.respCode === '0') {
+          this.cityDistance = res.data.data
           if (this.formAdd.goodsName !== '' && this.formAdd.carType !== '') {
             this.getMaxFee()
           }
