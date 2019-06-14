@@ -32,7 +32,7 @@
                   <el-menu-item index="1-5" v-if="userRole == 1 || userRole == 4">实况查询</el-menu-item>
                 </el-menu-item-group>
               </el-submenu>
-              <el-menu-item index="4" v-if="userRole != 3">
+              <el-menu-item index="4" v-if="userRole == 1 || userRole == 2">
                 <i class="fa fa-ticket"></i>
                 <span slot="title">开票管理</span>
               </el-menu-item>

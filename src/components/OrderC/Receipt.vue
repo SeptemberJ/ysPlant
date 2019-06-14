@@ -157,13 +157,13 @@
           </el-table-column>
           <el-table-column
             prop="fhTelephone"
+            width="120"
             label="发货人手机">
           </el-table-column>
           <el-table-column
             align="right"
             label="操作"
-            width="200"
-            >
+            width="120">
             <template slot-scope="scope">
               <el-button
                 size="mini"
@@ -179,7 +179,7 @@
         @current-change="handleCurrentChange"
         :current-page.sync="currentPage"
         :page-size="10"
-        layout="prev, pager, next, jumper"
+        layout="total, prev, pager, next, jumper"
         :total="sum">
         </el-pagination>
       </el-col>

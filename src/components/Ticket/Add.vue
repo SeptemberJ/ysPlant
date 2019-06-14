@@ -2,7 +2,7 @@
   <div class="AddTicket">
     <el-row class="AddMain">
       <el-col :span="24" class="TextAlignL MarginB_20">
-        <span style="margin-right: 10px;padding-left: 10px;">{{rateIdx}}税率{{rateList[rateIdx].name}}-{{userBalance}}</span>
+        <span style="margin-right: 10px;padding-left: 10px;">税率</span>
         <el-select v-model="rateIdx" placeholder="税率" size="mini">
           <el-option
             v-for="(rate, idx) in rateList"
@@ -15,9 +15,10 @@
       </el-col>
       <el-col :span="24">
         <el-row class="TextAlignL PaddingL_10 MarginB_10 ColorRed Bold">
-          <el-col :span="8">总金额： {{sumPrice}} ¥</el-col>
-          <el-col :span="8">税额： {{sumTax}} ¥</el-col>
-          <el-col :span="8">税后金额： {{sumPrice - sumTax}} ¥</el-col>
+          <el-col :span="6">总金额： {{sumPrice}} ¥</el-col>
+          <el-col :span="6">税额： {{sumTax}} ¥</el-col>
+          <el-col :span="7">税后金额： {{sumPrice - sumTax}} ¥</el-col>
+          <el-col :span="5">手续费： {{serviceCharge}} ¥</el-col>
         </el-row>
       </el-col>
       <el-col :span="24">
@@ -37,13 +38,7 @@
           </el-table-column>
           <el-table-column
             prop="ffee"
-            label="金额(¥)"
-            width="120px">
-          </el-table-column>
-          <el-table-column
-            prop="ftax"
-            label="税额(¥)"
-            width="120px">
+            label="订单金额(¥)">
           </el-table-column>
         </el-table>
       </el-col>
@@ -64,7 +59,6 @@ export default {
       sumTax: 0,
       sumTaxL: 0,
       rateIdx: '0',
-      // rate: 0,
       serviceCharge: 1,
       rateList: [],
       orderList: [],
@@ -128,7 +122,7 @@ export default {
       // 超出账户余额
       if (this.userBalance < (this.sumTax + this.serviceCharge)) {
         this.$message({
-          message: '对不起，您的开票申请所产生的税额和手续费总和超出了账户余额！',
+          message: '对不起，您的开票申请所产生的税额和手续费总额超出了账户余额！',
           type: 'warning'
         })
         return false
@@ -150,7 +144,7 @@ export default {
         id: '',
         invoiceentryList: this.invoiceentry
       }
-      // 提交
+      // 提交开票申请
       this.send({
         name: '/invoiceController',
         method: 'POST',
@@ -176,6 +170,7 @@ export default {
         this.ifLoading = false
       })
     },
+    // 税率
     getRateList () {
       this.send({
         name: '/invoiceController/rate',
@@ -204,10 +199,7 @@ export default {
         }
       }).then(res => {
         if (res.data.respCode === '0') {
-          this.orderList = res.data.data.map(item => {
-            item.ftax = item.ffee * 0.11
-            return item
-          })
+          this.orderList = res.data.data
         } else {
           this.$message({
             message: res.data.message + '！',

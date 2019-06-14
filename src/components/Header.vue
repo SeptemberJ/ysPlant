@@ -5,7 +5,7 @@
         <img class="Logo" style="width: 140px;height: 66px;" src="../../static/images/Partner_10.png">
       </el-col>
       <el-col :span="12" class="block TextAlignR">
-        <div v-if="locationIdx != 0 & locationIdx != 1 & locationIdx != 4" class="LogOut">你好，{{userAccount}}（{{userFsettle == 0 ? '现结' : '月结'}}用户）<span class="CursorPointer" @click="LogOut"><i class="fa fa-sign-out"></i></span></div>
+        <div v-if="locationIdx != 0 & locationIdx != 1 & locationIdx != 4" class="LogOut">你好，{{userAccount}} {{(userRole == 1 || userRole == 2) ? (userFsettle == 0 ? '（现结用户）' : '（月结用户）') : '' }}<span class="CursorPointer" @click="LogOut"><i class="fa fa-sign-out"></i></span></div>
       </el-col>
     </el-row>
   </div>
@@ -18,13 +18,13 @@ export default {
   name: 'Header',
   data () {
     return {
-      msg: 'Welcome to Your Vue.js App'
     }
   },
   computed: {
     ...mapState({
       userAccount: state => state.userAccount,
       locationIdx: state => state.locationIdx,
+      userRole: state => state.userRole,
       userCode: state => state.userCode,
       userFsettle: state => state.userFsettle
     })

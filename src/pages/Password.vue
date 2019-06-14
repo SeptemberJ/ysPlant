@@ -35,16 +35,16 @@ export default {
       if (value.trim() === '') {
         callback(new Error('请输入手机号！'))
       } else if (!(/^1[34578]\d{9}$/.test(value))) {
-        callback(new Error('手机号格式不正确!'))
+        callback(new Error('手机号格式不正确！'))
       } else {
         callback()
       }
     }
     var validateConfirmPass = (rule, value, callback) => {
       if (value.trim() === '') {
-        callback(new Error('请再次输入密码'))
+        callback(new Error('请再次输入密码！'))
       } else if (value !== this.formPassword.password) {
-        callback(new Error('两次输入密码不一致!'))
+        callback(new Error('两次输入密码不一致！'))
       } else {
         callback()
       }
@@ -63,14 +63,14 @@ export default {
       CountDown: 60,
       PasswordRules: {
         accountName: [
-          { required: true, validator: validateAccountPhone, trigger: 'blur' }
+          { required: true, validator: validateAccountPhone, trigger: 'change' }
         ],
         code: [
-          { required: true, message: '请输入验证码！', trigger: 'blur' }
+          { required: true, message: '请输入验证码！', trigger: 'change' }
         ],
         password: [
-          { required: true, message: '请输入密码！', trigger: 'blur' },
-          { min: 6, max: 11, message: '长度在 6 到 11 个字符', trigger: 'blur' }
+          { required: true, message: '请输入密码！', trigger: 'change' },
+          { min: 6, max: 11, message: '长度在 6 到 11 个字符！', trigger: 'change' }
         ],
         passwordAgain: [
           { required: true, validator: validateConfirmPass }
@@ -102,7 +102,7 @@ export default {
             data: {
             }
           }).then(res => {
-            if (res.data.code === 1) {
+            if (res.data.respCode === '0') {
               this.$message({
                 message: '密码修改成功！',
                 type: 'success'

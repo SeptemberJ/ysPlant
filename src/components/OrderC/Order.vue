@@ -22,10 +22,10 @@
             prop="fmobile"
             label="手机号">
           </el-table-column>
-          <el-table-column
+          <!-- <el-table-column
             prop="company_name"
             label="所属公司">
-          </el-table-column>
+          </el-table-column> -->
           <el-table-column
             align="right"
             label="操作"
@@ -47,7 +47,7 @@
         @current-change="handleCurrentChangeDriver"
         :current-page.sync="currentPage"
         :page-size="10"
-        layout="prev, pager, next, jumper"
+        layout="total, prev, pager, next, jumper"
         :total="sum">
         </el-pagination>
       </el-col>
@@ -85,12 +85,12 @@
           </el-table-column>
           <el-table-column
             prop="order_no"
-            label="订单号">
+            label="订单号"
+            show-overflow-tooltip>
           </el-table-column>
            <el-table-column
             label="订单状态"
-            width="100"
-            >
+            width="100">
             <template slot-scope="scope">
               <span>{{scope.row.fstatus == 0 ? '待接单' : (scope.row.fstatus == 1 ? '已接单' : (scope.row.fstatus == 2 ? '已撤单' : (scope.row.fstatus == 3 ? '运输中' : (scope.row.fstatus == 4 ? '已签收' : '已取消'))))}}</span>
             </template>
@@ -118,8 +118,7 @@
           <el-table-column
             align="right"
             label="操作"
-            width="80"
-            >
+            width="80">
             <template slot-scope="scope">
               <el-button
                 size="mini"
@@ -136,7 +135,7 @@
         @current-change="handleCurrentChangeOrder"
         :current-page.sync="currentPageOrder"
         :page-size="10"
-        layout="prev, pager, next, jumper"
+        layout="total, prev, pager, next, jumper"
         :total="sumOrder">
         </el-pagination>
       </el-col>

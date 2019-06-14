@@ -1,6 +1,6 @@
 <template>
   <div class="Center">
-    <!-- 基本信息 -->
+    <!-- 承运商货主基本信息 -->
     <el-row v-if="userRole == 1 || userRole == 2">
       <el-col :span="12" class="TextAlignL">
         <div class="MarginT_10">
@@ -44,7 +44,7 @@
         </div>
       </el-col>
     </el-row>
-    <!-- 基本信息 -->
+    <!-- 个人货主基本信息 -->
     <el-row v-if="userRole == 3">
       <el-col :span="24" class="TextAlignL">
         <div class="MarginT_10">
@@ -58,14 +58,15 @@
     <el-dialog
       title="账户充值"
       :visible.sync="dialogVisibleCharge"
-      width="450px"
+      width="500px"
       :close-on-click-modal='false'
       :before-close="handleClose">
       <div>
         <el-form :model="formCharge" :rules="chargeRules" ref="formCharge" label-width="100px" class="demo-ruleForm">
           <el-form-item label="充值金额" prop="amount">
-            <el-input style="width: 200px;float:left;margin-left: 10px;" v-model="formCharge.amount" clearable placeholder="请输入要充值的金额"></el-input>
-            <span style="float:left;margin-left: 10px;">(¥)</span>
+            <el-input style="width: 200px;float:left;margin-left: 10px;" v-model="formCharge.amount" clearable placeholder="请输入要充值的金额">
+              <template slot="append">¥</template>
+            </el-input>
           </el-form-item>
           <el-form-item label="支付方式" prop="payWay" class="TextAlignL">
             <el-radio-group v-model="formCharge.payWay" style="margin-left:10px;">
@@ -74,10 +75,14 @@
               <el-radio label="公对公打款" v-if="userRole != 3"></el-radio>
             </el-radio-group>
           </el-form-item>
-          <el-form-item label="" v-if="formCharge.payWay == '公对公打款' && userRole != 3" class="TextAlignL">
-            <span style="padding-left: 10px;">账号： {{formInfo.bankNo}}</span>
+          <el-form-item label="" v-if="formCharge.payWay == '公对公打款' && userRole != 3" class="TextAlignL" size="mini">
+            <span style="padding-left: 10px;font-size: 12px;">( 请使用已绑定的 {{formInfo.bankNo}} 账户进行打款 )</span>
             <br/>
-            <span style="padding-left: 10px;">账户名： {{formInfo.company}}</span>
+            <span style="padding-left: 10px;font-size: 12px;">账号： 121933148810301</span>
+            <br/>
+            <span style="padding-left: 10px;font-size: 12px;">账户名： 上海鹰速物流有限公司</span>
+            <br/>
+            <span style="padding-left: 10px;font-size: 12px;">开户行： 招商银行长寿路支行</span>
           </el-form-item>
         </el-form>
       </div>
@@ -102,6 +107,7 @@
       </el-date-picker>
       <el-button type="primary" icon="el-icon-search">搜索</el-button>
     </el-row> -->
+    <!-- 交易明细 -->
     <el-row>
       <el-col :span="24"><h3>交易记录明细</h3></el-col>
       <el-col :span="24">
@@ -144,20 +150,11 @@
             label="支付方式"
             width="100">
           </el-table-column>
-          <el-table-column label="到账情况" width="180">
+          <el-table-column label="到账情况" width="180" fixed="right">
             <template slot-scope="scope">
               <span style="padding: 0 10px;" v-if="scope.row.fstatus == 1 && scope.row.forigin == 2">到账成功</span>
-              <!-- <el-button
-                size="mini"
-                type="default"
-                v-if="scope.row.fstatus == 1 && scope.row.forigin == 2">到账成功
-              </el-button> -->
               <span style="padding: 0 10px;" v-if="scope.row.fstatus == 0 && scope.row.forigin == 2">暂未到账</span>
-             <!--  <el-button
-                size="mini"
-                type="default"
-                v-if="scope.row.fstatus == 0 && scope.row.forigin == 2">暂未到账
-              </el-button> -->
+              <span style="padding: 0 10px;" v-if="scope.row.fstatus == 2">交易关闭</span>
               <el-button
                 size="mini"
                 type="danger"
@@ -172,7 +169,7 @@
         @current-change="handleCurrentChange"
         :current-page.sync="currentPage"
         :page-size="pageSize"
-        layout="prev, pager, next, jumper"
+        layout="total, prev, pager, next, jumper"
         :total="sum">
         </el-pagination>
       </el-col>
@@ -197,28 +194,10 @@ export default {
         tax: '',
         ID: '',
         company: '',
-        contact: '',
         tel: '',
         license: '',
-        contract: '',
-        role: ''
-      },
-      CenterRules: {
-        phone: [
-          { required: true, message: '请输入手机号！', trigger: 'blur' }
-        ],
-        company: [
-          { required: true, message: '请输入公司名称！', trigger: 'blur' }
-        ],
-        contact: [
-          { required: true, message: '请输入联系人！', trigger: 'blur' }
-        ],
-        tel: [
-          { required: true, message: '请输入联系人电话！', trigger: 'blur' }
-        ],
-        license: [
-          { required: true, message: '请选择要上传的营业执照！', trigger: 'blur' }
-        ]
+        contract: ''
+        // role: ''
       },
       dialogVisibleCharge: false,
       formCharge: {
@@ -227,10 +206,10 @@ export default {
       },
       chargeRules: {
         amount: [
-          { required: true, message: '请输入要充值的金额!', trigger: 'blur' }
+          { required: true, message: '请输入要充值的金额！', trigger: 'change' }
         ],
         payWay: [
-          { required: true, message: '请选择支付方式!', trigger: 'blur' }
+          { required: true, message: '请选择支付方式！', trigger: 'change' }
         ]
       },
       CapitalFlowData: [],
@@ -280,7 +259,7 @@ export default {
           }
         } else {
           this.$message({
-            message: '请将信息填写完整！',
+            message: '请输入充值金额！',
             type: 'warning'
           })
           return false
@@ -310,7 +289,7 @@ export default {
           this.getCapitalFlow()
         } else {
           this.$message({
-            message: '充值失败!',
+            message: res.data.message ? res.data.message + '!' : '充值失败!',
             type: 'error'
           })
         }
@@ -404,7 +383,7 @@ export default {
         if (res.data.respCode === '0') {
           this.sum = res.data.size
           this.CapitalFlowData = res.data.data.map((item) => {
-            // 充值方式 0-支付宝 1-微信 2-公对公打款
+            // 充值方式 0_支付宝 1_微信 2_公对公打款 3_系统结算
             switch (item.forigin) {
               case 0:
                 item.foriginTxt = '支付宝'
@@ -424,7 +403,7 @@ export default {
               default:
                 item.foriginTxt = '系统结算'
             }
-            // 0 - 充值 1- 接单扣款 2 - 押金支付 3 - 提现 4 - 订单收入 5 - 押金退回 6 - 开票费用
+            // 交易类型 0_充值 1_接单扣款 2_押金支付 3_提现 4_订单收入 5_押金退回 6_开票费用
             switch (item.payType) {
               case '0':
                 item.typeTxt = '充值'

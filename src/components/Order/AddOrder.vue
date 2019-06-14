@@ -153,13 +153,13 @@
           <el-button icon="el-icon-plus" class="MarginT_20" style="width: 100%;border:1px dashed #dcdfe6" @click="addOneLine">添加</el-button>
         </div>
       </el-card>
-      <!-- goods -->
+      <!-- other -->
       <el-card class="box-card MarginTB_20">
         <div slot="header" class="clearfix TextAlignL">
           <span>其它信息</span>
         </div>
         <div>
-          <!-- goods -->
+          <!-- goods type -->
           <el-form-item prop="goodsName" label="货物类型">
             <div class="TextAlignL">{{formAdd.goodsName == '4d2881f66850132a01685013f0100001' ? '普货' : (formAdd.goodsName == '4d2881f66850132a01685014c6e40007' ? '危险品' : (formAdd.goodsName == '2c90b4e368db5b460168db617b760000' ? '冷藏品' : '其他类型'))}}</div>
             <!-- 原本下拉选择货物类型
@@ -361,19 +361,25 @@
         <el-button type="primary" @click="searchAppoint">查询</el-button>
       </el-row>
     </el-dialog>
-    <!-- 去缴纳押金 -->
+    <!-- 缴纳押金提示 -->
     <el-dialog
       title="提示"
       :visible.sync="dialogVisibleCharge"
       :show-close='false'
       :close-on-click-modal='false'
       width="350px">
-      <p class="TextAlignL">您还未缴纳押金或押金还未到账，请先去个人中心进行充值或确认是否到账。</p>
-      <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="toCenter">确 定</el-button>
-      </span>
+      <!-- 主账户 -->
+      <div v-if="userRole == 2 || userRole == 3" style="margin-top: -30px;">
+        <p class="TextAlignL" style="line-height: 24px;">您还未缴纳押金或押金还未到账，请先去个人中心进行充值或确认是否到账。</p>
+        <span slot="footer" class="dialog-footer">
+          <el-button type="primary" @click="toCenter" class="MarginT_10">确 定</el-button>
+        </span>
+      </div>
+      <!-- 子账户 -->
+      <div v-if="userRole == 5" style="margin-top: -30px;">
+        <p class="TextAlignL">您所属的承运商主账号还未缴纳押金或押金还未到账，请先和所属的承运商进行确认。</p>
+      </div>
     </el-dialog>
-
   </div>
 </template>
 
@@ -387,7 +393,7 @@ export default {
       if (value.trim() === '') {
         callback(new Error('请输入手机号！'))
       } else if (!(/^1[34578]\d{9}$/.test(value))) {
-        callback(new Error('手机号格式不正确!'))
+        callback(new Error('手机号格式不正确！'))
       } else {
         callback()
       }
@@ -420,7 +426,7 @@ export default {
       cityDistance: 0,
       unitPrice: 0,
       // totalSum: 0,
-      appointType: 0, // 指派类型 0承运商 1个体司机
+      appointType: 0, // 指派类型 0_承运商 1_个体司机
       appointName: '',
       appointPhone: '',
       appointCompany: '', // 公司名称
@@ -456,11 +462,11 @@ export default {
         zhTime: '',
         goodsName: '',
         orderGoodsList: [],
-        payWay: 0, // 0-线上 1-线下
-        isFapiao: 0, // 0-不要 1-要
-        isBox: 0, // 0-要 1-不要
+        payWay: 0, // 0_线上 1_线下
+        isFapiao: 0, // 0_不要 1_要
+        isBox: 0, // 0_要 1_不要
         boxNo: '',
-        // payType: 0, // 0-支付宝 1-微信
+        // payType: 0, // 0_支付宝 1_微信
         ffee: '',
         ifUseOilCard: 0, // 0 不使用 1 使用
         oilCard: 0, // 油卡金额
@@ -468,70 +474,73 @@ export default {
       },
       AddRules: {
         fhName: [
-          { required: true, message: '请输入发货人!', trigger: 'blur' }
+          { required: true, message: '请输入发货人！', trigger: 'change' }
         ],
         fhTelephone: [
-          { required: true, validator: validatePhone, trigger: 'blur' }
+          { required: true, validator: validatePhone, trigger: 'change' }
         ],
         fhAddress: [
-          { required: true, message: '请输入发货人地址!', trigger: 'blur' }
+          { required: true, message: '请输入发货人地址！', trigger: 'change' }
         ],
         shName: [
-          { required: true, message: '请输入收货人!', trigger: 'blur' }
+          { required: true, message: '请输入收货人！', trigger: 'change' }
         ],
         shTelephone: [
-          { required: true, validator: validatePhone, trigger: 'blur' }
+          { required: true, validator: validatePhone, trigger: 'change' }
         ],
         shArea: [
-          { required: true, message: '请输入收货地!', trigger: 'blur' }
+          { required: true, message: '请输入收货地！', trigger: 'change' }
         ],
         shAddress: [
-          { required: true, message: '请输入收货人地址!', trigger: 'blur' }
+          { required: true, message: '请输入收货人地址！', trigger: 'change' }
         ],
         carType: [
-          { required: true, message: '请选择车型!', trigger: 'blur' }
+          { required: true, message: '请选择车型！', trigger: 'change' }
         ],
         zhTime: [
-          { required: true, message: '请选择装货日期!', trigger: 'blur' }
+          { required: true, message: '请选择装货日期！', trigger: 'change' }
         ],
         goodsName: [
-          { required: true, message: '请输入货物名称!', trigger: 'blur' }
+          { required: true, message: '请输入货物名称！', trigger: 'change' }
         ],
         goodsSpace: [
-          { required: true, message: '请输入货物面积!', trigger: 'blur' }
+          { required: true, message: '请输入货物面积！', trigger: 'change' }
         ],
         goodsWeight: [
-          { required: true, message: '请输入货物数量!', trigger: 'blur' }
+          { required: true, message: '请输入货物数量！', trigger: 'change' }
         ],
         payWay: [
-          { required: true, message: '请选择支付方式!', trigger: 'blur' }
+          { required: true, message: '请选择支付方式！', trigger: 'change' }
         ],
         isFapiao: [
-          { required: true, message: '请选择是否需要开具发票!', trigger: 'blur' }
+          { required: true, message: '请选择是否需要开具发票！', trigger: 'change' }
+        ],
+        oilCard: [
+          { required: true, message: '请选择是否使用油卡！', trigger: 'change' }
         ],
         isBox: [
-          { required: true, message: '请选择是否需接受拼箱!', trigger: 'blur' }
+          { required: true, message: '请选择是否需接受拼箱！', trigger: 'change' }
         ],
         ffee: [
-          { required: true, validator: validateFee, trigger: 'blur' }
+          { required: true, validator: validateFee, trigger: 'change' }
         ],
         fprovince: [
-          { required: true, message: '请选择发货地所属省份!', trigger: 'change' }
+          { required: true, message: '请选择发货地所属省份！', trigger: 'change' }
         ],
         fcity: [
-          { required: true, message: '请选择发货地所属市!', trigger: 'change' }
+          { required: true, message: '请选择发货地所属市！', trigger: 'change' }
         ],
         farea: [
-          { required: true, message: '请选择发货地所属区!', trigger: 'change' }
+          { required: true, message: '请选择发货地所属区！', trigger: 'change' }
         ],
         sprovince: [
-          { required: true, message: '请选择收货地所属省份!', trigger: 'change' }
+          { required: true, message: '请选择收货地所属省份！', trigger: 'change' }
         ],
         scity: [
-          { required: true, message: '请选择收货地所属市!', trigger: 'change' }
+          { required: true, message: '请选择收货地所属市！', trigger: 'change' }
         ],
         sarea: [
-          { required: true, message: '请选择收货地所属区!', trigger: 'change' }
+          { required: true, message: '请选择收货地所属区！', trigger: 'change' }
         ]
       },
       pickerOptionsStart: {
@@ -833,7 +842,7 @@ export default {
         zhTime: this.formAdd.zhTime,
         goodsName: this.formAdd.goodsName,
         orderGoodsList: this.formAdd.orderGoodsList,
-        ftype: this.formAdd.payWay, // 0线上 1线下
+        ftype: this.formAdd.payWay, // 0_线上 1_线下
         // isFapiao: this.formAdd.isFapiao,
         boxNo: this.formAdd.boxNo,
         isBox: this.formAdd.isBox
@@ -948,7 +957,7 @@ export default {
           this.sprovinceList = res.data.data
         } else {
           this.$message({
-            message: '获取省份信息失败',
+            message: '获取省份信息失败！',
             type: 'error'
           })
         }
@@ -968,7 +977,7 @@ export default {
           this[property] = res.data.data
         } else {
           this.$message({
-            message: '获取省份信息失败',
+            message: '获取省份信息失败！',
             type: 'error'
           })
         }
@@ -988,7 +997,7 @@ export default {
           this[property] = res.data.data
         } else {
           this.$message({
-            message: '获取省份信息失败',
+            message: '获取省份信息失败！',
             type: 'error'
           })
         }
@@ -1011,7 +1020,7 @@ export default {
           }
         } else {
           this.$message({
-            message: '获取发货地和收货地距离失败',
+            message: '获取发货地和收货地距离失败！',
             type: 'error'
           })
         }

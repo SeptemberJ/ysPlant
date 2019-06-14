@@ -8,26 +8,26 @@ Vue.use(Vuex)
 // const debug = process.env.NODE_ENV !== 'production'
 
 const state = {
-  locationIdx: 0, // 0 - Login 1 - Sign 2 - Home 3 - Information 4 - Password
-  siderIdx: '1-1', // 1 - 运单管理 2 - 用户管理 3-1 - 基本信息 3-2 - 密码修改
+  locationIdx: 0, // 0_Login 1_Sign 2_Home 3_Information 4_Password
+  siderIdx: '1-1', // 1_运单管理 2_用户管理 3-1_基本信息 3-2_密码修改
   addOrderType: '1-2-1', // 货主下单类型 普货 危险品 冷藏品
   mapSearchId: '', // 地图轨迹id 订单id或货主id
   menuIndex: '1',
   userId: '',
   userAccount: '',
-  userRole: '', // 1-承运商主 2-货主主 4-承运商子 5-货主子 3-个人
+  userRole: '', // 1_承运商主 2_货主主 3_个人 4_承运商子 5_货主子
   userCode: '',
-  userBalance: 0, // 用户余额
+  userBalance: 0, // 账户余额
   userFdepsta: '', // 0_未缴1_已缴2_已退
   userFsettle: '', // 0_现结，1_月结
-  ImgURL_PREFIX222: 'http://116.62.171.244:8082/yingsu/',
-  ImgURL_PREFIX: 'http://172.16.52.63/',
+  ImgURL_PREFIX: 'http://116.62.171.244:8082/yingsu/',
+  // ImgURL_PREFIX: 'http://172.16.52.63/',
   showDetail: false, // 是否显示订单详情页
   showMap: false, // 是否显示轨迹 货主
   ifSJOrderSearch: '', // 是否显示查询司机订单页面
   searchOrderId: '',
   searchSjId: '',
-  accountKind: 0,
+  accountKind: 0, // 用户管理切换新增用户类型tab索引 0_子账户1_司机
   PDFCompany: '',
   carTypeList: [],
   goodsTypeList: [],

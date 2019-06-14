@@ -5,17 +5,21 @@
         <el-tag :type="item.value == Condition ? 'danger' :''" @click="changeCondition(item.value)">{{item.label}}</el-tag>
       </span>
     </section>
+    <!-- 轨迹 -->
     <Trajectory v-if="Condition == 0 && (userRole == 2 || userRole == 5)"/>
     <TrajectorycC v-if="Condition == 0 && (userRole == 1 || userRole == 3 || userRole == 4)"/>
-    <Car v-if="Condition == 1"/>
+
+    <!-- <Car v-if="Condition == 1"/> -->
+    <!-- 温度计 -->
     <Temperature v-if="Condition == 2"/>
+    <!-- 箱子 -->
     <Box v-if="Condition == 3"/>
 	</div>
 </template>
 <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=i958ho3aKFiiVfxOIwAZOO05sHDDsAGK"></script>
 <script>
 import { mapState } from 'vuex'
-import Car from './Car.vue'
+// import Car from './Car.vue'
 import Temperature from './Temperature.vue'
 import Box from './Box.vue'
 import Trajectory from './Trajectory.vue'
@@ -38,7 +42,7 @@ export default {
         {label: '温度', value: 2},
         {label: '箱子', value: 3}
       ],
-      carTypeList: []
+      // carTypeList: []
     }
   },
   computed: {
@@ -47,10 +51,10 @@ export default {
     })
   },
   created () {
-    this.getCarType()
+    // this.getCarType()
   },
   components: {
-    Car,
+    // Car,
     Temperature,
     Box,
     Trajectory,
@@ -59,22 +63,22 @@ export default {
   methods: {
     changeCondition (idx) {
       this.Condition = idx
-    },
-    // 获取车型下拉
-    getCarType () {
-      this.send({
-        name: '/zCarTypeController/list',
-        method: 'GET',
-        data: {
-        }
-      }).then(res => {
-        if (res.data.respCode === '0') {
-          this.carTypeList = res.data.data
-        }
-      }).catch((res) => {
-        console.log(res)
-      })
     }
+    // 获取车型下拉
+    // getCarType () {
+    //   this.send({
+    //     name: '/zCarTypeController/list',
+    //     method: 'GET',
+    //     data: {
+    //     }
+    //   }).then(res => {
+    //     if (res.data.respCode === '0') {
+    //       this.carTypeList = res.data.data
+    //     }
+    //   }).catch((res) => {
+    //     console.log(res)
+    //   })
+    // }
   }
 }
 </script>

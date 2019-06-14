@@ -29,6 +29,7 @@ export default {
       'initCarType',
       'initGoodsType'
     ]),
+    // 获取车型下拉
     getCarType () {
       this.send({
         name: '/zCarTypeController/list',

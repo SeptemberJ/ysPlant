@@ -68,7 +68,8 @@
         </el-upload>
       </el-form-item>
       <el-form-item v-if="userRole == 1 || userRole == 2" label="合同(请下载文件后盖章)" prop="contract">
-        <!-- <el-upload
+        <!-- 原为上传合同图片
+        <el-upload
           class="avatar-uploader"
           action=""
           :show-file-list="false"
@@ -112,7 +113,7 @@ export default {
       if (value === '') {
         callback(new Error('请输入联系人手机号！'))
       } else if (!(/^1[34578]\d{9}$/.test(value))) {
-        callback(new Error('手机号格式不正确!'))
+        callback(new Error('手机号格式不正确！'))
       } else {
         callback()
       }
@@ -121,7 +122,7 @@ export default {
       if (value === '') {
         callback(new Error('请输入身份证号！'))
       } else if (!(/(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/.test(value))) {
-        callback(new Error('身份证号格式不正确!'))
+        callback(new Error('身份证号格式不正确！'))
       } else {
         callback()
       }
@@ -149,31 +150,31 @@ export default {
       },
       InfoRules: {
         company: [
-          { required: true, message: '请输入公司名称！', trigger: 'blur' }
+          { required: true, message: '请输入公司名称！', trigger: 'change' }
         ],
         taitou: [
-          { required: true, message: '请输入抬头！', trigger: 'blur' }
+          { required: true, message: '请输入抬头！', trigger: 'change' }
         ],
         bank: [
-          { required: true, message: '请输入开户行！', trigger: 'blur' }
+          { required: true, message: '请输入开户行！', trigger: 'change' }
         ],
         bankNo: [
-          { required: true, message: '请输入银行账号！', trigger: 'blur' }
+          { required: true, message: '请输入银行账号！', trigger: 'change' }
         ],
         faddress: [
-          { required: true, message: '请输入开户地址！', trigger: 'blur' }
+          { required: true, message: '请输入开户地址！', trigger: 'change' }
         ],
         tax: [
-          { required: true, message: '请输入税号！', trigger: 'blur' }
+          { required: true, message: '请输入税号！', trigger: 'change' }
         ],
         ID: [
-          { required: true, validator: validateID, trigger: 'blur' }
+          { required: true, validator: validateID, trigger: 'change' }
         ],
         contact: [
-          { required: true, message: '请输入联系人！', trigger: 'blur' }
+          { required: true, message: '请输入联系人！', trigger: 'change' }
         ],
         tel: [
-          { required: true, validator: validatePhone, trigger: 'blur' }
+          { required: true, validator: validatePhone, trigger: 'change' }
         ],
         license: [
           { required: true, message: '请选择要上传的文件！', trigger: 'change' }
@@ -240,7 +241,7 @@ export default {
       let index = fileName.indexOf('.')
       if (file.size > 1024000 * 2) {
         this.$message({
-          message: '您上传的图片太大了, 请不要超过2M!',
+          message: '您上传的文件太大了, 请不要超过2M!',
           type: 'warning'
         })
         return false
@@ -308,7 +309,6 @@ export default {
     },
     // 上传图片
     uploadImg (property, img, floder, type) {
-      // axios.post('http://172.16.52.63:8080/rest/registerDriverController/photo?kind=0&folder=' + floder + '&type=' + type, img, {
       axios.post(this.ImgURL_PREFIX + 'rest/registerDriverController/photo?kind=0&folder=' + floder + '&type=' + type, img, {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -348,8 +348,7 @@ export default {
         }
       })
     },
-    // sureSumit
-    // 货主
+    // 货主信息提交
     submitHZ () {
       let DATA = {
         id: this.userId,
@@ -391,7 +390,7 @@ export default {
         this.ifLoading = false
       })
     },
-    // 承运商
+    // 承运商信息提交
     submitCYS () {
       let DATA = {
         id: this.userId,
@@ -433,7 +432,7 @@ export default {
         this.ifLoading = false
       })
     },
-    // 个人
+    // 个人货主信息提交
     submitGR () {
       let DATA = {
         id: this.userId,
@@ -476,7 +475,7 @@ export default {
         data: {
         }
       }).then(res => {
-        // checkStatus -1 未填写  0 审核中  其他 审核未通过
+        // checkStatus -1_未填写  0_审核中  其他_审核未通过
         let Info = res.data.data
         this.checkStatus = Info.checkStatus
         if (res.data.respCode === '0') {
@@ -502,12 +501,10 @@ export default {
           if (this.userRole === '1' || this.userRole === '2') {
             this.formInfo.contract = Info.companyContract ? (this.ImgURL_PREFIX + Info.companyContract) : ''
             this.formInfo.license = Info.companyLicence ? (this.ImgURL_PREFIX + Info.companyLicence) : ''
-            // this.formInfo.license = Info.companyContract ? (this.ImgURL_PREFIX + Info.companyContract) : ''
-            // this.formInfo.contract = Info.companyLicence ? (this.ImgURL_PREFIX + Info.companyLicence) : ''
             this.licenseImgName = Info.companyLicence
             this.contractImgName = Info.companyContract
           }
-          // 个人
+          // 个人货主
           if (this.userRole === '3') {
             this.formInfo.license = Info.fidentityFront ? (this.ImgURL_PREFIX + Info.fidentityFront) : ''
             this.formInfo.contract = Info.fidentityBack ? (this.ImgURL_PREFIX + Info.fidentityBack) : ''

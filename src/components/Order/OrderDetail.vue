@@ -2,7 +2,7 @@
   <div class="OrderDetail">
     <el-row>
       <el-form ref="formAdd" :model="formAdd" :rules="AddRules" label-width="110px" label-position="left">
-        <!-- fh -->
+        <!-- 发货人信息 -->
         <el-card class="box-card">
           <div slot="header" class="clearfix TextAlignL">
             <span>发货人信息</span>
@@ -63,7 +63,7 @@
             </el-form-item>
           </div>
         </el-card>
-        <!-- sh -->
+        <!-- 收货人信息 -->
         <el-card class="box-card MarginTB_20">
           <div slot="header" class="clearfix TextAlignL">
             <span>收货人信息</span>
@@ -124,7 +124,7 @@
             </el-form-item>
           </div>
         </el-card>
-        <!-- goods -->
+        <!-- 货物信息 -->
         <el-card class="box-card MarginTB_20">
           <div slot="header" class="clearfix TextAlignL">
             <span>货物信息</span>
@@ -154,15 +154,14 @@
             <el-button icon="el-icon-plus" class="MarginT_20" style="width: 100%;border:1px dashed #dcdfe6" @click="addOneLine" :disabled="formAdd.fstatus != 0">添加</el-button>
           </div>
         </el-card>
-        <!-- others -->
+        <!-- 其它信息 -->
         <el-card class="box-card MarginTB_20">
           <div slot="header" class="clearfix TextAlignL">
             <span>其它信息</span>
           </div>
           <div>
-            <!-- goodsType -->
             <el-form-item prop="goodsName" label="货物类型">
-              <el-select v-model="formAdd.goodsName" placeholder="请选择" style="width: 100%" @change="changeGoodsType" :disabled="formAdd.fstatus != 0">
+              <el-select v-model="formAdd.goodsName" placeholder="请选择" style="width: 100%;" @change="changeGoodsType" :disabled="formAdd.fstatus != 0">
                 <el-option
                   v-for="(goodsType, idx) in goodsTypeList"
                   :key="idx"
@@ -171,7 +170,6 @@
                 </el-option>
               </el-select>
             </el-form-item>
-            <!-- car -->
             <el-form-item prop="carType" label="车型">
               <el-select v-model="formAdd.carType" placeholder="请选择" style="width: 100%" @change="changeCarType" :disabled="formAdd.fstatus != 0">
                 <el-option
@@ -182,7 +180,6 @@
                 </el-option>
               </el-select>
             </el-form-item>
-            <!-- time -->
             <el-form-item prop="zhTime" label="装货日期">
               <el-date-picker type="date" :picker-options="pickerOptionsStart" placeholder="选择装货日期" v-model="formAdd.zhTime" style="width: 100%;" :disabled="formAdd.fstatus != 0"></el-date-picker>
             </el-form-item>
@@ -197,11 +194,11 @@
               </el-radio-group>
             </el-form-item> -->
             <el-form-item label="支付方式" prop="payWay">
-            <el-radio-group v-model="formAdd.payWay" style="float: left">
-              <el-radio :label="0" border :disabled="formAdd.fstatus != 0">线上</el-radio>
-              <el-radio :label="1" border :disabled="formAdd.fstatus != 0">线下</el-radio>
-            </el-radio-group>
-          </el-form-item>
+              <el-radio-group v-model="formAdd.payWay" style="float: left">
+                <el-radio :label="0" border :disabled="formAdd.fstatus != 0">线上</el-radio>
+                <el-radio :label="1" border :disabled="formAdd.fstatus != 0">线下</el-radio>
+              </el-radio-group>
+            </el-form-item>
             <el-form-item label="接受拼箱" prop="isBox">
               <el-radio-group v-model="formAdd.isBox" style="float: left">
                 <el-radio label="1" border disabled>不接受</el-radio>
@@ -210,7 +207,7 @@
             </el-form-item>
           </div>
         </el-card>
-        <!-- cost -->
+        <!-- 费用 -->
         <el-card class="box-card MarginTB_20" v-if="formAdd.payWay == 0">
           <div slot="header" class="clearfix TextAlignL">
             <span>费用</span>
@@ -249,7 +246,7 @@
             <p style="font-size: 12px;color: #909399;text-align:right">{{cityDistance}} (路程/km) * {{totalWeight/1000}} (重量/t) * {{unitPrice}} (单价/¥) = {{totalSum}} ¥</p> -->
           </div>
         </el-card>
-        <!-- 回单 -->
+        <!-- 回单信息 -->
         <el-card class="box-card MarginTB_20">
           <div slot="header" class="clearfix TextAlignL">
             <span>回单信息</span>
@@ -273,7 +270,7 @@
             </el-form-item>
           </div>
         </el-card>
-        <!-- bt -->
+        <!-- operation bt -->
         <el-row>
           <el-col :span="12" class="TextAlignC" >
             <el-button type="primary" :loading="ifLoading" @click="onSubmit('formAdd')" v-if="formAdd.fstatus == 0">保存修改</el-button>
@@ -298,7 +295,7 @@ export default {
       if (value.trim() === '') {
         callback(new Error('请输入手机号！'))
       } else if (!(/^1[34578]\d{9}$/.test(value))) {
-        callback(new Error('手机号格式不正确!'))
+        callback(new Error('手机号格式不正确！'))
       } else {
         callback()
       }
@@ -357,13 +354,13 @@ export default {
         goodsName: '',
         orderGoodsList: [],
         goodsTypeList: [],
-        payWay: 0, // 0-线上 1-线下
-        isFapiao: '0', // 0-不要 1-要
+        payWay: 0, // 0_线上 1_线下
+        isFapiao: '0', // 0_不要 1_要
         isBox: '', // 0-要 1-不要
         boxNo: '',
-        payType: '0', // 0-支付宝 1-微信
+        payType: '0', // 0_支付宝 1_微信
         max_price: 0,
-        ifUseOilCard: 0, // 0 不使用 1 使用
+        ifUseOilCard: 0, // 0_不使用 1_使用
         oilCard: 0, // 油卡金额
         fmaxFee: 0,
         floadpics: '', // 装车照片
@@ -374,70 +371,70 @@ export default {
       },
       AddRules: {
         fhName: [
-          { required: true, message: '请输入发货人!', trigger: 'blur' }
+          { required: true, message: '请输入发货人！', trigger: 'change' }
         ],
         fhTelephone: [
-          { required: true, validator: validatePhone, trigger: 'blur' }
+          { required: true, validator: validatePhone, trigger: 'change' }
         ],
         fhAddress: [
-          { required: true, message: '请输入发货人地址!', trigger: 'blur' }
+          { required: true, message: '请输入发货人地址！', trigger: 'change' }
         ],
         shName: [
-          { required: true, message: '请输入收货人!', trigger: 'blur' }
+          { required: true, message: '请输入收货人！', trigger: 'change' }
         ],
         shTelephone: [
-          { required: true, validator: validatePhone, trigger: 'blur' }
+          { required: true, validator: validatePhone, trigger: 'change' }
         ],
         shArea: [
-          { required: true, message: '请输入收货地!', trigger: 'blur' }
+          { required: true, message: '请输入收货地！', trigger: 'change' }
         ],
         shAddress: [
-          { required: true, message: '请输入收货人地址!', trigger: 'blur' }
+          { required: true, message: '请输入收货人地址！', trigger: 'change' }
         ],
         carType: [
-          { required: true, message: '请选择车型!', trigger: 'blur' }
+          { required: true, message: '请选择车型！', trigger: 'change' }
         ],
         zhTime: [
-          { required: true, message: '请选择装货日期!', trigger: 'blur' }
+          { required: true, message: '请选择装货日期！', trigger: 'change' }
         ],
         goodsName: [
-          { required: true, message: '请输入货物名称!', trigger: 'blur' }
+          { required: true, message: '请输入货物名称！', trigger: 'change' }
         ],
         goodsSpace: [
-          { required: true, message: '请输入货物面积!', trigger: 'blur' }
+          { required: true, message: '请输入货物面积！', trigger: 'change' }
         ],
         goodsWeight: [
-          { required: true, message: '请输入货物数量!', trigger: 'blur' }
+          { required: true, message: '请输入货物数量！', trigger: 'change' }
         ],
         payWay: [
-          { required: true, message: '请选择支付方式!', trigger: 'blur' }
+          { required: true, message: '请选择支付方式！', trigger: 'change' }
         ],
-        isFapiao: [
-          { required: true, message: '请选择是否需要开具发票!', trigger: 'blur' }
-        ],
+        // isFapiao: [
+        //   { required: true, message: '请选择是否需要开具发票!', trigger: 'change' }
+        // ],
         isBox: [
-          { required: true, message: '请选择是否需接受拼箱!', trigger: 'blur' }
+          { required: true, message: '请选择是否需接受拼箱！', trigger: 'change' }
         ],
         ffee: [
-          { required: true, validator: validateFee, trigger: 'blur' }
+          { required: true, validator: validateFee, trigger: 'change' }
         ],
         fprovince: [
-          { required: true, message: '请选择所属省份!', trigger: 'change' }
+          { required: true, message: '请选择所属省份！', trigger: 'change' }
         ],
         fcity: [
-          { required: true, message: '请选择所属市!', trigger: 'change' }
+          { required: true, message: '请选择所属市！', trigger: 'change' }
         ],
         farea: [
-          { required: true, message: '请选择所属区!', trigger: 'change' }
+          { required: true, message: '请选择所属区！', trigger: 'change' }
         ],
         sprovince: [
-          { required: true, message: '请选择所属省份!', trigger: 'change' }
+          { required: true, message: '请选择所属省份！', trigger: 'change' }
         ],
         scity: [
-          { required: true, message: '请选择所属市!', trigger: 'change' }
+          { required: true, message: '请选择所属市！', trigger: 'change' }
         ],
         sarea: [
-          { required: true, message: '请选择所属区!', trigger: 'change' }
+          { required: true, message: '请选择所属区！', trigger: 'change' }
         ]
       },
       pickerOptionsStart: {
@@ -590,7 +587,7 @@ export default {
         zhTime: this.formAdd.zhTime,
         goodsName: this.formAdd.goodsName,
         orderGoodsList: this.formAdd.orderGoodsList,
-        ftype: this.formAdd.payWay, // 0线上 1线下
+        ftype: this.formAdd.payWay, // 0_线上 1_线下
         // isFapiao: this.formAdd.isFapiao,
         boxNo: this.formAdd.boxNo,
         isBox: this.formAdd.isBox
@@ -639,20 +636,20 @@ export default {
       }).then(res => {
         if (res.data.respCode === '0') {
           this.$message({
-            message: '支付成功!',
+            message: '支付成功！',
             type: 'success'
           })
           this.getOrderDetail()
         } else {
           this.$message({
-            message: '支付失败!',
+            message: '支付失败！',
             type: 'error'
           })
         }
       }).catch((res) => {
         console.log(res)
         this.$message({
-          message: 'interface error!',
+          message: 'interface error！',
           type: 'error'
         })
       })
@@ -671,7 +668,7 @@ export default {
     //   }).then(res => {
     //     if (res.data.respCode === '0') {
     //       this.$message({
-    //         message: '支付成功!',
+    //         message: '支付成功！',
     //         type: 'success'
     //       })
     //     }
@@ -732,7 +729,7 @@ export default {
           let temp = Info
           temp.fmaxFee = Info.fmax_fee
           temp.ffee = Info.ffee
-          temp.ifUseOilCard = (temp.foil_card === 0 ? 0 : 1) // 0 不使用 1 使用
+          temp.ifUseOilCard = (temp.foil_card === 0 ? 0 : 1) // 0_不使用 1_使用
           temp.oilCard = Info.foil_card
           temp.fprovince = Info.origin_province_id
           temp.fcity = Info.origin_city_id

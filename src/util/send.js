@@ -3,8 +3,8 @@ import {getCookie, clearCookie} from './utils'
 import { Message } from 'element-ui'
 import store from '../vuex/store'
 
-// const URL_PREFIX = 'http://116.62.171.244:8082/yingsu/rest'
-const URL_PREFIX = 'http://172.16.52.63/rest' // qianpeiyuan
+const URL_PREFIX = 'http://116.62.171.244:8082/yingsu/rest'
+// const URL_PREFIX = 'http://172.16.52.63/rest' // qianpeiyuan
 
 export function send (options) {
   if (!options.name) {
@@ -32,7 +32,7 @@ export function send (options) {
           })
           console.log(error)
           resolve(error)
-          throw new Error('接口报错!')
+          throw new Error('接口报错！')
         })
         break
       case 'GET':
@@ -47,7 +47,7 @@ export function send (options) {
             store.dispatch('changeSiderIdx', '1-1')
             clearCookie('btwccy_cookie')
             Message.error({
-              message: 'Token已过期请重新登陆!'
+              message: 'Token已过期请重新登陆！'
             })
           } else {
             Message.error({

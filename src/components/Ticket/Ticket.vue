@@ -76,13 +76,13 @@
         @current-change="handleCurrentChange"
         :current-page.sync="currentPage"
         :page-size="pageSize"
-        layout="prev, pager, next, jumper"
+        layout="total, prev, pager, next, jumper"
         :total="sum">
         </el-pagination>
       </el-col>
     </el-row>
     <!-- add -->
-    <el-dialog title="新增开票订单" :visible.sync="ifAdd" width="650px" :close-on-click-modal="false">
+    <el-dialog title="新增开票申请" :visible.sync="ifAdd" width="650px" :close-on-click-modal="false">
       <Add @ToggleDialogAdd="toAddTicket" @FreshList="getTicketList"/>
     </el-dialog>
   </div>

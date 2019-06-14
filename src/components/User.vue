@@ -1,12 +1,14 @@
 <template>
   <div class="User">
     <el-row>
+      <!-- tab -->
       <el-col :span="24"  class="MarginB_20" v-if="userRole == 1">
         <el-row>
           <el-col :span="12" :class="{'activeTab': userType == 0, 'normalTab': userType == 1, 'Padding_10': true}"><span @click="changeTab(0)">子账户</span></el-col>
           <el-col :span="12" :class="{'activeTab': userType == 1, 'normalTab': userType == 0, 'Padding_10': true}"><span @click="changeTab(1)">司机</span></el-col>
         </el-row>
       </el-col>
+      <!-- operation bt -->
       <el-col :span="24" class="BgWhite MarginTB_10 TextAlignR">
         <el-button type="primary" icon="el-icon-plus" size="small" @click="addUser">{{userType == 0 ? '新增' : '新增'}}</el-button>
       </el-col>
@@ -36,8 +38,7 @@
           </el-table-column>
           <el-table-column
             align="right"
-            label="操作"
-            >
+            label="操作">
             <template slot-scope="scope">
               <el-button
                 size="mini"
@@ -77,7 +78,7 @@
           </el-table-column>
           <!-- <el-table-column
             prop="company_name"
-            label="司机公司"
+            label="所属公司"
             show-overflow-tooltip>
           </el-table-column> -->
           <el-table-column
@@ -94,40 +95,40 @@
           </el-table-column>
         </el-table>
       </el-col>
+      <!-- 分页 -->
       <el-col :span="24" class="MarginTB_20 TextAlignR" v-if="UserList.length > 0 && userType == 0">
         <el-pagination
-        @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         :current-page.sync="currentPage"
         :page-size="10"
-        layout="prev, pager, next, jumper"
+        layout="total, prev, pager, next, jumper"
         :total="sum">
         </el-pagination>
       </el-col>
       <el-col :span="24" class="MarginTB_20 TextAlignR" v-if="LogisticsList.length > 0 && userType == 1">
         <el-pagination
-        @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         :current-page.sync="currentPage"
         :page-size="10"
-        layout="prev, pager, next, jumper"
+        layout="total, prev, pager, next, jumper"
         :total="sum">
         </el-pagination>
       </el-col>
     </el-row>
+    <!-- 新增司机 -->
     <el-dialog title="新增司机" :visible.sync="dialogFormVisible">
       <el-form :model="form" :rules="Rules" ref="form" label-width="80px">
         <el-form-item label="司机姓名" prop="LogisticName">
-          <el-input v-model="form.LogisticName"></el-input>
+          <el-input v-model="form.LogisticName" clearable></el-input>
         </el-form-item>
         <el-form-item label="司机手机" prop="LogisticPhone">
-          <el-input v-model="form.LogisticPhone"></el-input>
+          <el-input v-model="form.LogisticPhone" clearable></el-input>
         </el-form-item>
         <!-- <el-form-item label="公司" prop="LogisticCompany">
           <el-input v-model="form.LogisticCompany"></el-input>
         </el-form-item> -->
         <el-form-item label="密码" prop="LogisticPsd">
-          <el-input v-model="form.LogisticPsd"></el-input>
+          <el-input v-model="form.LogisticPsd" clearable></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -167,13 +168,13 @@ export default {
       },
       Rules: {
         LogisticPhone: [
-          { required: true, validator: validateAccountPhone, trigger: 'blur' }
+          { required: true, validator: validateAccountPhone, trigger: 'change' }
         ],
         LogisticName: [
-          { required: true, message: '请输入司机姓名！', trigger: 'blur' }
+          { required: true, message: '请输入司机姓名！', trigger: 'change' }
         ],
         LogisticPsd: [
-          { required: true, message: '请输入密码！', trigger: 'blur' }
+          { required: true, message: '请输入密码！', trigger: 'change' }
         ]
       }
     }
@@ -182,9 +183,20 @@ export default {
     ...mapState({
       userId: state => state.userId,
       userCode: state => state.userCode,
-      userRole: state => state.userRole,
-      userType: state => state.accountKind
-    })
+      userRole: state => state.userRole
+    }),
+    userType: {
+      get: function () {
+        if (this.userRole === '4') { // 承运商子账户
+          return 1
+        } else {
+          return this.$store.state.accountKind
+        }
+      },
+      set: function (newValue) {
+        this.$store.state.accountKind = newValue
+      }
+    }
   },
   created () {
     if (this.userType === 1) {
@@ -225,7 +237,8 @@ export default {
         cancelButtonText: '取消'
       }).then(({ value }) => {
         this.sureAdd(value)
-      }).catch(() => {
+      }).catch((res) => {
+        console.log(res)
       })
     },
     // 添加司机
@@ -261,6 +274,7 @@ export default {
             }
           }).catch((res) => {
             console.log(res)
+            this.loading = false
           })
         } else {
           this.$message({
@@ -342,10 +356,11 @@ export default {
         }).catch((res) => {
           console.log(res)
         })
-      }).catch(() => {
+      }).catch((res) => {
+        console.log(res)
       })
     },
-    // 删除
+    // 删除提示
     handleDelete (idx, row, type) {
       this.$confirm('此操作将删除该用户, 是否继续?', '提示', {
         confirmButtonText: '确定',
@@ -357,7 +372,8 @@ export default {
         } else {
           this.sureDeleteUser(row.id)
         }
-      }).catch(() => {
+      }).catch((res) => {
+        console.log(res)
       })
     },
     // 删除子账户
@@ -477,8 +493,6 @@ export default {
         console.log(res)
         this.loading = false
       })
-    },
-    handleSizeChange () {
     },
     // 页码改变重新获取列表
     handleCurrentChange () {
