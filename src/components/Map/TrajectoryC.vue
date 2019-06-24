@@ -14,11 +14,6 @@
             size="mini"
             style="width: 100%">
             <el-table-column
-              prop="companyName"
-              label="车辆单位"
-              width="180">
-            </el-table-column>
-            <el-table-column
               prop="fname"
               label="司机"
               width="180">
@@ -32,7 +27,7 @@
               prop="address"
               label="地址">
             </el-table-column>
-            <el-table-column label="操作">
+            <el-table-column label="操作" width="150">
               <template slot-scope="scope">
                 <el-button
                   size="mini"
@@ -49,8 +44,9 @@
     </el-dialog>
   </div>
 </template>
-<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=i958ho3aKFiiVfxOIwAZOO05sHDDsAGK"></script>
+<script type="text/javascript" src="https://webapi.amap.com/maps?v=1.4.15&key=ec7afa4023dddf95386ef1198b16cf9d"></script>
 <script>
+import { mapState, mapActions } from 'vuex'
 import {setZoom} from '../../util/utils'
 export default {
   name: 'TrajectoryC',
@@ -66,131 +62,139 @@ export default {
   mounted () {
     this.getData()
   },
+  computed: {
+    mapTrajectoryC: function () {
+        var map = new AMap.Map('TrajectoryC',{
+          resizeEnable: false,
+          zoom: 2
+        })
+      return map
+    }
+  },
   methods: {
+    ...mapActions([
+      'changeMapTrajectoryC'
+    ]),
     // PointData
     setMap (PointData, ElementId) {
-      var map = new BMap.Map(ElementId, {enableMapClick: false})
-      // map.enableScrollWheelZoom(true)
-      map.addControl(new BMap.ScaleControl())
-      map.addControl(new BMap.NavigationControl({anchor: BMAP_ANCHOR_TOP_RIGHT, type: BMAP_NAVIGATION_CONTROL_LARGE }))
+      // var map = new AMap.Map(ElementId,{
+      //   resizeEnable: false,
+      //   zoom: 2,
+      //   center: [PointData[0].lng, PointData[0].lat]
+      // })
+      var map = this.mapTrajectoryC
+      AMap.plugin(['AMap.ToolBar','AMap.Scale','AMap.OverView'], () => {
+        map.addControl(new AMap.ToolBar())
+        map.addControl(new AMap.Scale())
+        map.addControl(new AMap.OverView({isOpen:true}))
+      })
       // 图标
-      var IconCarBlue = new BMap.Icon('../../../static/images/icon/truckBlue.png', new BMap.Size(30,30), {anchor: new BMap.Size(20, 5)})
-      // 放点
+      var IconCarBlue = new AMap.Icon({
+        image: '../../../static/images/icon/truckBlue.png',
+        size: new AMap.Size(30, 30)
+      })
+      var markers = []
       PointData.map(item => {
         let marker
-        let point = new BMap.Point(item.lng,item.lat)
-        marker = new BMap.Marker(point, {icon:IconCarBlue})
-        map.addOverlay(marker)
-        // 信息框
-        let opts = {
-          width : 200,
-          height: 100,
-          title : '位置信息',
-          enableMessage:true,
-          message: ''
-        }
-        let infoWindow = new BMap.InfoWindow('时间：' + item.submitTime + '<br />' + '地址：' + item.address + '<br />', opts)
-        this.infoWindowArray.push({map: map, info: infoWindow, lng: item.lng, lat: item.lat})
-        marker.addEventListener('click', function(){
-          map.openInfoWindow(infoWindow,point)
+        marker = new AMap.Marker({
+          icon: IconCarBlue,
+          position: [item.lng, item.lat],
+          offset: new AMap.Pixel(-2, -2),
+          zIndex: 101,
+          title: '',
+          map: map
         })
+        // 信息框
+        var info = []
+        info.push("<div style=\"width: 200px;padding:7px 0px 0px 0px;\"><h4><strong>当前位置:</strong></h4>")
+        info.push("<p class='input-item'>司机 : " + item.fname + "</p>")
+        info.push("<p class='input-item'>地址 : " + item.address + "</p>")
+        var infoWindow = new AMap.InfoWindow({
+          content: info.join(""),
+          offset: new AMap.Pixel(16, -45)
+        })
+        AMap.event.addListener(marker, 'click', () => {
+          infoWindow.open(map, [item.lng, item.lat])
+        })
+        markers.push(marker)
       })
-      if (PointData.length == 1) {
-        map.centerAndZoom(new BMap.Point(PointData[0].lng, PointData[0].lat), 8)
-      } else {
-        setZoom(PointData, map, BMap)
-      }
+      map.setFitView()
     },
     // track
-    setMapTrack (PointData, ElementId) {
-      var map = new BMap.Map(ElementId, {enableMapClick: false})
-      var linePoint = []
-      // map.enableScrollWheelZoom(true)
-      map.addControl(new BMap.ScaleControl())
-      map.addControl(new BMap.NavigationControl({anchor: BMAP_ANCHOR_TOP_RIGHT, type: BMAP_NAVIGATION_CONTROL_LARGE }))
-      // 图标
-      var size = new BMap.Size(52, 26);
-      var offset = new BMap.Size(20, -10)
-      var imageSize = new BMap.Size(20, 20);
-      var startIcon = new BMap.Icon("../../../static/images/icon/start.png", new BMap.Size(80, 40), {
-        imageSize: new BMap.Size(40, 40),
-        infoWindowAnchor:new BMap.Size(0, -3)
+    setMapTrack (PointData, fullInfoPointData, ElementId) {
+      let lastIdx = PointData.length - 1
+      var marker, lineArr = PointData
+      var map = new AMap.Map(ElementId, {
+        resizeEnable: true,
+        center: PointData[0],
+        zoom: 17
       })
-      var endIcon = new BMap.Icon("../../../static/images/icon/end.png", new BMap.Size(80, 40), {
-        imageSize: new BMap.Size(40, 40),
-        infoWindowAnchor:new BMap.Size(0, -3)
+      AMap.plugin(['AMap.ToolBar','AMap.Scale','AMap.OverView'],function(){
+        map.addControl(new AMap.ToolBar())
+        map.addControl(new AMap.Scale())
+        map.addControl(new AMap.OverView({isOpen:true}))
       })
-      var icon = new BMap.Icon("../../../static/images/icon/arrow.png", size, {
-        imageSize: new BMap.Size(20, 20),
-        infoWindowAnchor:new BMap.Size(0, 0)
-      })
-      // 放点
-      PointData.map((item, idx) => {
-        let marker
-        let point = new BMap.Point(item.lng,item.lat)
-        // 配置icon
-        if (idx === 0) {
-          marker = new BMap.Marker(point, {
-            icon: startIcon,
-            offset: offset
-          })
-          map.addOverlay(marker)
-        } else if (idx === PointData.length - 1) {
-          marker = new BMap.Marker(point, {
-            icon: endIcon,
-            offset: offset
-          })
-          map.addOverlay(marker)
-        } else {
-          marker = new BMap.Marker(point, {
-            // icon: icon,
-            offset: new BMap.Size(0, 0)
-          })
-          map.addOverlay(marker)
+      var markers = []
+      // 标记
+      PointData.map((point, idx) => {
+        switch (idx) {
+          case 0:
+            // 起点
+            marker = new AMap.Marker({
+              map: map,
+              position: point,
+              zIndex: 999999,
+              icon: '../../../static/images/icon/startMarker.png',
+              offset: new AMap.Pixel(-23, -40),
+              autoRotation: true
+            })
+            break
+          case lastIdx:
+            // 终点
+            marker = new AMap.Marker({
+              map: map,
+              position: point,
+              zIndex: 999998,
+              icon: '../../../static/images/icon/endMarker.png',
+              offset: new AMap.Pixel(-23, -40),
+              autoRotation: true
+            })
+            break
+          default:
+            // 途经
+            marker = new AMap.Marker({
+              map: map,
+              position: point,
+              offset: new AMap.Pixel(-8, -30),
+              autoRotation: true
+            })
         }
-        // map.addOverlay(marker)
-        linePoint.push(new BMap.Point(item.lng, item.lat))
         // 信息框
-        let opts = {
-          width : 200,
-          height: 100,
-          title : '位置信息',
-          enableMessage:true,
-          message: ''
-        }
-        let infoWindow = new BMap.InfoWindow('时间：' + item.submitTime + '<br />' + '地址：' + item.address + '<br />', opts)
-        this.infoWindowArray.push({map: map, info: infoWindow, lng: item.lng, lat: item.lat})
-        marker.addEventListener('click', function(){
-          map.openInfoWindow(infoWindow,point)
+        var info = []
+        info.push("<div style=\"width: 200px;padding:7px 0px 0px 0px;\"><h4><strong>位置信息:</strong></h4>")
+        info.push("<p class='input-item'>时间 : " + fullInfoPointData[idx].submitTime + "</p>")
+        info.push("<p class='input-item'>地址 : " + fullInfoPointData[idx].address + "</p>")
+        var infoWindow = new AMap.InfoWindow({
+          content: info.join(""),
+          offset: new AMap.Pixel(16, -45)
         })
+        AMap.event.addListener(marker, 'click', () => {
+          infoWindow.open(map, point)
+        })
+        markers.push(marker)
       })
-      // 画线
-      var polyline = new BMap.Polyline(linePoint, {
-        strokeColor: "#d81e06",
-        strokeWeight: 8,
-        icons:[draw_line_direction(8)],
-        setStrokeStyle:"dashed",
-        strokeOpacity: 1
-      });
-      map.addOverlay(polyline)
 
-      function draw_line_direction(weight) {
-        var icons = new BMap.IconSequence(
-          new BMap.Symbol('M0 -5 L-5 -2 L0 -4 L5 -2 Z', {
-            scale: weight / 10,
-            strokeWeight: 1,
-            rotation: 0,
-            fillColor: 'white',
-            fillOpacity: 1,
-            strokeColor:'white'
-          }),'100%','5%',false)
-        return icons
-      }
-      if (PointData.length == 1) {
-        map.centerAndZoom(new BMap.Point(PointData[0].lng, PointData[0].lat), 8)
-      } else {
-        setZoom(PointData, map, BMap)
-      }
+      // 绘制轨迹
+      var polyline = new AMap.Polyline({
+        map: map,
+        path: lineArr,
+        showDir:true,
+        strokeColor: '#28F', // 线颜色
+        // strokeOpacity: 1, // 线透明度
+        strokeWeight: 6, // 线宽
+        // strokeStyle: "solid"  // 线样式
+      })
+      map.setFitView()
     },
     getData() {
       this.send({
@@ -200,30 +204,35 @@ export default {
         }
       }).then(res => {
         // res.data.data.push({lng: 117.7757, lat: 35.254095, companyName: '123', fmobile: '111111', fname: 'sj', address: '上海市普陀区', submitTime: '2019-04-26 12:43:43'})
-        this.tableData = res.data.data
         if (res.data.data.length > 0) {
+          this.tableData = res.data.data
           this.setMap(res.data.data, 'TrajectoryC')
+        }  else {
+          var map = new AMap.Map('TrajectoryC', {
+            resizeEnable: false, // 是否监控地图容器尺寸变化
+            zoom: 1, // 初始化地图层级
+            center: [116.397428, 39.90923] // 初始化地图中心点
+          })
+          AMap.plugin(['AMap.ToolBar','AMap.Scale','AMap.OverView'],function(){
+            map.addControl(new AMap.ToolBar())
+            map.addControl(new AMap.Scale())
+            map.addControl(new AMap.OverView({isOpen:true}))
+          })
         }
       }).catch((res) => {
         console.log(res)
       })
     },
     showInfoWindow (row, event, column) {
-      this.open(row.lng, row.lat, row.address, row.submitTime)
-    },
-    open (lng, lat, address, submitTime) {
-      var CurPointData = this.infoWindowArray[0]
-      var mapInit = CurPointData.map
-      let opts = {
-        width : 200,
-        height: 100,
-        title : '位置信息',
-        enableMessage:true,
-        message: ''
-      }
-      let infoWindow = new BMap.InfoWindow('时间：' + submitTime + '<br />' + '地址：' + address + '<br />', opts)
-      mapInit.openInfoWindow(infoWindow, new BMap.Point(lng, lat))
-      mapInit.centerAndZoom(new BMap.Point(lng, lat), 11)
+      let infoWindow
+      let info = []
+      info.push("<div style=\"width: 200px;padding:7px 0px 0px 0px;\"><h4><strong>当前位置:</strong></h4>")
+      info.push("<p class='input-item'>司机 : " + row.fname + "</p>")
+      info.push("<p class='input-item'>地址 : " + row.address + "</p>")
+      infoWindow = new AMap.InfoWindow({
+        content: info.join("")
+      })
+      infoWindow.open(this.mapTrajectoryC, [row.lng, row.lat])
     },
     // 查看轨迹
     seeTrack (idx, row) {
@@ -234,6 +243,26 @@ export default {
         data: {
         }
       }).then(res => {
+        if (res.data.data.length > 0) {
+          let formatData = []
+          let fullInfoData = []
+          res.data.data.map(item => {
+            formatData.push([item.lng, item.lat])
+            fullInfoData.push(item)
+          })
+          this.setMapTrack(formatData, fullInfoData, 'TrajectoryHistory')
+        } else {
+          var map = new AMap.Map('TrajectoryHistory', {
+            resizeEnable: false, // 是否监控地图容器尺寸变化
+            zoom: 1, // 初始化地图层级
+            center: [116.397428, 39.90923] // 初始化地图中心点
+          })
+          AMap.plugin(['AMap.ToolBar','AMap.Scale','AMap.OverView'],function(){
+            map.addControl(new AMap.ToolBar())
+            map.addControl(new AMap.Scale())
+            map.addControl(new AMap.OverView({isOpen:true}))
+          })
+        }
         // var data1 = [
         //   {
         //     lng: 127.7757,
@@ -249,7 +278,7 @@ export default {
         //   }
         // ]
         // this.setMap(data1, 'TrajectoryHistory')
-        this.setMapTrack(res.data.data, 'TrajectoryHistory')
+        // this.setMapTrack(res.data.data, 'TrajectoryHistory')
       }).catch((res) => {
         console.log(res)
       })

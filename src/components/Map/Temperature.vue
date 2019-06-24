@@ -4,11 +4,10 @@
 	  </div>
 	</div>
 </template>
-<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=i958ho3aKFiiVfxOIwAZOO05sHDDsAGK"></script>
+<script type="text/javascript" src="https://webapi.amap.com/maps?v=1.4.15&key=ec7afa4023dddf95386ef1198b16cf9d"></script>
 <script>
-import {setZoom} from '../../util/utils'
 export default {
-  name: 'Car',
+  name: 'Temperature',
   data () {
     return {
     }
@@ -25,56 +24,78 @@ export default {
   },
   methods: {
 		setMap (PointData) {
-	    var map = new BMap.Map('mapTemperature')
-	    map.centerAndZoom(new BMap.Point(PointData[0].lng, PointData[0].lat), 9)
-	    // map.enableScrollWheelZoom(true)
-      map.addControl(new BMap.ScaleControl())
-      map.addControl(new BMap.NavigationControl({anchor: BMAP_ANCHOR_TOP_RIGHT, type: BMAP_NAVIGATION_CONTROL_LARGE }))
-	    // 图标
-	    var IconTemperatureBlue = new BMap.Icon('../../../static/images/icon/wenduBlue.png', new BMap.Size(50,50), {anchor: new BMap.Size(20, 5)})
-	    var IconTemperatureYellow = new BMap.Icon('../../../static/images/icon/wenduYellow.png', new BMap.Size(50,50), {anchor: new BMap.Size(20, 5)})
-	    var IconTemperatureRed = new BMap.Icon('../../../static/images/icon/wenduRed.png', new BMap.Size(50,50), {anchor: new BMap.Size(20, 5)})
-	    var IconTemperatureGreen = new BMap.Icon('../../../static/images/icon/wenduGreen.png', new BMap.Size(50,50), {anchor: new BMap.Size(20, 5)})
-	    // 放点
-	    PointData.map(item => {
-	      let marker
-	      let point = new BMap.Point(item.lng,item.lat)
-	      switch (item.kind) {
-	        case 0:
-	          marker = new BMap.Marker(point, {icon:IconTemperatureRed})
-	          break
-	        case 1:
-	          marker = new BMap.Marker(point, {icon:IconTemperatureYellow})
-	          break
-	        case 2:
-	          marker = new BMap.Marker(point, {icon:IconTemperatureGreen})
-	          break
-	        case 3:
-	          marker = new BMap.Marker(point, {icon:IconTemperatureBlue})
-	          break
-	        default:
-	          marker = new BMap.Marker(point, {icon:IconTemperatureRed})
-	      }
-	      map.addOverlay(marker)
-	      // 信息框
-	      let opts = {
-	        width : 200,
-	        height: 50,
-	        title : '温度',
-	        enableMessage:true,
-	        message: item.tmp1
-	      }
-	      let infoWindow = new BMap.InfoWindow(item.tmp1 + '℃', opts)
-	      marker.addEventListener('click', function(){
-	        map.openInfoWindow(infoWindow,point)
-	      })
-	    })
-	    setZoom(PointData, map, BMap)
+      // console.log(PointData)
+      var map = new AMap.Map('mapTemperature',{
+        resizeEnable: false,
+        zoom: 2,
+        // center: [119.812917, 27.535153]
+      })
+      AMap.plugin(['AMap.ToolBar','AMap.Scale','AMap.OverView'],function(){
+        map.addControl(new AMap.ToolBar())
+        map.addControl(new AMap.Scale())
+        map.addControl(new AMap.OverView({isOpen:true}))
+      })
+      // 图标
+      var IconTemperatureBlue = new AMap.Icon({
+        image: '../../../static/images/icon/wenduBlue.png',
+        size: new AMap.Size(50, 50)
+      })
+      var IconTemperatureYellow = new AMap.Icon({
+        image: '../../../static/images/icon/wenduYellow.png',
+        size: new AMap.Size(50, 50)
+      })
+      var IconTemperatureRed = new AMap.Icon({
+        image: '../../../static/images/icon/wenduRed.png',
+        size: new AMap.Size(50, 50)
+      })
+      var IconTemperatureGreen = new AMap.Icon({
+        image: '../../../static/images/icon/wenduGreen.png',
+        size: new AMap.Size(50, 50)
+      })
+      var markers = []
+      PointData.map(item => {
+        let marker
+        marker = new AMap.Marker({
+          icon: item.kind === 0 ? IconTemperatureRed : (item.kind === 1 ? IconTemperatureYellow : (item.kind === 2 ? IconTemperatureGreen : (item.kind === 3 ? IconTemperatureBlue : IconTemperatureRed))),
+          position: [item.lng, item.lat],
+          offset: new AMap.Pixel(-2, -2),
+          zIndex: 101,
+          title: item.tmp1,
+          map: map
+        })
+        // 信息框
+        var info = [];
+        // info.push("<div class='input-card content-window-card'><div><img style=\"float:left;\" src=\" https://webapi.amap.com/images/autonavi.png \"/></div> ");
+        info.push("<div style=\"width: 200px;padding:7px 0px 0px 0px;\"><h4><strong>当前温度:</strong></h4>");
+        // info.push("<p class='input-item'>电话 : 010-84107000   邮编 : 100102</p>");
+        info.push("<p class='input-item'>" + item.tmp1 + '℃');
+        var infoWindow = new AMap.InfoWindow({
+          // isCustom: true,  //使用自定义窗体
+          content: info.join(""),
+          offset: new AMap.Pixel(16, -45)
+        })
+        AMap.event.addListener(marker, 'click', () => {
+          infoWindow.open(map, [item.lng, item.lat])
+        })
+        markers.push(marker)
+      })
+      map.setFitView()
 	  },
 	  async InitMap() {
 			const tempPointArray = await this.getData()
       if (tempPointArray.length > 0) {
         this.setMap(tempPointArray)
+      } else {
+        var map = new AMap.Map('mapTemperature', {
+          resizeEnable: false, // 是否监控地图容器尺寸变化
+          zoom: 1, // 初始化地图层级
+          center: [116.397428, 39.90923] // 初始化地图中心点
+        })
+        AMap.plugin(['AMap.ToolBar','AMap.Scale','AMap.OverView'],function(){
+          map.addControl(new AMap.ToolBar())
+          map.addControl(new AMap.Scale())
+          map.addControl(new AMap.OverView({isOpen:true}))
+        })
       }
 	  },
 		getData () {
@@ -97,7 +118,7 @@ export default {
           this.$Message.error('Interface Error!')
         })
       })
-    },
+    }
   }
 }
 </script>

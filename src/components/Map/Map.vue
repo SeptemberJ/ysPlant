@@ -1,7 +1,7 @@
 <template>
 	<div class="Map">
     <section class="Condition">
-      <span class="mapNavItem CursorPointer" v-for="(item) in searchConditionC" :key="item.value">
+      <span class="mapNavItem CursorPointer" v-for="(item) in searchCondition" :key="item.value">
         <el-tag :type="item.value == Condition ? 'danger' :''" @click="changeCondition(item.value)">{{item.label}}</el-tag>
       </span>
     </section>
@@ -31,14 +31,14 @@ export default {
     return {
       Condition: 0,
       carType: '',
+      // searchCondition: [
+      //   {label: '轨迹', value: 0},
+      //   {label: '车辆', value: 1},
+      //   {label: '温度', value: 2},
+      //   {label: '箱子', value: 3}
+      // ],
       searchCondition: [
         {label: '轨迹', value: 0},
-        {label: '车辆', value: 1},
-        {label: '温度', value: 2},
-        {label: '箱子', value: 3}
-      ],
-      searchConditionC: [
-        {label: '车辆', value: 0},
         {label: '温度', value: 2},
         {label: '箱子', value: 3}
       ],

@@ -1,6 +1,6 @@
 <template>
   <div class="InfoBox">
-    <p class="ColorYellow">{{checkStatus == -1 ? '请填写您的信息！' : (checkStatus == 0 ? '您的信息正在等待审核！' : '您的信息未通过审核，请重新填写！')}}</p>
+    <!-- <p class="ColorYellow">{{checkStatus == -1 ? '请填写您的信息！' : (checkStatus == 0 ? '您的信息正在等待审核！' : '您的信息未通过审核，请重新填写！')}}</p> -->
     <el-form class="FormBox" :model="formInfo" :rules="InfoRules" ref="formInfo" label-width="200px">
       <!-- 货主和承运商 -->
       <el-form-item v-if="userRole == 1 || userRole == 2" label="公司名称" prop="company">
@@ -95,7 +95,8 @@
         <el-checkbox v-model="agreed">我已阅读并同意</el-checkbox><span class="CursorPointer" style="color:#409EFF" @click="showAgreement">使用许可及服务协议</span>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" :disabled="checkStatus == 0" @click="onSubmit('formInfo')" style="width: 100px;" :loading="ifLoading">{{checkStatus == -1 ? '提交信息' :'保存修改'}}</el-button>
+        <el-button type="primary" @click="onSubmit('formInfo')" style="width: 100px;" :loading="ifLoading">保存</el-button>
+        <!-- <el-button type="primary" :disabled="checkStatus == 0" @click="onSubmit('formInfo')" style="width: 100px;" :loading="ifLoading">{{checkStatus == -1 ? '提交信息' :'保存修改'}}</el-button> -->
       </el-form-item>
       <div class="BgBlock"></div>
     </el-form>
@@ -150,37 +151,37 @@ export default {
       },
       InfoRules: {
         company: [
-          { required: true, message: '请输入公司名称！', trigger: 'change' }
+          { required: true, message: '请输入公司名称！', trigger: 'blur' }
         ],
         taitou: [
-          { required: true, message: '请输入抬头！', trigger: 'change' }
+          { required: true, message: '请输入抬头！', trigger: 'blur' }
         ],
         bank: [
-          { required: true, message: '请输入开户行！', trigger: 'change' }
+          { required: true, message: '请输入开户行！', trigger: 'blur' }
         ],
         bankNo: [
-          { required: true, message: '请输入银行账号！', trigger: 'change' }
+          { required: true, message: '请输入银行账号！', trigger: 'blur' }
         ],
         faddress: [
-          { required: true, message: '请输入开户地址！', trigger: 'change' }
+          { required: true, message: '请输入开户地址！', trigger: 'blur' }
         ],
         tax: [
-          { required: true, message: '请输入税号！', trigger: 'change' }
+          { required: true, message: '请输入税号！', trigger: 'blur' }
         ],
         ID: [
-          { required: true, validator: validateID, trigger: 'change' }
+          { required: true, validator: validateID, trigger: 'blur' }
         ],
         contact: [
-          { required: true, message: '请输入联系人！', trigger: 'change' }
+          { required: true, message: '请输入联系人！', trigger: 'blur' }
         ],
         tel: [
-          { required: true, validator: validatePhone, trigger: 'change' }
+          { required: true, validator: validatePhone, trigger: 'blur' }
         ],
         license: [
-          { required: true, message: '请选择要上传的文件！', trigger: 'change' }
+          { required: true, message: '请选择要上传的文件！', trigger: 'blur' }
         ],
         contract: [
-          { required: true, message: '请选择要上传的文件！', trigger: 'change' }
+          { required: true, message: '请选择要上传的文件！', trigger: 'blur' }
         ]
       }
     }

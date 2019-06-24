@@ -34,7 +34,7 @@ export default {
   data () {
     return {
       ifLoading: false,
-      phone: '18734567890', // 货主 18734567890 17711111102 承运商 13734567890 17711111101 个人 17711111103
+      phone: '18734567890', // 货主 18734567890 17711111102 承运商 17711111104 个人 17711111103
       password: '111111'
     }
   },
@@ -47,9 +47,11 @@ export default {
       'changeUserAccount',
       'changeUserRole',
       'changeUserCode',
+      'changeUserCheckStatus',
       'changeUserBalance',
       'changUserFdepsta',
-      'changUserFsettle',
+      // 'changUserFsettle',
+      'changUserFrate',
       'changeSiderIdx',
       'changeIfSJOrderSearch',
       'changeShowDetail'
@@ -102,9 +104,11 @@ export default {
             // 更新用户基本信息
             this.changeUserId(userInfo.zRegister.id)
             this.changeUserCode(userInfo.zRegister.usercode)
+            this.changeUserCheckStatus(userInfo.zRegister.checkStatus)
             this.changeUserBalance(userInfo.zRegister.faccount)
             this.changUserFdepsta(userInfo.zRegister.fdepsta)
-            this.changUserFsettle(userInfo.zRegister.fsettle)
+            this.changUserFrate(userInfo.zRegister.frate)
+            // this.changUserFsettle(userInfo.zRegister.fsettle)
             // 1_承运商主 2_货主主 3_个人 4_承运商子 5_货主子
             this.changeUserRole(userInfo.zRegister.ftype)
             this.$message({
@@ -112,23 +116,66 @@ export default {
               type: 'success'
             })
             this.ifLoading = false
-            // 0_未审核 1_通过 2_退回 3_再次提交
-            if (userInfo.zRegister.checkStatus === '1' || userInfo.zRegister.checkStatus === '3') { // 主账户登陆
-              // 主页
-              this.changeUserAccount(this.phone)
-              this.$router.push({name: 'Home'})
-              this.changeLocationIdx(2)
-            } else if (userInfo.zRegister.checkStatus === undefined || userInfo.zRegister.checkStatus === null) { // 子账户登陆
-              // 主页
-              this.changeUserAccount(userInfo.zRegister.usercode)
-              this.$router.push({name: 'Home'})
-              this.changeLocationIdx(2)
-            } else { // 未通过审核
-              // 信息页
-              this.changeUserAccount(this.phone)
-              this.$router.push({name: 'Information'})
-              this.changeLocationIdx(3)
+            switch (userInfo.zRegister.ftype) { // ftype 1_承运商主 2_货主主 3_个人 4_承运商子 5_货主子 checkStatus 0_未审核 1_通过 2_退回 3_再次提交
+              case '1':
+                // 承运商主 直接登陆接单时认证
+                this.changeUserAccount(this.phone)
+                this.$router.push({name: 'Home'})
+                this.changeLocationIdx(2)
+                break
+              case '2':
+                // 货主主
+                if (userInfo.zRegister.checkStatus === '1' || userInfo.zRegister.checkStatus === '3') {
+                  this.changeUserAccount(this.phone)
+                  this.$router.push({name: 'Home'})
+                  this.changeLocationIdx(2)
+                } else {
+                  this.changeUserAccount(this.phone)
+                  this.$router.push({name: 'Information'})
+                  this.changeLocationIdx(3)
+                }
+                break
+              case '3':
+                // 个人
+                if (userInfo.zRegister.checkStatus === '1' || userInfo.zRegister.checkStatus === '3') {
+                  this.changeUserAccount(this.phone)
+                  this.$router.push({name: 'Home'})
+                  this.changeLocationIdx(2)
+                } else {
+                  this.changeUserAccount(this.phone)
+                  this.$router.push({name: 'Information'})
+                  this.changeLocationIdx(3)
+                }
+                break
+              case '4':
+                // 承运商子
+                this.changeUserAccount(userInfo.zRegister.usercode)
+                this.$router.push({name: 'Home'})
+                this.changeLocationIdx(2)
+                break
+              case '5':
+                // 货主子
+                this.changeUserAccount(userInfo.zRegister.usercode)
+                this.$router.push({name: 'Home'})
+                this.changeLocationIdx(2)
+                break
             }
+            // if (userInfo.zRegister.checkStatus === '1' || userInfo.zRegister.checkStatus === '3') { // 主账户登陆
+            //   // 主页
+            //   this.changeUserAccount(this.phone)
+            //   this.$router.push({name: 'Home'})
+            //   this.changeLocationIdx(2)
+            // } else if (userInfo.zRegister.checkStatus === undefined || userInfo.zRegister.checkStatus === null) { // 子账户登陆
+            //   // 主页
+            //   this.changeUserAccount(userInfo.zRegister.usercode)
+            //   this.$router.push({name: 'Home'})
+            //   this.changeLocationIdx(2)
+            // } else { // 未通过审核
+            //   // 信息页
+            //   this.changeUserAccount(this.phone)
+            //   this.$router.push({name: 'Information'})
+            //   this.changeLocationIdx(3)
+            // }
             // 判断进入的主页
             if (userInfo.zRegister.ftype === '1' || userInfo.zRegister.ftype === '4') {
               this.changeSiderIdx('1-3')
@@ -176,7 +223,7 @@ export default {
     -moz-box-shadow: 0 0 10px 3px rgba(0,0,0,.1);
     border-radius: 40%;
     .InnerBox{
-      height: 260px;
+      height: 300px;
       width: 120%;
       padding: 20px;
       background: #fff;

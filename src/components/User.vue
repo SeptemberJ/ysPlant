@@ -183,7 +183,8 @@ export default {
     ...mapState({
       userId: state => state.userId,
       userCode: state => state.userCode,
-      userRole: state => state.userRole
+      userRole: state => state.userRole,
+      checkStatus: state => state.userRole
     }),
     userType: {
       get: function () {
@@ -207,7 +208,8 @@ export default {
   },
   methods: {
     ...mapActions([
-      'changeAccountKind'
+      'changeAccountKind',
+      'changeLocationIdx'
     ]),
     handleSelectionChange () {
     },
@@ -223,10 +225,22 @@ export default {
     },
     // 添加用户
     addUser () {
-      if (this.userType === 0) {
-        this.modalUser()
+      if (this.checkStatus !== '1' && this.userRole === '1') {
+        this.$confirm('您还未进行信息认证不能进行子账户添加，是否前去认证?', '提示', {
+          confirmButtonText: '前往',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.$router.push({name: 'Information'})
+          this.changeLocationIdx(3)
+        }).catch(() => {
+        })
       } else {
-        this.dialogFormVisible = true
+        if (this.userType === 0) {
+          this.modalUser()
+        } else {
+          this.dialogFormVisible = true
+        }
       }
     },
     // 添加子账户

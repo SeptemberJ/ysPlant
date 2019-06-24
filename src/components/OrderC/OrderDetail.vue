@@ -191,10 +191,10 @@
                 <el-radio label="1" border>需要</el-radio>
               </el-radio-group>
             </el-form-item> -->
-            <el-form-item label="支付方式" prop="payWay">
+            <el-form-item label="结算方式" prop="payWay">
               <el-radio-group v-model="formAdd.payWay" style="float: left">
-                <el-radio :label="0" border :disabled="formAdd.fstatus != 0">线上</el-radio>
-                <el-radio :label="1" border :disabled="formAdd.fstatus != 0">线下</el-radio>
+                <el-radio :label="0" border :disabled="formAdd.fstatus != 0">现结</el-radio>
+                <el-radio :label="1" border :disabled="formAdd.fstatus != 0">月结</el-radio>
               </el-radio-group>
             </el-form-item>
             <el-form-item label="接受拼箱" prop="isBox">
@@ -206,7 +206,7 @@
           </div>
         </el-card>
         <!-- 费用 -->
-        <el-card class="box-card MarginTB_20" v-if="formAdd.payWay == 0">
+        <el-card class="box-card MarginTB_20">
           <div slot="header" class="clearfix TextAlignL">
             <span>费用</span>
           </div>
@@ -370,7 +370,7 @@ export default {
         zhTime: '',
         goodsName: '',
         orderGoodsList: [],
-        payWay: 0, // 0_线上 1_线下
+        payWay: 0, // 0_现结 1_月结
         isFapiao: '0', // 0_不要 1_要
         isBox: '', // 0_要 1_不要
         ifUseOilCard: 0, // 0_不使用 1_使用
@@ -420,7 +420,7 @@ export default {
           { required: true, message: '请输入货物数量！', trigger: 'change' }
         ],
         payWay: [
-          { required: true, message: '请选择支付方式！', trigger: 'change' }
+          { required: true, message: '请选择结算方式！', trigger: 'change' }
         ],
         // isFapiao: [
         //   { required: true, message: '请选择是否需要开具发票！', trigger: 'change' }
@@ -462,6 +462,7 @@ export default {
   computed: {
     ...mapState({
       userRole: state => state.userRole,
+      checkStatus: state => state.checkStatus,
       userId: state => state.userId,
       userCode: state => state.userCode,
       searchOrderId: state => state.searchOrderId,
@@ -495,7 +496,8 @@ export default {
   },
   methods: {
     ...mapActions([
-      'changeSiderIdx'
+      'changeSiderIdx',
+      'changeLocationIdx'
     ]),
     // 返回订单列表页
     backOrderList () {
@@ -714,8 +716,20 @@ export default {
       })
     },
     showDialog () {
-      this.dialogFormVisible = true
-      this.getDriverList()
+      if (this.checkStatus !== '1' && this.userRole === '1') {
+        this.$confirm('您还未进行信息认证不能进行报价接单，是否前去认证?', '提示', {
+          confirmButtonText: '前往',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.$router.push({name: 'Information'})
+          this.changeLocationIdx(3)
+        }).catch(() => {
+        })
+      } else {
+        this.dialogFormVisible = true
+        this.getDriverList()
+      }
     },
     sureOperation () {
       this.sureOffer()

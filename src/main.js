@@ -6,6 +6,7 @@ import router from './router'
 import 'babel-polyfill'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
+import '../static/css/demo-center.css'
 import '../static/css/main.css'
 import {send} from './util/send'
 

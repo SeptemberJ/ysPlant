@@ -17,9 +17,11 @@ const state = {
   userAccount: '',
   userRole: '', // 1_承运商主 2_货主主 3_个人 4_承运商子 5_货主子
   userCode: '',
+  checkStatus: null, // 用户信息认证状态 0_未审核 1_通过 2_退回 3_再次提交 子账户null
   userBalance: 0, // 账户余额
   userFdepsta: '', // 0_未缴1_已缴2_已退
-  userFsettle: '', // 0_现结，1_月结
+  // userFsettle: '', // 0_现结，1_月结
+  userFrate: 0, // 用户税额折扣
   ImgURL_PREFIX: 'http://116.62.171.244:8082/yingsu/',
   // ImgURL_PREFIX: 'http://172.16.52.63/',
   showDetail: false, // 是否显示订单详情页
@@ -62,6 +64,9 @@ const actions = {
   changeUserCode ({commit, state}, Code) {
     commit('setUserCode', Code)
   },
+  changeUserCheckStatus ({commit, state}, Status) {
+    commit('setUserCheckStatus', Status)
+  },
   changeUserBalance ({commit, state}, Money) {
     commit('setUserBalance', Money)
   },
@@ -70,6 +75,9 @@ const actions = {
   },
   changUserFsettle ({commit, state}, Fsettle) {
     commit('setUserFsettle', Fsettle)
+  },
+  changUserFrate ({commit, state}, Frate) {
+    commit('setUserFrate', Frate)
   },
   changeUserRole ({commit, state}, TYPE) {
     commit('setUserRole', TYPE)
@@ -129,6 +137,9 @@ const mutations = {
   setUserCode (state, Code) {
     state.userCode = Code
   },
+  setUserCheckStatus (state, Status) {
+    state.checkStatus = Status
+  },
   setUserBalance (state, Money) {
     state.userBalance = Money
   },
@@ -137,6 +148,9 @@ const mutations = {
   },
   setUserFsettle (state, Fsettle) {
     state.userFsettle = Fsettle
+  },
+  setUserFrate (state, Frate) {
+    state.userFrate = Frate
   },
   setUserRole (state, TYPE) {
     state.userRole = TYPE

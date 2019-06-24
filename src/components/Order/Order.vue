@@ -1,7 +1,7 @@
 <template>
   <div class="Order">
     <el-row v-if="!showDetail && !showMap" style="background: #fff;padding: 20px;">
-      <!-- <el-col :span="24" class="BgWhite MarginT_10">
+      <el-col :span="24" class="BgWhite MarginT_10">
         <el-form :inline="true" :model="formCondition" class="demo-form-inline searchForm">
           <el-row>
             <el-col :span="7" :offset="0">
@@ -79,7 +79,7 @@
               </el-form-item>
             </el-col>
           </el-row>
-          <el-row>
+          <!-- <el-row>
             <el-col :span="7">
               <el-form-item prop="sarea" label="货物类型">
                 <el-select v-model="formCondition.goodsName" size="mini" placeholder="请选择" style="width: 120px">
@@ -92,15 +92,15 @@
                 </el-select>
               </el-form-item>
             </el-col>
-          </el-row>
-          <el-row class="MarginB_20">
+          </el-row> -->
+          <el-row class="MarginT_20">
             <el-button type="primary" size="mini" icon="el-icon-search" @click="onSubmit">查询</el-button>
-            <el-button type="success" size="mini" icon="el-icon-printer" @click="exportExcell">导出</el-button>
+            <el-button size="mini" icon="el-icon-refresh" @click="reset">重置</el-button>
           </el-row>
         </el-form>
       </el-col>
       <el-col :span="24" style="width: 100%;height: 10px; border-bottom: 1px dashed #ccc;">
-      </el-col> -->
+      </el-col>
       <el-col :span="24"  class="MarginT_20 MarginB_20 TextAlignR">
         <el-button type="success" size="mini" icon="el-icon-printer" @click="exportExcell">导出</el-button>
       </el-col>
@@ -423,18 +423,27 @@ export default {
       this.getOrderList()
     },
     onSubmit () {
-      console.log('submit!')
+      this.getOrderList(this.formCondition.farea, this.formCondition.sarea)
     },
-    getOrderList () {
+    reset () {
+      this.formCondition.fprovince = ''
+      this.formCondition.fcity = ''
+      this.formCondition.farea = ''
+      this.formCondition.sprovince = ''
+      this.formCondition.scity = ''
+      this.formCondition.sarea = ''
+      this.getOrderList()
+    },
+    getOrderList (farea, sarea) {
       this.loading = true
       let urlName = ''
       // 主账户
       if (this.userRole === '1' || this.userRole === '2' || this.userRole === '3') {
-        urlName = '/orderController/orderList?number=10&page_num=' + this.currentPage + '&main_usercode=' + this.userCode
+        urlName = '/orderController/orderList?number=10&page_num=' + this.currentPage + '&main_usercode=' + this.userCode + (farea ? '&fh=' + farea : '') + (sarea ? '&sh=' + sarea : '')
       }
       // 子账户
       if (this.userRole === '4' || this.userRole === '5') {
-        urlName = '/orderController/subOrderList?number=10&page_num=' + this.currentPage + '&sub_usercode=' + this.userCode
+        urlName = '/orderController/subOrderList?number=10&page_num=' + this.currentPage + '&sub_usercode=' + this.userCode + (farea ? '&fh=' + farea : '') + (sarea ? '&sh=' + sarea : '')
       }
       this.send({
         name: urlName,

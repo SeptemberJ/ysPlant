@@ -202,10 +202,10 @@
               <el-radio :label="1" border>需要</el-radio>
             </el-radio-group>
           </el-form-item> -->
-          <el-form-item label="支付方式" prop="payWay">
+          <el-form-item label="结算方式" prop="payWay">
             <el-radio-group v-model="formAdd.payWay" style="float: left">
-              <el-radio :label="0" border>线上</el-radio>
-              <el-radio :label="1" border>线下</el-radio>
+              <el-radio :label="0" border>现结</el-radio>
+              <el-radio :label="1" border>月结</el-radio>
             </el-radio-group>
           </el-form-item>
           <el-form-item label="接受拼箱" prop="isBox">
@@ -217,7 +217,7 @@
         </div>
       </el-card>
       <!-- cost -->
-      <el-card class="box-card MarginTB_20" v-if="formAdd.payWay == 0">
+      <el-card class="box-card MarginTB_20">
         <div slot="header" class="clearfix TextAlignL">
           <span>预估费用</span>
         </div>
@@ -462,7 +462,7 @@ export default {
         zhTime: '',
         goodsName: '',
         orderGoodsList: [],
-        payWay: 0, // 0_线上 1_线下
+        payWay: 0, // 0_现结 1_月结
         isFapiao: 0, // 0_不要 1_要
         isBox: 0, // 0_要 1_不要
         boxNo: '',
@@ -510,7 +510,7 @@ export default {
           { required: true, message: '请输入货物数量！', trigger: 'change' }
         ],
         payWay: [
-          { required: true, message: '请选择支付方式！', trigger: 'change' }
+          { required: true, message: '请选择结算方式！', trigger: 'change' }
         ],
         isFapiao: [
           { required: true, message: '请选择是否需要开具发票！', trigger: 'change' }
@@ -821,7 +821,7 @@ export default {
         appointId: this.formAdd.appointId,
         isAppoint: this.formAdd.appointId === '' ? 0 : 1,
         fmaxFee: this.formAdd.max_price,
-        ffee: this.formAdd.payWay === 0 ? this.formAdd.ffee : 0,
+        ffee: this.formAdd.ffee,
         foilCard: this.formAdd.oilCard,
         fweight: this.totalWeight,
         id: this.formAdd.id,
@@ -842,7 +842,7 @@ export default {
         zhTime: this.formAdd.zhTime,
         goodsName: this.formAdd.goodsName,
         orderGoodsList: this.formAdd.orderGoodsList,
-        ftype: this.formAdd.payWay, // 0_线上 1_线下
+        ftype: this.formAdd.payWay, // 0_现结 1_月结
         // isFapiao: this.formAdd.isFapiao,
         boxNo: this.formAdd.boxNo,
         isBox: this.formAdd.isBox

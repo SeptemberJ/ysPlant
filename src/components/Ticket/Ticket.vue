@@ -43,6 +43,11 @@
             width="100">
           </el-table-column>
           <el-table-column
+            prop="ftax1"
+            label="结算税额(¥)"
+            width="100">
+          </el-table-column>
+          <el-table-column
             prop="fdate"
             label="开票日期"
             width="150">
@@ -82,7 +87,7 @@
       </el-col>
     </el-row>
     <!-- add -->
-    <el-dialog title="新增开票申请" :visible.sync="ifAdd" width="650px" :close-on-click-modal="false">
+    <el-dialog title="新增开票申请" :visible.sync="ifAdd" width="750px" :close-on-click-modal="false">
       <Add @ToggleDialogAdd="toAddTicket" @FreshList="getTicketList"/>
     </el-dialog>
   </div>

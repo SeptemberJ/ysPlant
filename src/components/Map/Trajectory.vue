@@ -4,7 +4,7 @@
     </div>
   </div>
 </template>
-<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=i958ho3aKFiiVfxOIwAZOO05sHDDsAGK"></script>
+<script type="text/javascript" src="https://webapi.amap.com/maps?v=1.4.15&key=ec7afa4023dddf95386ef1198b16cf9d"></script>
 <script>
 import {setZoom} from '../../util/utils'
 export default {
@@ -17,96 +17,151 @@ export default {
     this.getData()
   },
   methods: {
-    setMap (PointData) {
-      var map = new BMap.Map('Trajectory', {enableMapClick: false})
-      var linePoint = []
-      // var point = new BMap.Point(116.404, 39.915)
-      // map.centerAndZoom(point, 15)
-      // map.enableScrollWheelZoom(true) // 开启鼠标滚轮缩放
-      map.addControl(new BMap.ScaleControl())
-      map.addControl(new BMap.NavigationControl({anchor: BMAP_ANCHOR_TOP_RIGHT, type: BMAP_NAVIGATION_CONTROL_LARGE }))
-      // 图标
-      var size = new BMap.Size(52, 26);
-      var offset = new BMap.Size(20, -10)
-      var imageSize = new BMap.Size(20, 20);
-      var startIcon = new BMap.Icon("../../../static/images/icon/start.png", new BMap.Size(80, 40), {
-        imageSize: new BMap.Size(40, 40),
-        infoWindowAnchor:new BMap.Size(0, -3)
-      })
-      var endIcon = new BMap.Icon("../../../static/images/icon/end.png", new BMap.Size(80, 40), {
-        imageSize: new BMap.Size(40, 40),
-        infoWindowAnchor:new BMap.Size(0, -3)
-      })
-      var icon = new BMap.Icon("../../../static/images/icon/arrow.png", size, {
-        imageSize: new BMap.Size(20, 20),
-        infoWindowAnchor:new BMap.Size(0, 0)
-      })
-      // 放点
-      PointData.map((item, idx) => {
-        let marker
-        let point = new BMap.Point(item.lng, item.lat)
-        // 配置icon
-        if (idx === 0) {
-          marker = new BMap.Marker(point, {
-            icon: startIcon,
-            offset: offset
-          })
-          map.addOverlay(marker)
-        } else if (idx === PointData.length - 1) {
-          marker = new BMap.Marker(point, {
-            icon: endIcon,
-            offset: offset
-          })
-          map.addOverlay(marker)
-        } else {
-          marker = new BMap.Marker(point, {
-            offset: new BMap.Size(0, 0)
-          })
-          map.addOverlay(marker)
-        }
-        // line point
-        linePoint.push(new BMap.Point(item.lng, item.lat))
-        // 信息框
-        let opts = {
-          width : 200,
-          height: 100,
-          title : '位置信息',
-          enableMessage:true,
-          message: ''
-        }
-        // '车牌/速度：'+  '沪DA9645 / 51.2 ' + '<br />' + '时间：' + '2019-04-19 10:37:28' + '<br />' + '位置：' + item.lat + '-' + item.lng, opts
-        let infoWindow = new BMap.InfoWindow('时间：' + item.submitTime + '<br />' + '地址：' + item.address + '<br />', opts)
-        marker.addEventListener('click', function(){
-          map.openInfoWindow(infoWindow,point)
-        })
-      })
-      // 画线
-      var polyline = new BMap.Polyline(linePoint, {
-        strokeColor: "#d81e06",
-        strokeWeight: 8,
-        icons:[draw_line_direction(8)],
-        setStrokeStyle:"dashed",
-        strokeOpacity: 1
-      });
-      map.addOverlay(polyline)
+    setMap2 (PointData) {
+      let lastIdx = PointData.length - 1
+      var marker, lineArr = PointData
 
-      function draw_line_direction(weight) {
-        var icons = new BMap.IconSequence(
-          new BMap.Symbol('M0 -5 L-5 -2 L0 -4 L5 -2 Z', {
-            scale: weight / 10,
-            strokeWeight: 1,
-            rotation: 0,
-            fillColor: 'white',
-            fillOpacity: 1,
-            strokeColor:'white'
-          }),'100%','5%',false)
-        return icons
-      }
-      if (PointData.length == 1) {
-        map.centerAndZoom(new BMap.Point(PointData[0].lng, PointData[0].lat), 8)
-      } else {
-        setZoom(PointData, map, BMap)
-      }
+      var map = new AMap.Map("Trajectory", {
+          resizeEnable: true,
+          center: PointData[0],
+          zoom: 17
+      })
+      var markers = []
+      // 标记
+      PointData.map((point, idx) => {
+        switch (idx) {
+          case 0:
+            marker = new AMap.Marker({
+              map: map,
+              position: point,
+              zIndex: 999,
+              icon: '../../../static/images/icon/startMarker.png',
+              offset: new AMap.Pixel(-23, -40),
+              autoRotation: true,
+            })
+            break
+          case lastIdx:
+            marker = new AMap.Marker({
+              map: map,
+              position: point,
+              zIndex: 999,
+              icon: '../../../static/images/icon/endMarker.png',
+              offset: new AMap.Pixel(-23, -40),
+              autoRotation: true,
+            })
+            break
+          default:
+            marker = new AMap.Marker({
+              map: map,
+              position: point,
+              offset: new AMap.Pixel(-8, -30),
+              autoRotation: true,
+              // angle:-90,
+            })
+        }
+        // 信息框
+        var info = [];
+        // info.push("<div class='input-card content-window-card'><div><img style=\"float:left;\" src=\" https://webapi.amap.com/images/autonavi.png \"/></div> ");
+        info.push("<div style=\"width: 200px;padding:7px 0px 0px 0px;\"><h4><strong>当前位置:</strong></h4>");
+        // info.push("<p class='input-item'>电话 : 010-84107000   邮编 : 100102</p>");
+        info.push("<p class='input-item'>" + 12 + '℃');
+        var infoWindow = new AMap.InfoWindow({
+            // isCustom: true,  //使用自定义窗体
+            content: info.join(""),
+            offset: new AMap.Pixel(16, -45)
+        })
+        AMap.event.addListener(marker, 'click', () => {
+          infoWindow.open(map, point)
+        })
+        markers.push(marker)
+      })
+
+      // 绘制轨迹
+      var polyline = new AMap.Polyline({
+          map: map,
+          path: lineArr,
+          showDir:true,
+          strokeColor: "#28F", // 线颜色
+          // strokeOpacity: 1, // 线透明度
+          strokeWeight: 6, // 线宽
+          // strokeStyle: "solid"  // 线样式
+      })
+      map.setFitView()
+    },
+    setMap (PointData, fullInfoPointData) {
+      let lastIdx = PointData.length - 1
+      var marker, lineArr = PointData
+      var map = new AMap.Map('Trajectory', {
+        resizeEnable: true,
+        center: PointData[0],
+        zoom: 17
+      })
+      AMap.plugin(['AMap.ToolBar','AMap.Scale','AMap.OverView'],function(){
+        map.addControl(new AMap.ToolBar())
+        map.addControl(new AMap.Scale())
+        map.addControl(new AMap.OverView({isOpen:true}))
+      })
+      var markers = []
+      // 标记
+      PointData.map((point, idx) => {
+        switch (idx) {
+          case 0:
+            // 起点
+            marker = new AMap.Marker({
+              map: map,
+              position: point,
+              zIndex: 999999,
+              icon: '../../../static/images/icon/startMarker.png',
+              offset: new AMap.Pixel(-23, -40),
+              autoRotation: true
+            })
+            break
+          case lastIdx:
+            // 终点
+            marker = new AMap.Marker({
+              map: map,
+              position: point,
+              zIndex: 999998,
+              icon: '../../../static/images/icon/endMarker.png',
+              offset: new AMap.Pixel(-23, -40),
+              autoRotation: true
+            })
+            break
+          default:
+            // 途经
+            marker = new AMap.Marker({
+              map: map,
+              position: point,
+              offset: new AMap.Pixel(-8, -30),
+              autoRotation: true
+            })
+        }
+        // 信息框
+        var info = []
+        info.push("<div style=\"width: 200px;padding:7px 0px 0px 0px;\"><h4><strong>位置信息:</strong></h4>")
+        info.push("<p class='input-item'>时间 : " + fullInfoPointData[idx].submitTime + "</p>")
+        info.push("<p class='input-item'>地址 : " + fullInfoPointData[idx].address + "</p>")
+        var infoWindow = new AMap.InfoWindow({
+          content: info.join(""),
+          offset: new AMap.Pixel(16, -45)
+        })
+        AMap.event.addListener(marker, 'click', () => {
+          infoWindow.open(map, point)
+        })
+        markers.push(marker)
+      })
+
+      // 绘制轨迹
+      var polyline = new AMap.Polyline({
+        map: map,
+        path: lineArr,
+        showDir:true,
+        strokeColor: '#28F', // 线颜色
+        // strokeOpacity: 1, // 线透明度
+        strokeWeight: 6, // 线宽
+        // strokeStyle: "solid"  // 线样式
+      })
+      map.setFitView()
     },
     getData() {
       this.send({
@@ -116,7 +171,24 @@ export default {
         }
       }).then(res => {
         if (res.data.data.length > 0) {
-          this.setMap(res.data.data)
+          let formatData = []
+          let fullInfoData = []
+          res.data.data.map(item => {
+            formatData.push([item.lng, item.lat])
+            fullInfoData.push(item)
+          })
+          this.setMap(formatData, fullInfoData)
+        } else {
+          var map = new AMap.Map('Trajectory', {
+            resizeEnable: false, // 是否监控地图容器尺寸变化
+            zoom: 1, // 初始化地图层级
+            center: [116.397428, 39.90923] // 初始化地图中心点
+          })
+          AMap.plugin(['AMap.ToolBar','AMap.Scale','AMap.OverView'],function(){
+            map.addControl(new AMap.ToolBar())
+            map.addControl(new AMap.Scale())
+            map.addControl(new AMap.OverView({isOpen:true}))
+          })
         }
       }).catch((res) => {
         console.log(res)

@@ -1,24 +1,32 @@
 <template>
   <div class="AddTicket">
     <el-row class="AddMain">
-      <el-col :span="24" class="TextAlignL MarginB_20">
+      <el-col :span="6" class="TextAlignL MarginB_20 ColorRed Bold">
         <span style="margin-right: 10px;padding-left: 10px;">税率</span>
-        <el-select v-model="rateIdx" placeholder="税率" size="mini">
+        <!-- <el-select v-model="rateIdx" placeholder="税率" size="mini" style="width: 100px;">
           <el-option
             v-for="(rate, idx) in rateList"
             :key="idx"
             :label="rate.name"
             :value="rate.code">
           </el-option>
-        </el-select>
-        <span style="padding-left: 10px;">%</span>
+        </el-select> -->
+        <span style="padding-left: 5px;">9 %</span>
+      </el-col>
+      <el-col :span="6" class="TextAlignL MarginB_20 ColorRed Bold">
+        <span style="margin-right: 10px;padding-left: 10px;">税率折扣</span>
+        <span style="padding-left: 5px;">{{userFrate}} %</span>
+      </el-col>
+      <el-col :span="6" class="TextAlignL MarginB_20 ColorRed Bold">
+        <span style="margin-right: 10px;padding-left: 10px;">手续费</span>
+        <span style="padding-left: 5px;">{{serviceCharge}} ¥</span>
       </el-col>
       <el-col :span="24">
         <el-row class="TextAlignL PaddingL_10 MarginB_10 ColorRed Bold">
           <el-col :span="6">总金额： {{sumPrice}} ¥</el-col>
           <el-col :span="6">税额： {{sumTax}} ¥</el-col>
           <el-col :span="7">税后金额： {{sumPrice - sumTax}} ¥</el-col>
-          <el-col :span="5">手续费： {{serviceCharge}} ¥</el-col>
+          <el-col :span="5">结算税额： {{sumTax * userFrate / 100}} ¥</el-col>
         </el-row>
       </el-col>
       <el-col :span="24">
@@ -40,6 +48,14 @@
             prop="ffee"
             label="订单金额(¥)">
           </el-table-column>
+          <!-- <el-table-column
+            prop="ftax"
+            label="税额">
+          </el-table-column>
+          <el-table-column
+            prop="ftax1"
+            label="结算税额">
+          </el-table-column> -->
         </el-table>
       </el-col>
       <el-col :span="24" class="TextAlignC MarginT_40">
@@ -59,8 +75,8 @@ export default {
       sumTax: 0,
       sumTaxL: 0,
       rateIdx: '0',
-      serviceCharge: 1,
-      rateList: [],
+      serviceCharge: 2, // 手续费
+      rateList: [{code: '0', name: '9'}],
       orderList: [],
       choosedOrder: [],
       invoiceentry: []
@@ -70,12 +86,13 @@ export default {
     ...mapState({
       userId: state => state.userId,
       userCode: state => state.userCode,
+      userFrate: state => state.userFrate,
       userBalance: state => state.userBalance
     })
   },
   created () {
     this.getOrderList()
-    this.getRateList()
+    // this.getRateList()
   },
   watch: {
     sumPrice: function (newVal) {
@@ -105,6 +122,7 @@ export default {
           fprice: item.ffee - item.ftax,
           frate: this.rateList[this.rateIdx].name,
           ftaxmoney: item.ftax,
+          ftax1: item.ftax * this.userFrate / 100, // 结算税额
           funit: '次',
           id: ''
         })
@@ -135,15 +153,17 @@ export default {
         fexpressno: '',
         ftaxrate: this.rateList[this.rateIdx].name,
         fee: this.serviceCharge,
-        fmoney: this.sumPrice - this.sumTax,
-        fsaleid: '',
-        fstatus: '',
         ftax: this.sumTax,
         ftotal: this.sumPrice,
+        fmoney: this.sumPrice - this.sumTax,
+        ftax1: this.sumTax * this.userFrate / 100, // 结算税额
         fujian: '',
         id: '',
+        fsaleid: '',
+        fstatus: '',
         invoiceentryList: this.invoiceentry
       }
+      console.log(DATA)
       // 提交开票申请
       this.send({
         name: '/invoiceController',
@@ -199,7 +219,11 @@ export default {
         }
       }).then(res => {
         if (res.data.respCode === '0') {
-          this.orderList = res.data.data
+          this.orderList = res.data.data.map(item => {
+            item.ftax = item.ffee * (this.rateList[this.rateIdx].name / 100)
+            item.ftax1 = item.ftax * this.userFrate / 100
+            return item
+          })
         } else {
           this.$message({
             message: res.data.message + '！',

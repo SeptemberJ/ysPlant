@@ -24,7 +24,7 @@
 		</el-row>
 	</div>
 </template>
-<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=i958ho3aKFiiVfxOIwAZOO05sHDDsAGK"></script>
+<script type="text/javascript" src="https://webapi.amap.com/maps?v=1.4.15&key=ec7afa4023dddf95386ef1198b16cf9d"></script>
 <script>
 import { mapState } from 'vuex'
 import {setZoom} from '../util/utils'
@@ -48,9 +48,9 @@ export default {
 		this.setMap()
   },
   watch: {
-		pointArray: function (val) {
-			this.setMap()
-		}
+		// pointArray: function (val) {
+		// 	this.setMap()
+		// }
   },
   computed: {
     ...mapState({
@@ -61,46 +61,58 @@ export default {
   },
   methods: {
 		setMap () {
-	    var map = new BMap.Map('mapCar')
-	    map.centerAndZoom(new BMap.Point(118.10000, 24.46667), 11)
-	    // map.enableScrollWheelZoom(true)
-	    map.addControl(new BMap.ScaleControl())
-      map.addControl(new BMap.NavigationControl({anchor: BMAP_ANCHOR_TOP_RIGHT, type: BMAP_NAVIGATION_CONTROL_LARGE }))
-	    // 图标
-	    var IconCarBlue = new BMap.Icon('../../../static/images/icon/truckBlue.png', new BMap.Size(30,30), {anchor: new BMap.Size(20, 5)})
-	    var IconCarRed = new BMap.Icon('../../../static/images/icon/truckRed.png', new BMap.Size(30,30), {anchor: new BMap.Size(20, 5)})
-	    var IconCarGreen = new BMap.Icon('../../../static/images/icon/truckGreen.png', new BMap.Size(30,30), {anchor: new BMap.Size(20, 5)})
-	    // 放点
-	    this.pointArray.map(item => {
-	      let marker
-	      let point = new BMap.Point(item.lng,item.lat)
-	      switch (item.kind) {
-	        case 0:
-	          marker = new BMap.Marker(point, {icon:IconCarBlue})
-	          break
-	        case 1:
-	          marker = new BMap.Marker(point, {icon:IconCarRed})
-	          break
-	        case 2:
-	          marker = new BMap.Marker(point, {icon:IconCarGreen})
-	          break
-	      }
-	      map.addOverlay(marker)
-	      // 信息框
-	      let opts = {
-	        width : 200,
-	        height: 30,
-	        title : '目前位置',
-	        enableMessage:true,
-	        message: item.tips
-	      }
-	      let infoWindow = new BMap.InfoWindow(item.tips, opts)
-	      marker.addEventListener('click', function(){
-	        map.openInfoWindow(infoWindow,point)
-	      })
-	    })
-	    setZoom(this.pointArray, map, BMap)
-	  }
+      var map = new AMap.Map('mapCar',{
+        resizeEnable: false,
+        zoom: 2,
+        // center: [119.812917, 27.535153]
+      })
+      AMap.plugin(['AMap.ToolBar','AMap.Scale','AMap.OverView'],function(){
+        map.addControl(new AMap.ToolBar())
+        map.addControl(new AMap.Scale())
+        map.addControl(new AMap.OverView({isOpen:true}))
+      })
+      // 图标
+      var IconCarBlue = new AMap.Icon({
+        image: '../../../static/images/icon/truckBlue.png',
+        size: new AMap.Size(30, 30)
+      })
+      var IconCarRed = new AMap.Icon({
+        image: '../../../static/images/icon/truckRed.png',
+        size: new AMap.Size(30, 30)
+      })
+      var IconCarGreen = new AMap.Icon({
+        image: '../../../static/images/icon/truckGreen.png',
+        size: new AMap.Size(30, 30)
+      })
+      var markers = []
+      this.pointArray.map(item => {
+        let marker
+        marker = new AMap.Marker({
+          icon: item.kind === 0 ? IconCarBlue : (item.kind === 1 ? IconCarRed : IconCarGreen),
+          position: [item.lng, item.lat],
+          offset: new AMap.Pixel(-2, -2),
+          zIndex: 101,
+          title: item.tips,
+          map: map
+        })
+        // 信息框
+        var info = [];
+        // info.push("<div class='input-card content-window-card'><div><img style=\"float:left;\" src=\" https://webapi.amap.com/images/autonavi.png \"/></div> ");
+        info.push("<div style=\"width: 200px;padding:7px 0px 0px 0px;\"><h4><strong>当前状态:</strong></h4>");
+        // info.push("<p class='input-item'>电话 : 010-84107000   邮编 : 100102</p>");
+        info.push("<p class='input-item'>" + item.tips);
+        var infoWindow = new AMap.InfoWindow({
+            // isCustom: true,  //使用自定义窗体
+            content: info.join(""),
+            offset: new AMap.Pixel(16, -45)
+        })
+        AMap.event.addListener(marker, 'click', () => {
+          infoWindow.open(map, [item.lng, item.lat])
+        })
+        markers.push(marker)
+      })
+      map.setFitView()
+    }
   }
 }
 </script>

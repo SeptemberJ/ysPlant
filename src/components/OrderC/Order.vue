@@ -167,7 +167,6 @@ export default {
   computed: {
     ...mapState({
       userRole: state => state.userRole,
-      userCode: state => state.userCode,
       showDetail: state => state.showDetail,
       userId: state => state.userId,
       ifSJOrderSearch: state => state.ifSJOrderSearch,
