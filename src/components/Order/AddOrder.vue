@@ -378,6 +378,9 @@
       <!-- 子账户 -->
       <div v-if="userRole == 5" style="margin-top: -30px;">
         <p class="TextAlignL">您所属的承运商主账号还未缴纳押金或押金还未到账，请先和所属的承运商进行确认。</p>
+        <span slot="footer" class="dialog-footer">
+          <el-button type="primary" @click="toOrderList" class="MarginT_10">确 定</el-button>
+        </span>
       </div>
     </el-dialog>
   </div>
@@ -553,6 +556,7 @@ export default {
   computed: {
     ...mapState({
       userRole: state => state.userRole,
+      checkStatus: state => state.checkStatus,
       userCode: state => state.userCode,
       userFdepsta: state => state.userFdepsta,
       carTypeList: state => state.carTypeList,
@@ -617,6 +621,9 @@ export default {
     ]),
     toCenter () {
       this.changeSiderIdx('3-1')
+    },
+    toOrderList () {
+      this.changeSiderIdx('1-1')
     },
     // 添加一行货物信息
     addOneLine () {
@@ -791,30 +798,37 @@ export default {
     },
     // 新增订单
     onSubmit (formName) {
-      if (this.formAdd.orderGoodsList.length === 0) {
+      if (this.checkStatus === '2') {
         this.$message({
-          message: '请至少添加一行货物信息！',
+          message: this.$store.state.prohibitTips,
           type: 'warning'
         })
-        return false
-      }
-      if (this.userRole === '1' || this.userRole === '2') {
-        this.formAdd.fmainId = this.userCode
-      }
-      if (this.userRole === '4' || this.userRole === '5') {
-        this.formAdd.fsubId = this.userCode
-      }
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          this.sureAdd()
-        } else {
+      } else {
+        if (this.formAdd.orderGoodsList.length === 0) {
           this.$message({
-            message: '请将信息填写完整！',
+            message: '请至少添加一行货物信息！',
             type: 'warning'
           })
           return false
         }
-      })
+        if (this.userRole === '1' || this.userRole === '2' || this.userRole === '3') {
+          this.formAdd.fmainId = this.userCode
+        }
+        if (this.userRole === '4' || this.userRole === '5') {
+          this.formAdd.fsubId = this.userCode
+        }
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+            this.sureAdd()
+          } else {
+            this.$message({
+              message: '请将信息填写完整！',
+              type: 'warning'
+            })
+            return false
+          }
+        })
+      }
     },
     sureAdd () {
       let DATA = {

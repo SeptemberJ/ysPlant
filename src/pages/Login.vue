@@ -34,7 +34,7 @@ export default {
   data () {
     return {
       ifLoading: false,
-      phone: '18734567890', // 货主 18734567890 17711111102 承运商 17711111104 个人 17711111103
+      phone: '18734567890', // 货主 18734567890 18211111102 17711111106 承运商 18211111103 18211111106(上海旺策尔信息科技有限公司) 个人 18211111101 (宋金华)
       password: '111111'
     }
   },
@@ -46,12 +46,15 @@ export default {
       'changeUserId',
       'changeUserAccount',
       'changeUserRole',
+      'changeUserTicketInfo',
+      'updatePartyB',
       'changeUserCode',
       'changeUserCheckStatus',
       'changeUserBalance',
-      'changUserFdepsta',
-      // 'changUserFsettle',
-      'changUserFrate',
+      'changeUserFdepsta',
+      // 'changeUserFsettle',
+      'changeUserFaccountid',
+      'changeUserFrate',
       'changeSiderIdx',
       'changeIfSJOrderSearch',
       'changeShowDetail'
@@ -106,26 +109,35 @@ export default {
             this.changeUserCode(userInfo.zRegister.usercode)
             this.changeUserCheckStatus(userInfo.zRegister.checkStatus)
             this.changeUserBalance(userInfo.zRegister.faccount)
-            this.changUserFdepsta(userInfo.zRegister.fdepsta)
-            this.changUserFrate(userInfo.zRegister.frate)
-            // this.changUserFsettle(userInfo.zRegister.fsettle)
+            this.changeUserFdepsta(userInfo.zRegister.fdepsta)
+            this.changeUserFrate(userInfo.zRegister.frate)
+            this.changeUserFaccountid(userInfo.zRegister.faccountid)
+            // this.changeUserFsettle(userInfo.zRegister.fsettle)
             // 1_承运商主 2_货主主 3_个人 4_承运商子 5_货主子
             this.changeUserRole(userInfo.zRegister.ftype)
-            this.$message({
-              message: '登陆成功！',
-              type: 'success'
-            })
+            // 是否补充过信息
+            if (userInfo.zRegister.taiTou) {
+              this.changeUserTicketInfo(true)
+            } else {
+              this.changeUserTicketInfo(false)
+            }
             this.ifLoading = false
             switch (userInfo.zRegister.ftype) { // ftype 1_承运商主 2_货主主 3_个人 4_承运商子 5_货主子 checkStatus 0_未审核 1_通过 2_退回 3_再次提交
               case '1':
+                this.updatePartyB({name: userInfo.zRegister.companyName, ID: null})
                 // 承运商主 直接登陆接单时认证
                 this.changeUserAccount(this.phone)
                 this.$router.push({name: 'Home'})
                 this.changeLocationIdx(2)
+                this.$message({
+                  message: '登陆成功！',
+                  type: 'success'
+                })
                 break
               case '2':
                 // 货主主
-                if (userInfo.zRegister.checkStatus === '1' || userInfo.zRegister.checkStatus === '3') {
+                this.updatePartyB({name: userInfo.zRegister.companyName, ID: null})
+                if (userInfo.zRegister.faccountid) {
                   this.changeUserAccount(this.phone)
                   this.$router.push({name: 'Home'})
                   this.changeLocationIdx(2)
@@ -134,10 +146,15 @@ export default {
                   this.$router.push({name: 'Information'})
                   this.changeLocationIdx(3)
                 }
+                this.$message({
+                  message: '登陆成功！',
+                  type: 'success'
+                })
                 break
               case '3':
                 // 个人
-                if (userInfo.zRegister.checkStatus === '1' || userInfo.zRegister.checkStatus === '3') {
+                this.updatePartyB({name: userInfo.zRegister.companyLxr, ID: userInfo.zRegister.fidentity})
+                if (userInfo.zRegister.faccountid) {
                   this.changeUserAccount(this.phone)
                   this.$router.push({name: 'Home'})
                   this.changeLocationIdx(2)
@@ -146,18 +163,46 @@ export default {
                   this.$router.push({name: 'Information'})
                   this.changeLocationIdx(3)
                 }
+                this.$message({
+                  message: '登陆成功！',
+                  type: 'success'
+                })
                 break
               case '4':
-                // 承运商子
-                this.changeUserAccount(userInfo.zRegister.usercode)
-                this.$router.push({name: 'Home'})
-                this.changeLocationIdx(2)
+                // 承运商子 主账户认证下方能创建子账户 子账户无需认证和补充信息
+                if (userInfo.zRegister.checkStatus === '2') {
+                  this.$message({
+                    message: '您所属的主账号被禁用故不能登陆，请联系您所属账号的联系人！',
+                    type: 'warning'
+                  })
+                } else {
+                  this.updatePartyB({name: userInfo.zRegister.companyName, ID: null})
+                  this.changeUserAccount(userInfo.zRegister.usercode)
+                  this.$router.push({name: 'Home'})
+                  this.changeLocationIdx(2)
+                  this.$message({
+                    message: '登陆成功！',
+                    type: 'success'
+                  })
+                }
                 break
               case '5':
-                // 货主子
-                this.changeUserAccount(userInfo.zRegister.usercode)
-                this.$router.push({name: 'Home'})
-                this.changeLocationIdx(2)
+                // 货主子 主账户认证下方能创建子账户 子账户无需认证和补充信息
+                if (userInfo.zRegister.checkStatus === '2') {
+                  this.$message({
+                    message: '您所属的主账号被禁用故不能登陆，请联系您所属账号的联系人！',
+                    type: 'warning'
+                  })
+                } else {
+                  this.updatePartyB({name: userInfo.companyname, ID: null})
+                  this.changeUserAccount(userInfo.zRegister.usercode)
+                  this.$router.push({name: 'Home'})
+                  this.changeLocationIdx(2)
+                  this.$message({
+                    message: '登陆成功！',
+                    type: 'success'
+                  })
+                }
                 break
             }
             // if (userInfo.zRegister.checkStatus === '1' || userInfo.zRegister.checkStatus === '3') { // 主账户登陆

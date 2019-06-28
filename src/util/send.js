@@ -3,8 +3,9 @@ import {getCookie, clearCookie} from './utils'
 import { Message } from 'element-ui'
 import store from '../vuex/store'
 
-const URL_PREFIX = 'http://116.62.171.244:8082/yingsu/rest'
+// const URL_PREFIX = 'http://116.62.171.244:8082/yingsu/rest'
 // const URL_PREFIX = 'http://172.16.52.63/rest' // qianpeiyuan
+const URL_PREFIX = 'http://120.27.3.205/rest'
 
 export function send (options) {
   if (!options.name) {

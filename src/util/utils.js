@@ -65,6 +65,35 @@ export function secondToFormat (second) {
   return oTime
 }
 
+// 时间格式化字符串(传递内容, 需要的格式化类型[Complete, Simple, NotSecond], 年月日分割符号)
+export function formatToString (parameter, formatType, splitType) {
+  var oDate
+  if (typeof parameter === 'object') {
+    // 传递的是Date
+    oDate = parameter
+  } else {
+    // 传递的是秒数则转换为Date类型
+    oDate = new Date(parameter)
+  }
+  var oYear = oDate.getFullYear()
+  var oMonth = oDate.getMonth() + 1
+  var oDay = oDate.getDate()
+  var oHour = oDate.getHours()
+  var oMin = oDate.getMinutes()
+  var oSen = oDate.getSeconds()
+  switch (formatType) {
+    case 'Complete':
+      return (oYear + splitType + getzf(oMonth) + splitType + getzf(oDay) + ' ' + getzf(oHour) + ':' + getzf(oMin) + ':' + getzf(oSen))
+      // break
+    case 'Simple':
+      return (oYear + splitType + getzf(oMonth) + splitType + getzf(oDay))
+      // break
+    case 'NotSecond':
+      return (oYear + splitType + getzf(oMonth) + splitType + getzf(oDay) + ' ' + getzf(oHour) + ':' + getzf(oMin))
+      // break
+  }
+}
+
 // 补零
 function getzf (num) {
   if (parseInt(num) < 10) {

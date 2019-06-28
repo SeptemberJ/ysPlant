@@ -1,15 +1,39 @@
 <template>
   <div class="Center">
-    <!-- 承运商货主基本信息 -->
-    <el-row v-if="userRole == 1 || userRole == 2">
+    <!-- 承运商 -->
+    <el-row v-if="userRole == 1">
       <el-col :span="12" class="TextAlignL">
         <div class="MarginT_10">
           <span class="LeftTit">当前账户：</span>
           <span>{{userAccount}}</span>
         </div>
         <div class="MarginT_10">
-          <span class="LeftTit">企业名称：</span>
-          <span>{{formInfo.company}}</span>
+          <span class="LeftTit">公司名称：</span>
+          <span>{{formInfo.companyName}}</span>
+        </div>
+        <div class="MarginT_10">
+          <span class="LeftTit">统一社会信用代码：</span>
+          <span>{{formInfo.companyNo}}</span>
+        </div>
+      </el-col>
+      <el-col :span="12" class="TextAlignL">
+        <div class="MarginT_10">
+          <span class="LeftTit">账户余额：</span>
+          <span>{{formInfo.faccount}} (¥)</span>
+          <el-button type = 'success' size="mini" class="MarginL_10" @click="recharge">充值</el-button>
+        </div>
+      </el-col>
+    </el-row>
+    <!-- 货主 -->
+    <el-row v-if="userRole == 2">
+      <el-col :span="12" class="TextAlignL">
+        <div class="MarginT_10">
+          <span class="LeftTit">当前账户：</span>
+          <span>{{userAccount}}</span>
+        </div>
+        <div class="MarginT_10">
+          <span class="LeftTit">公司名称：</span>
+          <span>{{formInfo.companyName}}</span>
         </div>
         <div class="MarginT_10">
           <span class="LeftTit">联系人员：</span>
@@ -46,7 +70,17 @@
     </el-row>
     <!-- 个人货主基本信息 -->
     <el-row v-if="userRole == 3">
-      <el-col :span="24" class="TextAlignL">
+      <el-col :span="12" class="TextAlignL">
+        <div class="MarginT_10">
+          <span class="LeftTit">当前账户：</span>
+          <span>{{userAccount}}</span>
+        </div>
+        <div class="MarginT_10">
+          <span class="LeftTit">姓名：</span>
+          <span>{{formInfo.contact}}</span>
+        </div>
+      </el-col>
+      <el-col :span="12" class="TextAlignL">
         <div class="MarginT_10">
           <span class="LeftTit">账户余额：</span>
           <span>{{formInfo.faccount}} (¥)</span>
@@ -187,13 +221,14 @@ export default {
       endDate: '',
       formInfo: {
         phone: '',
+        companyName: '',
+        companyNo: '',
         bank: '',
         bankNo: '',
         taitou: '',
         faccount: '',
         tax: '',
         ID: '',
-        company: '',
         tel: '',
         license: '',
         contract: ''
@@ -223,6 +258,7 @@ export default {
       userAccount: state => state.userAccount,
       userId: state => state.userId,
       userRole: state => state.userRole,
+      checkStatus: state => state.checkStatus,
       userFdepsta: state => state.userFdepsta,
       ImgURL_PREFIX: state => state.ImgURL_PREFIX
     })
@@ -233,12 +269,19 @@ export default {
   },
   methods: {
     ...mapActions([
-      'changUserFdepsta',
+      'changeUserFdepsta',
       'changeUserBalance'
     ]),
     // 充值
     recharge () {
-      this.dialogVisibleCharge = true
+      if (this.checkStatus === '2') {
+        this.$message({
+          message: this.$store.state.prohibitTips,
+          type: 'warning'
+        })
+      } else {
+        this.dialogVisibleCharge = true
+      }
     },
     handleClose (done) {
       this.$confirm('确认取消充值？').then(_ => {
@@ -299,27 +342,34 @@ export default {
     },
     // 确认打款
     sureConfirm (idx, row) {
-      this.send({
-        name: '/yqzlController/confirm?id=' + row.id,
-        method: 'GET',
-        data: {
-        }
-      }).then(res => {
-        if (res.data.respCode === '0') {
-          this.$message({
-            message: '确认成功!',
-            type: 'success'
-          })
-          this.getCapitalFlow()
-        } else {
-          this.$message({
-            message: res.data.message + '，确认失败！',
-            type: 'error'
-          })
-        }
-      }).catch((res) => {
-        console.log(res)
-      })
+      if (this.checkStatus === '2') {
+        this.$message({
+          message: this.$store.state.prohibitTips,
+          type: 'warning'
+        })
+      } else {
+        this.send({
+          name: '/yqzlController/confirm?id=' + row.id,
+          method: 'GET',
+          data: {
+          }
+        }).then(res => {
+          if (res.data.respCode === '0') {
+            this.$message({
+              message: '确认成功!',
+              type: 'success'
+            })
+            this.getCapitalFlow()
+          } else {
+            this.$message({
+              message: res.data.message + '，确认失败！',
+              type: 'error'
+            })
+          }
+        }).catch((res) => {
+          console.log(res)
+        })
+      }
     },
     // 查看明细
     deleteChargeRecord (index, row) {
@@ -335,10 +385,11 @@ export default {
       }).then(res => {
         let Info = res.data.data
         if (res.data.respCode === '0') {
-          this.changUserFdepsta(Info.fdepsta)
+          this.changeUserFdepsta(Info.fdepsta)
           this.changeUserBalance(Info.faccount)
 
-          this.formInfo.company = Info.companyName
+          this.formInfo.companyName = Info.companyName
+          this.formInfo.companyNo = Info.companyNo
           this.formInfo.contact = Info.companyLxr
           this.formInfo.tel = Info.companyPhone
 
@@ -444,7 +495,7 @@ export default {
   margin: 20px 20px 60px 20px;
   padding: 20px;
   .LeftTit{
-    width: 100px;
+    width: 120px;
     text-align: left;
     color: #909399;
     font-weight: bold;

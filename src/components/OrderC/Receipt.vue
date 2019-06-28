@@ -14,7 +14,7 @@
         </el-row>
       </el-col> -->
       <!-- 未指定订单查询筛选条件 -->
-      <el-col v-if="siderIdx == '1-6' && checkStatus == '1'" :span="24"  class="MarginB_20">
+      <el-col v-if="siderIdx == '1-6' && userFaccountid" :span="24"  class="MarginB_20">
         <el-form id="fromSearch" ref="fromSearch" :model="fromSearch" label-width="80px" label-position="left">
           <el-row>
             <el-col :span="7" :offset="0">
@@ -125,11 +125,11 @@
           </el-row>
         </el-form>
       </el-col>
-      <el-col v-if="siderIdx == '1-6' && checkStatus == '1'" :span="24">
+      <el-col v-if="siderIdx == '1-6' && userFaccountid" :span="24">
         <el-button size="mini" icon="el-icon-refresh" @click="searchReset">重置</el-button>
         <el-button size="mini" type="primary" icon="el-icon-search" @click="searchOrder">查询</el-button>
       </el-col>
-      <el-col v-if="siderIdx == '1-6' && checkStatus == '1'" :span="24"><div class="DividerLine"></div></el-col>
+      <el-col v-if="siderIdx == '1-6' && userFaccountid" :span="24"><div class="DividerLine"></div></el-col>
       <el-col :span="24"  class="MarginTB_20">
         <el-table
           ref="multipleTable"
@@ -174,7 +174,7 @@
           </el-table-column>
         </el-table>
       </el-col>
-      <el-col :span="24" class="MarginTB_20 TextAlignR" v-if="OrderList.length > 0 && checkStatus == '1'">
+      <el-col :span="24" class="MarginTB_20 TextAlignR" v-if="OrderList.length > 0 && userFaccountid">
         <el-pagination
         @current-change="handleCurrentChange"
         :current-page.sync="currentPage"
@@ -238,6 +238,7 @@ export default {
     ...mapState({
       userRole: state => state.userRole,
       checkStatus: state => state.checkStatus,
+      userFaccountid: state => state.userFaccountid,
       userId: state => state.userId,
       showDetail: state => state.showDetail,
       siderIdx: state => state.siderIdx,
@@ -371,10 +372,10 @@ export default {
     // 获取未指定的订单列表
     getOrderListNotAppoint () {
       let urlHasChecked = 'list/' + this.currentPage + '/' + this.pageSize + '/0' + '/{appointId}?appointId=' + '&order_no=' + this.fromSearch.orderNumber + '&fh=' + this.fromSearch.farea + '&sh=' + this.fromSearch.sarea + '&goodstype=' + this.fromSearch.goodsName + '&cartype=' + this.fromSearch.carType
-      let urlNotChecked = 'list2/' + '/1/' + this.pageSize
+      let urlNotChecked = 'list2/' + '1/' + this.pageSize
       this.loading = true
       this.send({
-        name: '/orderController/' + (this.checkStatus === '1' ? urlHasChecked : urlNotChecked),
+        name: '/orderController/' + (this.userFaccountid ? urlHasChecked : urlNotChecked),
         method: 'GET',
         data: {}
       }).then(res => {

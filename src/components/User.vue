@@ -115,8 +115,20 @@
         </el-pagination>
       </el-col>
     </el-row>
+    <!-- 新增子账户 -->
+    <!-- <el-dialog title="新增子账户" :visible.sync="dialogFormSecondVisible">
+      <el-form :model="formSecondAccount" :rules="rulesSecondAccount" ref="formSecondAccount" label-width="80px">
+        <el-form-item label="初始密码" prop="psd">
+          <el-input v-model="formSecondAccount.psd" clearable></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormSecondVisible = false">取 消</el-button>
+        <el-button type="primary" @click="addSecondAccount('formSecondAccount')" :loading="loading">确 定</el-button>
+      </div>
+    </el-dialog> -->
     <!-- 新增司机 -->
-    <el-dialog title="新增司机" :visible.sync="dialogFormVisible">
+    <el-dialog title="新增司机" :visible.sync="dialogFormDriverVisible">
       <el-form :model="form" :rules="Rules" ref="form" label-width="80px">
         <el-form-item label="司机姓名" prop="LogisticName">
           <el-input v-model="form.LogisticName" clearable></el-input>
@@ -132,7 +144,7 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button @click="dialogFormDriverVisible = false">取 消</el-button>
         <el-button type="primary" @click="addLogistic('form')" :loading="loading">确 定</el-button>
       </div>
     </el-dialog>
@@ -153,13 +165,31 @@ export default {
         callback()
       }
     }
+    var validatePsd = (rule, value, callback) => {
+      if (value.trim() === '') {
+        callback(new Error('请输入初始密码！'))
+      } else if (value.indexOf(' ') !== -1) {
+        callback(new Error('密码不能包含空格!'))
+      } else {
+        callback()
+      }
+    }
     return {
       loading: false,
       currentPage: 1,
       sum: 0,
       UserList: [],
       LogisticsList: [],
-      dialogFormVisible: false,
+      dialogFormDriverVisible: false,
+      dialogFormSecondVisible: false,
+      formSecondAccount: {
+        psd: ''
+      },
+      rulesSecondAccount: {
+        psd: [
+          { required: true, validator: validatePsd, trigger: 'blur' }
+        ]
+      },
       form: {
         LogisticName: '',
         LogisticPhone: '',
@@ -184,7 +214,7 @@ export default {
       userId: state => state.userId,
       userCode: state => state.userCode,
       userRole: state => state.userRole,
-      checkStatus: state => state.userRole
+      checkStatus: state => state.checkStatus
     }),
     userType: {
       get: function () {
@@ -225,34 +255,57 @@ export default {
     },
     // 添加用户
     addUser () {
-      if (this.checkStatus !== '1' && this.userRole === '1') {
-        this.$confirm('您还未进行信息认证不能进行子账户添加，是否前去认证?', '提示', {
-          confirmButtonText: '前往',
-          cancelButtonText: '取消',
+      if (this.checkStatus === '2') {
+        this.$message({
+          message: this.$store.state.prohibitTips,
           type: 'warning'
-        }).then(() => {
-          this.$router.push({name: 'Information'})
-          this.changeLocationIdx(3)
-        }).catch(() => {
         })
       } else {
-        if (this.userType === 0) {
-          this.modalUser()
+        if (this.checkStatus === '0') {
+          this.$confirm('您还未进行信息认证不能新增用户，是否前去认证?', '提示', {
+            confirmButtonText: '前往',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            this.$router.push({name: 'Information'})
+            this.changeLocationIdx(3)
+          }).catch(() => {
+          })
         } else {
-          this.dialogFormVisible = true
+          if (this.userType === 0) {
+            // this.dialogFormSecondVisible = true
+            this.modalUser()
+          } else {
+            this.dialogFormDriverVisible = true
+          }
         }
       }
     },
     // 添加子账户
     modalUser () {
-      this.$prompt('请输入初始密码', '新增子账户', {
+      this.$prompt('请输入初始密码(6-12位数字或字母)', '新增子账户', {
         distinguishCancelAndClose: true,
         confirmButtonText: '确定',
-        cancelButtonText: '取消'
+        cancelButtonText: '取消',
+        inputPattern: /^[A-Za-z0-9]{6,12}$/,
+        inputErrorMessage: '密码格式不正确!'
       }).then(({ value }) => {
         this.sureAdd(value)
       }).catch((res) => {
         console.log(res)
+      })
+    },
+    addSecondAccount (formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          this.sureAdd(this.formSecondAccount.psd)
+        } else {
+          this.$message({
+            message: '请将信息填写完整！',
+            type: 'warning'
+          })
+          return false
+        }
       })
     },
     // 添加司机
@@ -271,7 +324,7 @@ export default {
                 message: '新增司机成功！',
                 type: 'success'
               })
-              this.dialogFormVisible = false
+              this.dialogFormDriverVisible = false
               // 清空输入
               this.form.LogisticName = ''
               this.form.LogisticPhone = ''
@@ -321,6 +374,7 @@ export default {
         mainUsercode: this.userCode
       }
       let stObj = JSON.stringify(DATA)
+      this.loading = true
       this.send({
         name: '/zRegisterController/subAccountCreate?zRegisterJson=' + stObj,
         method: 'POST',
@@ -332,63 +386,84 @@ export default {
             message: '子账户新增成功！',
             type: 'success'
           })
+          this.formSecondAccount.psd = ''
+          this.dialogFormSecondVisible = false
+          this.loading = false
           this.getUserList()
         } else {
           this.$message({
             message: res.data.message + '！',
             type: 'error'
           })
+          this.loading = false
         }
       }).catch((res) => {
         console.log(res)
+        this.loading = false
       })
     },
     // 重置密码
     handleReset (index, row) {
-      this.$prompt('请输入新密码', '重置密码', {
-        distinguishCancelAndClose: true,
-        confirmButtonText: '确定',
-        cancelButtonText: '取消'
-      }).then(({ value }) => {
-        this.send({
-          name: '/zRegisterController/subAccountChangePsw?usercode=' + row.usercode + '&fpassword=' + this.password,
-          method: 'POST',
-          data: {
-          }
-        }).then(res => {
-          if (res.data.respCode === '0') {
-            this.$message({
-              message: '子账号密码重置成功！',
-              type: 'success'
-            })
+      if (this.checkStatus === '2') {
+        this.$message({
+          message: this.$store.state.prohibitTips,
+          type: 'warning'
+        })
+      } else {
+        this.$prompt('请输入新密码(6-12位数字或字母)', '重置密码', {
+          distinguishCancelAndClose: true,
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          inputPattern: /^[A-Za-z0-9]{6,12}$/,
+          inputErrorMessage: '密码格式不正确'
+        }).then(({ value }) => {
+          this.send({
+            name: '/zRegisterController/subAccountChangePsw?usercode=' + row.usercode + '&fpassword=' + this.password,
+            method: 'POST',
+            data: {
+            }
+          }).then(res => {
+            if (res.data.respCode === '0') {
+              this.$message({
+                message: '子账号密码重置成功！',
+                type: 'success'
+              })
+            } else {
+              this.$message({
+                message: res.data.message + '！',
+                type: 'error'
+              })
+            }
+          }).catch((res) => {
+            console.log(res)
+          })
+        }).catch((res) => {
+          console.log(res)
+        })
+      }
+    },
+    // 删除提示
+    handleDelete (idx, row, type) {
+      if (this.checkStatus === '2') {
+        this.$message({
+          message: this.$store.state.prohibitTips,
+          type: 'warning'
+        })
+      } else {
+        this.$confirm('此操作将删除该用户, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          if (type === 'logistic') {
+            this.sureDeleteLogistic(row.id)
           } else {
-            this.$message({
-              message: res.data.message + '！',
-              type: 'error'
-            })
+            this.sureDeleteUser(row.id)
           }
         }).catch((res) => {
           console.log(res)
         })
-      }).catch((res) => {
-        console.log(res)
-      })
-    },
-    // 删除提示
-    handleDelete (idx, row, type) {
-      this.$confirm('此操作将删除该用户, 是否继续?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        if (type === 'logistic') {
-          this.sureDeleteLogistic(row.id)
-        } else {
-          this.sureDeleteUser(row.id)
-        }
-      }).catch((res) => {
-        console.log(res)
-      })
+      }
     },
     // 删除子账户
     sureDeleteUser (id) {

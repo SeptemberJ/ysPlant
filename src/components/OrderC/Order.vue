@@ -58,12 +58,20 @@
         <el-form :inline="true" :model="formCondition" class="demo-form-inline">
           <el-form-item label="订单状态">
             <el-select v-model="formCondition.status" placeholder="订单状态" size="mini" @change="searchOrder">
-              <el-option label="待接单" value="5"></el-option>
-              <!-- <el-option label="待货主确认" value="2"></el-option> -->
+              <el-option label="已接单" value="1"></el-option>
+              <el-option label="货主已发起协议" value="2"></el-option>
+              <el-option label="已签署协议" value="3"></el-option>
+              <el-option label="运输中" value="4"></el-option>
+              <el-option label="已签收" value="5"></el-option>
+              <el-option label="待货主确认" value="6"></el-option>
+              <el-option label="已取消" value="7"></el-option>
+              <el-option label="待支付" value="8"></el-option>
+              <el-option label="已结单" value="9"></el-option>
+              <!-- <el-option label="待接单" value="5"></el-option>
               <el-option label="已接单" value="0"></el-option>
               <el-option label="运输" value="1"></el-option>
               <el-option label="已取消" value="3"></el-option>
-              <el-option label="签收" value="4"></el-option>
+              <el-option label="签收" value="4"></el-option> -->
             </el-select>
           </el-form-item>
           <el-form-item>
@@ -90,9 +98,10 @@
           </el-table-column>
            <el-table-column
             label="订单状态"
-            width="100">
+            width="120">
             <template slot-scope="scope">
-              <span>{{scope.row.fstatus == 0 ? '待接单' : (scope.row.fstatus == 1 ? '已接单' : (scope.row.fstatus == 2 ? '已撤单' : (scope.row.fstatus == 3 ? '运输中' : (scope.row.fstatus == 4 ? '已签收' : '已取消'))))}}</span>
+              <span>{{scope.row.fstatus == 0 ? '待接单' : (scope.row.fstatus == 1 ? '已接单' : (scope.row.fstatus == 2 ? '货主已发起协议' : (scope.row.fstatus == 3 ? '已签署协议' : (scope.row.fstatus == 4 ? '运输中' : (scope.row.fstatus == 5 ? '已签收' : (scope.row.fstatus == 6 ? '待货主确认' : (scope.row.fstatus == 7 ? '已取消' : (scope.row.fstatus == 8 ? '待支付' : (scope.row.fstatus == 9 ? '已结单' : '其它')))))))))}}</span>
+              <!-- <span>{{scope.row.fstatus == 0 ? '待接单' : (scope.row.fstatus == 1 ? '已接单' : (scope.row.fstatus == 2 ? '已撤单' : (scope.row.fstatus == 3 ? '运输中' : (scope.row.fstatus == 4 ? '已签收' : '已取消'))))}}</span> -->
             </template>
           </el-table-column>
           <el-table-column
@@ -102,6 +111,7 @@
           </el-table-column>
           <el-table-column
             prop="ffee"
+            width="100"
             label="报价(¥)"
             show-overflow-tooltip>
           </el-table-column>
@@ -118,12 +128,17 @@
           <el-table-column
             align="right"
             label="操作"
-            width="80">
+            width="180">
             <template slot-scope="scope">
               <el-button
                 size="mini"
                 type="primary"
                 @click="handleSeeSjOrderDetail(scope.$index, scope.row)">查看
+              </el-button>
+              <el-button v-if="scope.row.fstatus = 2"
+                size="mini"
+                type="info"
+                @click="signAgreement(scope.$index, scope.row)">签署协议
               </el-button>
             </template>
           </el-table-column>
@@ -140,28 +155,34 @@
         </el-pagination>
       </el-col>
     </el-row>
+    <!-- 订单详情 -->
     <OrderDetail v-if="showDetail" @toggleOrderDetail='changeIfOrderDetail'/>
+    <!-- 运输协议 -->
+    <transportAgreement v-if="showTransportAgreement" :type="1" :orderId="orderId" @refreshList='getStatusOrderList' @closeTransportAgreement='closeTransportAgreement'/>
   </div>
 </template>
 
 <script>
 import { mapState, mapActions } from 'vuex'
 import OrderDetail from './OrderDetail.vue'
+import transportAgreement from '../transportAgreement.vue'
 export default {
   name: 'Order',
   data () {
     return {
       loading: false,
+      showTransportAgreement: false,
       currentPage: 1,
       currentPageOrder: 1,
       sum: 0,
       sumOrder: 0,
       formCondition: {
-        status: '5'
+        status: '1'
       },
       LogisticsList: [],
       orderList: [],
-      selectedOrder: []
+      selectedOrder: [],
+      orderId: null
     }
   },
   computed: {
@@ -192,7 +213,8 @@ export default {
     }
   },
   components: {
-    OrderDetail
+    OrderDetail,
+    transportAgreement
   },
   methods: {
     ...mapActions([
@@ -268,6 +290,14 @@ export default {
     handleSeeSjOrderDetail (idx, row) {
       this.changeShowDetail(true)
       this.changeSearchOrderId(row.id)
+    },
+    // 签署运输协议
+    signAgreement (idx, row) {
+      this.orderId = row.id
+      this.showTransportAgreement = true
+    },
+    closeTransportAgreement () {
+      this.showTransportAgreement = false
     },
     // 关闭详情
     changeIfOrderDetail () {

@@ -447,6 +447,7 @@ export default {
   computed: {
     ...mapState({
       userRole: state => state.userRole,
+      checkStatus: state => state.checkStatus,
       userCode: state => state.userCode,
       userId: state => state.userId,
       searchOrderId: state => state.searchOrderId,
@@ -544,24 +545,31 @@ export default {
     },
     // 订单新增提交
     onSubmit (formName) {
-      if (this.formAdd.orderGoodsList.length === 0) {
+      if (this.checkStatus === '1') {
         this.$message({
-          message: '请至少添加一行货物信息！',
+          message: this.$store.state.prohibitTips,
           type: 'warning'
         })
-        return false
-      }
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          this.sureAdd()
-        } else {
+      } else {
+        if (this.formAdd.orderGoodsList.length === 0) {
           this.$message({
-            message: '请将信息填写完整！',
+            message: '请至少添加一行货物信息！',
             type: 'warning'
           })
           return false
         }
-      })
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+            this.sureAdd()
+          } else {
+            this.$message({
+              message: '请将信息填写完整！',
+              type: 'warning'
+            })
+            return false
+          }
+        })
+      }
     },
     sureAdd () {
       let DATA = {
@@ -618,14 +626,21 @@ export default {
     },
     // 付款
     payment () {
-      this.$confirm('确认支付该订单的金额?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        this.surePay()
-      }).catch(() => {
-      })
+      if (this.checkStatus === '2') {
+        this.$message({
+          message: this.$store.state.prohibitTips,
+          type: 'warning'
+        })
+      } else {
+        this.$confirm('确认支付该订单的金额?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.surePay()
+        }).catch(() => {
+        })
+      }
     },
     surePay () {
       this.send({
@@ -786,29 +801,36 @@ export default {
     },
     // 回单确认
     huidanConfirm () {
-      this.send({
-        name: '/orderController/huidan/' + this.searchOrderId,
-        method: 'POST'
-      }).then(res => {
-        if (res.data.respCode === '0') {
+      if (this.checkStatus === '2') {
+        this.$message({
+          message: this.$store.state.prohibitTips,
+          type: 'warning'
+        })
+      } else {
+        this.send({
+          name: '/orderController/huidan/' + this.searchOrderId,
+          method: 'POST'
+        }).then(res => {
+          if (res.data.respCode === '0') {
+            this.$message({
+              message: '回单确认成功！',
+              type: 'success'
+            })
+            this.getOrderDetail()
+          } else {
+            this.$message({
+              message: res.data.message + '！',
+              type: 'error'
+            })
+          }
+        }).catch((res) => {
+          console.log(res)
           this.$message({
-            message: '回单确认成功！',
-            type: 'success'
-          })
-          this.getOrderDetail()
-        } else {
-          this.$message({
-            message: res.data.message + '！',
+            message: '回单确认失败！',
             type: 'error'
           })
-        }
-      }).catch((res) => {
-        console.log(res)
-        this.$message({
-          message: '回单确认失败！',
-          type: 'error'
         })
-      })
+      }
     },
     // 获取初始发货地与收货地的距离
     getDistanceDefault (fh, sh) {

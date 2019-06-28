@@ -98,6 +98,7 @@ export default {
   computed: {
     ...mapState({
       userAccount: state => state.userAccount,
+      checkStatus: state => state.checkStatus,
       locationIdx: state => state.locationIdx
     })
   },
@@ -149,50 +150,57 @@ export default {
     },
     // 保存修改
     onSubmit (formName) {
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          if (this.formSafe.code.trim() !== this.code_R) {
+      if (this.checkStatus === '2') {
+        this.$message({
+          message: this.$store.state.prohibitTips,
+          type: 'warning'
+        })
+      } else {
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+            if (this.formSafe.code.trim() !== this.code_R) {
+              this.$message({
+                message: '验证码不正确！',
+                type: 'warning'
+              })
+              return false
+            }
+            this.ifLoading = true
+            this.send({
+              name: '/tokens/registerChangePsw?fmobile=' + this.userAccount + '&fpassword=' + this.formSafe.password,
+              method: 'POST',
+              data: {
+              }
+            }).then(res => {
+              if (res.data.respCode === '0') {
+                this.$message({
+                  message: '密码修改成功！',
+                  type: 'success'
+                })
+                this.$router.push({name: 'Login'})
+                this.changeLocationIdx(0)
+                clearCookie('btwccy_cookie')
+                this.ifLoading = false
+              } else {
+                this.$message({
+                  message: res.data.message + '！',
+                  type: 'error'
+                })
+                this.ifLoading = false
+              }
+            }).catch((res) => {
+              console.log(res)
+              this.ifLoading = false
+            })
+          } else {
             this.$message({
-              message: '验证码不正确！',
+              message: '请将信息填写完整！',
               type: 'warning'
             })
             return false
           }
-          this.ifLoading = true
-          this.send({
-            name: '/tokens/registerChangePsw?fmobile=' + this.userAccount + '&fpassword=' + this.formSafe.password,
-            method: 'POST',
-            data: {
-            }
-          }).then(res => {
-            if (res.data.respCode === '0') {
-              this.$message({
-                message: '密码修改成功！',
-                type: 'success'
-              })
-              this.$router.push({name: 'Login'})
-              this.changeLocationIdx(0)
-              clearCookie('btwccy_cookie')
-              this.ifLoading = false
-            } else {
-              this.$message({
-                message: res.data.message + '！',
-                type: 'error'
-              })
-              this.ifLoading = false
-            }
-          }).catch((res) => {
-            console.log(res)
-            this.ifLoading = false
-          })
-        } else {
-          this.$message({
-            message: '请将信息填写完整！',
-            type: 'warning'
-          })
-          return false
-        }
-      })
+        })
+      }
     }
   }
 }

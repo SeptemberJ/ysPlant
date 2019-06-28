@@ -6,18 +6,24 @@
       <el-form-item v-if="userRole == 1 || userRole == 2" label="公司名称" prop="company">
         <el-input v-model="formInfo.company" placeholder="请输入公司名称" clearable></el-input>
       </el-form-item>
-      <el-form-item v-if="userRole == 1 || userRole == 2" label="联系人" prop="contact">
-        <el-input v-model="formInfo.contact" placeholder="请输入联系人" clearable></el-input>
+      <el-form-item v-if="userRole == 1 || userRole == 2" label="统一社会信用代码" prop="organcode">
+        <el-input v-model="formInfo.organcode" placeholder="请输入统一社会信用代码" clearable></el-input>
       </el-form-item>
-      <!-- 个体司机 -->
+      <!-- <el-form-item v-if="userRole == 1 || userRole == 2" label="联系人" prop="contact">
+        <el-input v-model="formInfo.contact" placeholder="请输入联系人" clearable></el-input>
+      </el-form-item> -->
+      <!-- 个体 -->
+      <el-form-item v-if="userRole == 3" label="姓名" prop="name">
+        <el-input v-model="formInfo.name" placeholder="请输入姓名" clearable></el-input>
+      </el-form-item>
       <el-form-item v-if="userRole == 3" label="身份证" prop="ID">
         <el-input v-model="formInfo.ID" placeholder="请输入身份证号" clearable></el-input>
       </el-form-item>
-      <el-form-item v-if="userRole == 1 || userRole == 2" label="联系电话" prop="tel">
+      <!-- <el-form-item v-if="userRole == 1 || userRole == 2" label="联系电话" prop="tel">
         <el-input v-model="formInfo.tel" placeholder="请输入联系人手机号" clearable></el-input>
-      </el-form-item>
-      <!-- 货主 -->
-      <el-form-item v-if="userRole == 1 || userRole == 2" label="抬头" prop="taitou">
+      </el-form-item> -->
+      <!-- 货主和承运商 -->
+      <!-- <el-form-item v-if="userRole == 1 || userRole == 2" label="抬头" prop="taitou">
         <el-input v-model="formInfo.taitou" placeholder="请输入抬头" clearable></el-input>
       </el-form-item>
       <el-form-item v-if="userRole == 1 || userRole == 2" label="开户行" prop="bank">
@@ -31,8 +37,19 @@
       </el-form-item>
       <el-form-item v-if="userRole == 1 || userRole == 2" label="税号" prop="tax">
         <el-input v-model="formInfo.tax" placeholder="请输入税号" clearable></el-input>
-      </el-form-item>
+      </el-form-item> -->
       <!-- 个体货主 -->
+      <el-form-item v-if="userRole == 3" label="头像" prop="avatar">
+        <el-upload
+          class="avatar-uploader"
+          action=""
+          :show-file-list="false"
+          :on-success="handleAvatarSuccess"
+          :before-upload="beforeAvatarUploadAvatar">
+          <img v-if="formInfo.avatar" :src="formInfo.avatar" class="avatar">
+          <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+        </el-upload>
+      </el-form-item>
       <el-form-item v-if="userRole == 3" label="身份证正面" prop="license">
         <el-upload
           class="avatar-uploader"
@@ -67,19 +84,7 @@
           <i v-else class="el-icon-plus avatar-uploader-icon"></i>
         </el-upload>
       </el-form-item>
-      <el-form-item v-if="userRole == 1 || userRole == 2" label="合同(请下载文件后盖章)" prop="contract">
-        <!-- 原为上传合同图片
-        <el-upload
-          class="avatar-uploader"
-          action=""
-          :show-file-list="false"
-          accept=".pdf,.doc,.PDF"
-          :on-success="handleAvatarSuccess"
-          :before-upload="beforeAvatarUploadC">
-          <img v-if="formInfo.contract" :src="formInfo.contract" class="avatar">
-          <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-        </el-upload>
-        <span class="CursorPointer" style="color:#409EFF" target="_blank" @click="ToPdf">点击下载合同格式文件</span> -->
+      <!-- <el-form-item v-if="userRole == 1 || userRole == 2" label="合同(请下载文件后盖章)" prop="contract">
         <el-upload
           class="upload-demo"
           action=""
@@ -90,12 +95,12 @@
           <span v-if="hetongName">{{hetongName}}</span>
           <span class="CursorPointer" style="color:#409EFF;display: Block" target="_blank" @click="ToPdf">点击下载合同格式文件</span>
         </el-upload>
-      </el-form-item>
+      </el-form-item> -->
       <el-form-item >
         <el-checkbox v-model="agreed">我已阅读并同意</el-checkbox><span class="CursorPointer" style="color:#409EFF" @click="showAgreement">使用许可及服务协议</span>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="onSubmit('formInfo')" style="width: 100px;" :loading="ifLoading">保存</el-button>
+        <el-button type="primary" @click="onSubmitRZ('formInfo')" style="width: 100px;" :loading="ifLoading">提交认证</el-button>
         <!-- <el-button type="primary" :disabled="checkStatus == 0" @click="onSubmit('formInfo')" style="width: 100px;" :loading="ifLoading">{{checkStatus == -1 ? '提交信息' :'保存修改'}}</el-button> -->
       </el-form-item>
       <div class="BgBlock"></div>
@@ -135,21 +140,27 @@ export default {
       licenseImgName: '', // 图片服务器地址 执照和身份证正面
       contractImgName: '', // 图片服务器地址 合同和身份证反面
       hetongName: '', // 上传的合同文件的本地名称
+      avatarName: '', // 图片服务器地址 头像
       formInfo: {
+        organcode: '',
         company: '',
         bank: '',
         bankNo: '',
         faddress: '',
         taitou: '',
         tax: '',
+        avatar: '',
+        name: '',
         ID: '',
-        contact: '',
         tel: '',
         license: '',
         contract: '',
         role: ''
       },
       InfoRules: {
+        organcode: [
+          { required: true, message: '请输入统一社会信用代码！', trigger: 'blur' }
+        ],
         company: [
           { required: true, message: '请输入公司名称！', trigger: 'blur' }
         ],
@@ -168,6 +179,12 @@ export default {
         tax: [
           { required: true, message: '请输入税号！', trigger: 'blur' }
         ],
+        name: [
+          { required: true, message: '请输入姓名！', trigger: 'blur' }
+        ],
+        avatar: [
+          { required: true, message: '请选择要上传的头像！', trigger: 'blur' }
+        ],
         ID: [
           { required: true, validator: validateID, trigger: 'blur' }
         ],
@@ -184,22 +201,47 @@ export default {
           { required: true, message: '请选择要上传的文件！', trigger: 'blur' }
         ]
       }
+      // rzForm: {
+      //   name: '',
+      //   ID: '',
+      //   company: '',
+      //   organcode: ''
+      // },
+      // rzRules: {
+      //   name: [
+      //     { required: true, message: '请输入姓名！', trigger: 'blur' }
+      //   ],
+      //   ID: [
+      //     { required: true, message: '请输入身份证号！', trigger: 'blur' }
+      //   ],
+      //   company: [
+      //     { required: true, message: '请输入公司名称！', trigger: 'blur' }
+      //   ],
+      //   organcode: [
+      //     { required: true, message: '请输入统一社会信用代码！', trigger: 'blur' }
+      //   ]
+      // }
     }
   },
   computed: {
     ...mapState({
       userId: state => state.userId,
       userRole: state => state.userRole,
+      userFaccountid: state => state.userFaccountid,
       ImgURL_PREFIX: state => state.ImgURL_PREFIX
-    })
+    }),
+    ifShowPayRZ: function () {
+      return (!this.userFaccountid)
+    }
   },
   created () {
-    this.getBasicInfo()
+    // this.getBasicInfo()
   },
   methods: {
     ...mapActions([
       'changeLocationIdx',
-      'changPDFCompany'
+      'changPDFCompany',
+      'changeUserFaccountid'
     ]),
     handleAvatarSuccess (res, file) {
     },
@@ -227,7 +269,7 @@ export default {
       }
       let licenseImage = new FormData()
       licenseImage.append('file', file)
-      this.uploadImg('licenseImgName', licenseImage, 'zhizhao', 1)
+      this.uploadImg('licenseImgName', licenseImage, 'zhizhao', 1, 0)
       var _this = this
       var reader = new FileReader()
       reader.readAsDataURL(file)
@@ -251,16 +293,16 @@ export default {
       contractImage.append('file', file)
       switch (fileName.substring(index)) {
         case '.pdf':
-          this.uploadImg('contractImgName', contractImage, 'hetong', 2)
+          this.uploadImg('contractImgName', contractImage, 'hetong', 2, 0)
           break
         case '.PDF':
-          this.uploadImg('contractImgName', contractImage, 'hetong', 2)
+          this.uploadImg('contractImgName', contractImage, 'hetong', 2, 0)
           break
         case '.doc':
-          this.uploadImg('contractImgName', contractImage, 'hetong', 3)
+          this.uploadImg('contractImgName', contractImage, 'hetong', 3, 0)
           break
         case '.DOC':
-          this.uploadImg('contractImgName', contractImage, 'hetong', 3)
+          this.uploadImg('contractImgName', contractImage, 'hetong', 3, 0)
           break
       }
       var _this = this
@@ -268,6 +310,25 @@ export default {
       reader.readAsDataURL(file)
       reader.onload = function (e) {
         _this.formInfo.contract = this.result
+      }
+    },
+    // 头像
+    beforeAvatarUploadAvatar (file) {
+      if (file.size > 1024000 * 2) {
+        this.$message({
+          message: '您上传的图片太大了, 请不要超过2M!',
+          type: 'warning'
+        })
+        return false
+      }
+      let avatarFormData = new FormData()
+      avatarFormData.append('file', file)
+      this.uploadImg('avatarName', avatarFormData, 'Auth', 1, 1)
+      var _this = this
+      var reader = new FileReader()
+      reader.readAsDataURL(file)
+      reader.onload = function (e) {
+        _this.formInfo.avatar = this.result
       }
     },
     // 身份证正面
@@ -281,7 +342,7 @@ export default {
       }
       let licenseImage = new FormData()
       licenseImage.append('file', file)
-      this.uploadImg('licenseImgName', licenseImage, 'personalid', 1)
+      this.uploadImg('licenseImgName', licenseImage, 'Auth', 1, 1)
       var _this = this
       var reader = new FileReader()
       reader.readAsDataURL(file)
@@ -300,7 +361,7 @@ export default {
       }
       let contractImage = new FormData()
       contractImage.append('file', file)
-      this.uploadImg('contractImgName', contractImage, 'personalid', 1)
+      this.uploadImg('contractImgName', contractImage, 'Auth', 1, 1)
       var _this = this
       var reader = new FileReader()
       reader.readAsDataURL(file)
@@ -309,8 +370,8 @@ export default {
       }
     },
     // 上传图片
-    uploadImg (property, img, floder, type) {
-      axios.post(this.ImgURL_PREFIX + 'rest/registerDriverController/photo?kind=0&folder=' + floder + '&type=' + type, img, {
+    uploadImg (property, img, floder, type, kind) {
+      axios.post(this.ImgURL_PREFIX + 'rest/registerDriverController/photo?kind=' + kind + '&folder=' + floder + '&type=' + type, img, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'X-AUTH-TOKEN': getCookie('btwccy_cookie')
@@ -339,6 +400,30 @@ export default {
             case '3':
               this.submitGR()
               break
+          }
+        } else {
+          this.$message({
+            message: '请将信息填写完整！',
+            type: 'warning'
+          })
+          return false
+        }
+      })
+    },
+    onSubmitRZ (formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          if (!this.agreed) {
+            this.$message({
+              message: '请先阅读并同意使用许可及服务协议！',
+              type: 'warning'
+            })
+            return false
+          }
+          if (this.userRole === '3') {
+            this.payRenZhengGR()
+          } else {
+            this.payRenZhengNotGR()
           }
         } else {
           this.$message({
@@ -439,7 +524,8 @@ export default {
         id: this.userId,
         fidentity: this.formInfo.ID,
         fidentity_front: this.licenseImgName,
-        fidentity_back: this.contractImgName
+        fidentity_back: this.contractImgName,
+        headpic: this.avatarName
       }
       let stObg = JSON.stringify(DATA)
       this.ifLoading = true
@@ -468,6 +554,74 @@ export default {
         this.ifLoading = false
       })
     },
+    // 个人支付认证
+    payRenZhengGR () {
+      let DATA = {
+        id: this.userId,
+        name: this.formInfo.name,
+        idno: this.formInfo.ID,
+        type: 0,
+        front: this.licenseImgName,
+        back: this.contractImgName
+      }
+      let stObg = JSON.stringify(DATA)
+      this.ifLoading = true
+      this.send({
+        name: '/eSignController/personAuth?personAuth=' + stObg,
+        method: 'POST',
+        data: {
+        }
+      }).then(res => {
+        if (res.data.respCode === '0') {
+          this.ifLoading = false
+          this.changeUserFaccountid(res.data.data)
+          this.$router.push({name: 'Home'})
+        } else {
+          this.ifLoading = false
+          this.$message({
+            message: res.data.message + '！',
+            type: 'error'
+          })
+        }
+      }).catch((res) => {
+        this.ifLoading = false
+        console.log(res)
+      })
+    },
+    // 货主和承运商支付认证
+    payRenZhengNotGR () {
+      let DATA = {
+        id: this.userId,
+        name: this.formInfo.company,
+        organtype: 0,
+        organcode: this.formInfo.organcode,
+        usertype: 0,
+        company_licence: this.licenseImgName
+      }
+      let stObg = JSON.stringify(DATA)
+      this.ifLoading = true
+      this.send({
+        name: '/eSignController/organizeAuth?organizeAuth=' + stObg,
+        method: 'POST',
+        data: {
+        }
+      }).then(res => {
+        if (res.data.respCode === '0') {
+          this.ifLoading = false
+          this.changeUserFaccountid(res.data.data)
+          this.$router.push({name: 'Home'})
+        } else {
+          this.ifLoading = false
+          this.$message({
+            message: res.data.message + '！',
+            type: 'error'
+          })
+        }
+      }).catch((res) => {
+        this.ifLoading = false
+        console.log(res)
+      })
+    },
     // 获取基本信息
     getBasicInfo () {
       this.send({
@@ -480,11 +634,12 @@ export default {
         let Info = res.data.data
         this.checkStatus = Info.checkStatus
         if (res.data.respCode === '0') {
+          this.changeUserFaccountid(Info.faccountid)
           if (Info.checkStatus === '1' || Info.checkStatus === '3') {
             this.$router.push({name: 'Home'})
             this.changeLocationIdx(2)
           }
-          if (Info.checkStatus === '0') {
+          if ((Info.checkStatus === '0' && Info.companyContract) || (Info.checkStatus === '0' && Info.fbankNo)) {
             this.agreed = true
           }
           this.formInfo.company = Info.companyName
@@ -507,6 +662,7 @@ export default {
           }
           // 个人货主
           if (this.userRole === '3') {
+            this.formInfo.name = Info.companyLxr ? Info.companyLxr : ''
             this.formInfo.license = Info.fidentityFront ? (this.ImgURL_PREFIX + Info.fidentityFront) : ''
             this.formInfo.contract = Info.fidentityBack ? (this.ImgURL_PREFIX + Info.fidentityBack) : ''
             this.licenseImgName = Info.fidentityFront

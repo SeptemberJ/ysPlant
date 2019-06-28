@@ -16,14 +16,18 @@ const state = {
   userId: '',
   userAccount: '',
   userRole: '', // 1_承运商主 2_货主主 3_个人 4_承运商子 5_货主子
+  userTicketInfo: false, // true 补充过
+  userPartyB: '', // 乙方
   userCode: '',
-  checkStatus: null, // 用户信息认证状态 0_未审核 1_通过 2_退回 3_再次提交 子账户null
+  checkStatus: null, // 用户信息认证状态 0_未认证 1_已认证 2_禁用 // -1_注册完未提交 0_未审核 1_通过 2_退回 3_再次提交 4_已缴押金 子账户null
+  prohibitTips: '对不起，您的账户已被禁用，不能进行该操作！',
   userBalance: 0, // 账户余额
-  userFdepsta: '', // 0_未缴1_已缴2_已退
+  userFdepsta: '', // 0_未缴 1_已缴 2_已退
   // userFsettle: '', // 0_现结，1_月结
+  userFaccountid: null, // 是否支付认证过
   userFrate: 0, // 用户税额折扣
-  ImgURL_PREFIX: 'http://116.62.171.244:8082/yingsu/',
-  // ImgURL_PREFIX: 'http://172.16.52.63/',
+  // ImgURL_PREFIX2: 'http://116.62.171.244:8082/yingsu/',
+  ImgURL_PREFIX: 'http://120.27.3.205/',
   showDetail: false, // 是否显示订单详情页
   showMap: false, // 是否显示轨迹 货主
   ifSJOrderSearch: '', // 是否显示查询司机订单页面
@@ -70,17 +74,26 @@ const actions = {
   changeUserBalance ({commit, state}, Money) {
     commit('setUserBalance', Money)
   },
-  changUserFdepsta ({commit, state}, Fdepsta) {
+  changeUserFdepsta ({commit, state}, Fdepsta) {
     commit('setUserFdepsta', Fdepsta)
   },
-  changUserFsettle ({commit, state}, Fsettle) {
+  changeUserFsettle ({commit, state}, Fsettle) {
     commit('setUserFsettle', Fsettle)
   },
-  changUserFrate ({commit, state}, Frate) {
+  changeUserFaccountid ({commit, state}, Accountid) {
+    commit('setUserFaccountid', Accountid)
+  },
+  changeUserFrate ({commit, state}, Frate) {
     commit('setUserFrate', Frate)
   },
   changeUserRole ({commit, state}, TYPE) {
     commit('setUserRole', TYPE)
+  },
+  changeUserTicketInfo ({commit, state}, STATUS) {
+    commit('setUserTicketInfo', STATUS)
+  },
+  updatePartyB ({commit, state}, PartyBInfo) {
+    commit('setPartyB', PartyBInfo)
   },
   changeUserAccount ({commit, state}, Account) {
     commit('setUserAccount', Account)
@@ -149,11 +162,20 @@ const mutations = {
   setUserFsettle (state, Fsettle) {
     state.userFsettle = Fsettle
   },
+  setUserFaccountid (state, Accountid) {
+    state.userFaccountid = Accountid
+  },
   setUserFrate (state, Frate) {
     state.userFrate = Frate
   },
   setUserRole (state, TYPE) {
     state.userRole = TYPE
+  },
+  setUserTicketInfo (state, Status) {
+    state.userTicketInfo = Status
+  },
+  setPartyB (state, PartyBInfo) {
+    state.userPartyB = PartyBInfo
   },
   setUserAccount (state, Account) {
     state.userAccount = Account

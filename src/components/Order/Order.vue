@@ -124,7 +124,7 @@
           </el-table-column>
           <el-table-column
             label="订单状态"
-            width="100"
+            width="120"
             >
             <template slot-scope="scope">
               <span :class="[scope.row.fstatus == 8 ? 'ColorRed' : '']">{{scope.row.fstatusTxt}}</span>
@@ -143,7 +143,7 @@
           <el-table-column
             align="right"
             label="操作"
-            width="300"
+            width="380"
             >
             <template slot-scope="scope">
               <el-button
@@ -157,6 +157,12 @@
                 type="warning"
                 :disabled="scope.row.fstatus != 0"
                 @click="getOfferList(scope.$index, scope.row)">报价
+              </el-button>
+              <el-button
+                size="mini"
+                type="info"
+                :disabled="scope.row.fstatus != 1"
+                @click="signAgreement(scope.$index, scope.row)">签署协议
               </el-button>
               <el-button
                 size="mini"
@@ -205,16 +211,18 @@
           </el-table-column>
           <el-table-column
             prop="ffee"
-            width="100"
+            width="80"
             label="报价(¥)">
           </el-table-column>
           <el-table-column
             prop="fmobile"
+            width="120"
             label="手机号">
           </el-table-column>
           <el-table-column
             prop="fnote"
-            label="备注">
+            label="备注"
+            show-overflow-tooltip>
           </el-table-column>
           <el-table-column
             align="right"
@@ -236,7 +244,10 @@
       </div>
     </el-dialog>
     <OrderDetail v-if="showDetail && !showMap" @toggleOrderDetail='changeIfOrderDetail'/>
+    <!-- 轨迹 -->
     <Map v-if="!showDetail && showMap"/>
+    <!-- 运输协议 -->
+    <transportAgreement v-if="showTransportAgreement" :type="0" :orderId="orderId" @refreshList='getOrderList' @closeTransportAgreement='closeTransportAgreement' @closeBaoJiaDialog='closeBaoJiaDialog'/>
   </div>
 </template>
 
@@ -245,11 +256,13 @@ import { mapState, mapActions } from 'vuex'
 // import {secondToFormat} from '../../util/utils'
 import OrderDetail from './OrderDetail.vue'
 import Map from '../Map/Map.vue'
+import transportAgreement from '../transportAgreement.vue'
 export default {
   name: 'Order',
   data () {
     return {
       dialogFormVisible: false,
+      showTransportAgreement: false,
       loading: false,
       currentPage: 1,
       sum: 0,
@@ -279,12 +292,15 @@ export default {
       sareaPid: '',
       orderList: [],
       selectedOrder: [],
-      offerList: []
+      offerList: [],
+      orderId: null // 准备接受报价的订单id
+
     }
   },
   computed: {
     ...mapState({
       userRole: state => state.userRole,
+      checkStatus: state => state.checkStatus,
       userCode: state => state.userCode,
       showDetail: state => state.showDetail,
       showMap: state => state.showMap,
@@ -299,7 +315,8 @@ export default {
   },
   components: {
     OrderDetail,
-    Map
+    Map,
+    transportAgreement
   },
   methods: {
     ...mapActions([
@@ -335,9 +352,19 @@ export default {
       this.changeShowDetail(false)
       this.getOrderList()
     },
+    closeTransportAgreement () {
+      this.showTransportAgreement = false
+    },
+    closeBaoJiaDialog () {
+      this.dialogFormVisible = false
+    },
     handleEdit (idx, row) {
       this.changeShowDetail(true)
       this.changeSearchOrderId(row.id)
+    },
+    signAgreement (idx, row) {
+      this.orderId = row.id
+      this.showTransportAgreement = true
     },
     // 查看轨迹
     viewingPath (index, row) {
@@ -366,36 +393,51 @@ export default {
     },
     // 确认报价
     sureOffer (idx, row) {
-      this.send({
-        name: '/orderController/confirmOrder?driver_id=' + row.driver_id + '&order_id=' + row.order_id + '&ffee=' + row.ffee,
-        method: 'GET'
-      }).then(res => {
-        if (res.data.respCode === '0') {
-          this.dialogFormVisible = false
-          this.$message({
-            message: '确认成功！',
-            type: 'success'
-          })
-          this.getOrderList()
-        } else {
-          this.$message({
-            message: res.data.message + '！',
-            type: 'error'
-          })
-        }
-      }).catch((res) => {
-        console.log(res)
-      })
+      if (this.checkStatus === '2') {
+        this.$message({
+          message: this.$store.state.prohibitTips,
+          type: 'warning'
+        })
+      } else {
+        this.orderId = row.order_id
+        this.send({
+          name: '/orderController/confirmOrder?driver_id=' + row.driver_id + '&order_id=' + row.order_id + '&ffee=' + row.ffee,
+          method: 'GET'
+        }).then(res => {
+          if (res.data.respCode === '0') {
+            this.dialogFormVisible = false
+            this.$message({
+              message: '确认报价成功！',
+              type: 'success'
+            })
+            this.showTransportAgreement = true
+          } else {
+            this.$message({
+              message: res.data.message + '！',
+              type: 'error'
+            })
+          }
+        }).catch((res) => {
+          console.log(res)
+        })
+      }
     },
     handleCancel (idx, row) {
-      this.$confirm('此操作将取消该订单, 是否继续?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        this.sureCancel(row.id)
-      }).catch(() => {
-      })
+      if (this.checkStatus === '1') {
+        this.$message({
+          message: this.$store.state.prohibitTips,
+          type: 'warning'
+        })
+      } else {
+        this.$confirm('此操作将取消该订单, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.sureCancel(row.id)
+        }).catch(() => {
+        })
+      }
     },
     sureCancel (id) {
       this.send({
@@ -454,8 +496,8 @@ export default {
           this.sum = res.data.size
           this.orderList = res.data.data.map(order => {
             order.zhDate = order.zh_time // secondToFormat(order.zh_time.time)
-            order.fstatusTxt = (order.fstatus === '0' ? '待接单' : (order.fstatus === '1' ? '已接单' : (order.fstatus === '2' ? '已撤单' : (order.fstatus === '3' ? '运输中' : (order.fstatus === '4' ? '已签收待确认' : (order.fstatus === '5' ? '待付款' : (order.fstatus === '7' ? '已结单' : (order.fstatus === '8' ? '待支付' : '已取消'))))))))
-            // order.fstatusTxt = (order.fstatus === '0' ? '待接单' : (order.fstatus === '1' ? '已接单' : (order.fstatus === '2' ? '已撤单' : (order.fstatus === '3' ? '运输中' : (order.fstatus === '4' ? '已签收待确认' : (order.fstatus === '5' ? '待付款' : (order.fstatus === '7' ? '已结单' : ('已取消2'))))))))
+            order.fstatusTxt = (order.fstatus === '0' ? '待接单' : (order.fstatus === '1' ? '已接单' : (order.fstatus === '2' ? '已发起协议' : (order.fstatus === '3' ? '已签署协议' : (order.fstatus === '4' ? '运输中' : (order.fstatus === '5' ? '已签收' : (order.fstatus === '6' ? '待货主确认' : (order.fstatus === '7' ? '已取消' : (order.fstatus === '8' ? '待支付' : (order.fstatus === '9' ? '已结单' : '其它'))))))))))
+            // order.fstatusTxt = (order.fstatus === '0' ? '待接单' : (order.fstatus === '1' ? '已接单' : (order.fstatus === '2' ? '已撤单' : (order.fstatus === '3' ? '运输中' : (order.fstatus === '4' ? '已签收待确认' : (order.fstatus === '5' ? '待付款' : (order.fstatus === '7' ? '已结单' : (order.fstatus === '8' ? '待支付' : '已取消'))))))))
             return order
           })
         } else {

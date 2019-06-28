@@ -5,7 +5,7 @@
         <img src="../../static/images/Strongth_1.jpg" class="leftImg">
       </el-col>
       <el-col :span="12">
-        <el-form class="FormBox" :model="formSign" :rules="SignRules" ref="formSign" label-width="80px">
+        <el-form class="FormBox" :model="formSign" :rules="SignRules" ref="formSign" label-width="80px" size="medium">
           <el-form-item label="账户类型" prop="role">
             <el-radio-group v-model="formSign.role">
               <el-radio :label="1">承运商</el-radio>

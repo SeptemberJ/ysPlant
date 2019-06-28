@@ -259,17 +259,33 @@
     </el-row>
     <!-- 指定人员 -->
     <el-dialog title="派单" :visible.sync="dialogFormVisible" width="550px">
-      <el-row>
+      <el-form :model="formBaoJia" :rules="rulesBaoJia" ref="formBaoJia" label-width="100px" label-position="left">
+        <el-form-item label="报价金额" prop="offer">
+          <el-input v-model="formBaoJia.offer" placeholder='请输入您的报价金额' clearable></el-input>
+        </el-form-item>
+        <el-form-item label="指派司机" prop="choosedLogistic">
+          <el-select v-model="formBaoJia.choosedLogistic" placeholder="请选择" style="width:100%">
+            <el-option
+              v-for="item in LogisticsList"
+              :key="item.id"
+              :label="item.fname"
+              :value="item.id">
+              <span style="float: left">{{ item.fname }}</span>
+              <span style="float: right; color: #8492a6; font-size: 13px"><span class="PaddingL_10">{{item.fmobile}}</span></span>
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="备注" prop="offerNote">
+          <el-input type="textarea" v-model='formBaoJia.offerNote' placeholder='备注信息......'></el-input>
+        </el-form-item>
+      </el-form>
+      <!-- <el-row>
         <el-col :span="4">
           <span style="line-height: 35px;">报价金额：</span>
         </el-col>
         <el-col :span="20" class="TextAlignL">
           <el-input v-model='offer' placeholder='请输入您的报价金额' clearable></el-input>
         </el-col>
-        <!-- 原本显示最高限价
-        <el-col :span="8">
-          <span style="line-height: 35px;color:red">（最高限价{{maxFee}}）</span>
-        </el-col> -->
       </el-row>
       <el-row class="MarginT_10">
         <el-col :span="4">
@@ -295,10 +311,10 @@
         <el-col :span="20" class="TextAlignL">
           <el-input type="textarea" v-model='offerNote' placeholder='备注信息......'></el-input>
         </el-col>
-      </el-row>
+      </el-row> -->
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="sureOperation">确 定</el-button>
+        <el-button type="primary" @click="sureOperation('formBaoJia')">确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -448,10 +464,20 @@ export default {
         ]
       },
       maxFee: '',
-      offer: '', // 输入的报价
-      offerNote: '', // 报价备注
       LogisticsList: [],
-      choosedLogistic: '',
+      formBaoJia: {
+        offer: '', // 输入的报价
+        offerNote: '', // 报价备注
+        choosedLogistic: ''
+      },
+      rulesBaoJia: {
+        offer: [
+          { required: true, message: '请输入报价金额！', trigger: 'blur' }
+        ],
+        choosedLogistic: [
+          { required: true, message: '请选指派的司机！', trigger: 'blur' }
+        ]
+      },
       pickerOptionsStart: {
         disabledDate (time) {
           return time.getTime() < Date.now() - 8.64e7
@@ -464,6 +490,7 @@ export default {
       userRole: state => state.userRole,
       checkStatus: state => state.checkStatus,
       userId: state => state.userId,
+      userFaccountid: state => state.userFaccountid,
       userCode: state => state.userCode,
       searchOrderId: state => state.searchOrderId,
       ImgURL_PREFIX: state => state.ImgURL_PREFIX,
@@ -546,7 +573,7 @@ export default {
           temp.frece = Info.frece
           this.appointName = Info.appointId ? Info.appointId : '未指定'
           this.formAdd = temp
-          this.maxFee = Info.fmax_fee
+          this.maxFee = Info.fmaxFee
           this.hasOffered = res.data.size === 1
           // 省市区
           this.getProvince()
@@ -716,43 +743,60 @@ export default {
       })
     },
     showDialog () {
-      if (this.checkStatus !== '1' && this.userRole === '1') {
-        this.$confirm('您还未进行信息认证不能进行报价接单，是否前去认证?', '提示', {
-          confirmButtonText: '前往',
-          cancelButtonText: '取消',
+      if (this.checkStatus === '2') {
+        this.$message({
+          message: this.$store.state.prohibitTips,
           type: 'warning'
-        }).then(() => {
-          this.$router.push({name: 'Information'})
-          this.changeLocationIdx(3)
-        }).catch(() => {
         })
       } else {
-        this.dialogFormVisible = true
-        this.getDriverList()
+        if (!this.userFaccountid) {
+          this.$confirm('您还未进行信息认证不能进行报价接单，是否前去认证?', '提示', {
+            confirmButtonText: '前往',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            this.$router.push({name: 'Information'})
+            this.changeLocationIdx(3)
+          }).catch(() => {
+          })
+        } else {
+          this.dialogFormVisible = true
+          this.getDriverList()
+        }
       }
     },
-    sureOperation () {
-      this.sureOffer()
+    sureOperation (formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          if (this.maxFee < this.formBaoJia.offer) {
+            this.$message({
+              message: '报价超过了最高限价！',
+              type: 'error'
+            })
+            return false
+          } else {
+            this.sureOffer()
+          }
+        } else {
+          this.$message({
+            message: '请将信息填写完整！',
+            type: 'warning'
+          })
+          return false
+        }
+      })
     },
     // 报价
     sureOffer () {
-      if (this.maxFee < this.offer) {
-        this.$message({
-          message: '报价超过了最高限价！',
-          type: 'error'
-        })
-        return false
-      }
       let DATA = {
         registerId: this.userId,
-        driverId: this.choosedLogistic,
+        driverId: this.formBaoJia.choosedLogistic,
         orderId: this.searchOrderId,
         orderStatus: '5',
-        ffee: this.offer,
-        fnote: this.offerNote,
+        ffee: this.formBaoJia.offer,
+        fnote: this.formBaoJia.offerNote,
         createDate: new Date()
       }
-      console.log(DATA)
       this.send({
         name: '/driverOrderController',
         method: 'POST',

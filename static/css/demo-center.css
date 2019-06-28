@@ -152,7 +152,7 @@ h4 {
 }
 
 .input-item-text, input[type=text],input[type=date], select {
-  height: calc(2.2rem + 2px);
+  /*height: calc(2.2rem + 2px);*/
 }
 
 .input-item-text {
