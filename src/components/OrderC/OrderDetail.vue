@@ -27,7 +27,7 @@
                     <el-option
                       v-for="(fprovince, idx) in fprovinceList"
                       :key="idx"
-                      :label="fprovince.name"
+                      :label="fprovince.fname"
                       :value="fprovince.id">
                     </el-option>
                   </el-select>
@@ -39,7 +39,7 @@
                     <el-option
                       v-for="(fcity, idx) in fcityList"
                       :key="idx"
-                      :label="fcity.name"
+                      :label="fcity.fname"
                       :value="fcity.id">
                     </el-option>
                   </el-select>
@@ -51,7 +51,7 @@
                     <el-option
                       v-for="(farea, idx) in fareaList"
                       :key="idx"
-                      :label="farea.name"
+                      :label="farea.fname"
                       :value="farea.id">
                     </el-option>
                   </el-select>
@@ -88,7 +88,7 @@
                     <el-option
                       v-for="(sprovince, idx) in sprovinceList"
                       :key="idx"
-                      :label="sprovince.name"
+                      :label="sprovince.fname"
                       :value="sprovince.id">
                     </el-option>
                   </el-select>
@@ -100,7 +100,7 @@
                     <el-option
                       v-for="(scity, idx) in scityList"
                       :key="idx"
-                      :label="scity.name"
+                      :label="scity.fname"
                       :value="scity.id">
                     </el-option>
                   </el-select>
@@ -112,7 +112,7 @@
                     <el-option
                       v-for="(sarea, idx) in sareaList"
                       :key="idx"
-                      :label="sarea.name"
+                      :label="sarea.fname"
                       :value="sarea.id">
                     </el-option>
                   </el-select>
@@ -179,9 +179,50 @@
                 </el-option>
               </el-select>
             </el-form-item>
-            <el-form-item prop="zhTime" label="装货日期">
+            <!-- <el-form-item prop="zhTime" label="装货日期">
               <el-date-picker type="date" :picker-options="pickerOptionsStart" placeholder="选择装货日期" v-model="formAdd.zhTime" disabled style="width: 100%;"></el-date-picker>
-            </el-form-item>
+            </el-form-item> -->
+              <el-row>
+              <el-col :span="12" :offset="0">
+                <el-form-item prop="zhTime" label="装货日期">
+                  <el-date-picker  type="date" :picker-options="pickerOptionsStart" placeholder="选择装货日期" v-model="formAdd.zhTime" value-format="yyyy-MM-dd" style="width: 100%;" disabled>
+                  </el-date-picker>
+                </el-form-item>
+              </el-col>
+              <el-col :span="11" :offset="1">
+                <el-form-item prop="zhperiod" label="装货时间">
+                  <el-select v-model="formAdd.zhperiod" placeholder="请选择" style="width: 100%;" disabled>
+                    <el-option
+                      v-for="(timeType, idx) in timeTypeList"
+                      :key="idx"
+                      :label="timeType.typename"
+                      :value="timeType.typename">
+                    </el-option>
+                  </el-select>
+                </el-form-item>
+              </el-col>
+            </el-row>
+
+            <el-row>
+              <el-col :span="12" :offset="0">
+                <el-form-item prop="xhTime" label="卸货日期">
+                  <el-date-picker  type="date" :picker-options="pickerOptionsStart" placeholder="选择卸货日期" v-model="formAdd.xhTime" value-format="yyyy-MM-dd" style="width: 100%;" disabled>
+                  </el-date-picker>
+                </el-form-item>
+              </el-col>
+              <el-col :span="11" :offset="1">
+                <el-form-item prop="xhperiod" label="卸货时间">
+                  <el-select v-model="formAdd.xhperiod" placeholder="请选择" style="width: 100%;" disabled>
+                    <el-option
+                      v-for="(timeType, idx) in timeTypeList"
+                      :key="idx"
+                      :label="timeType.typename"
+                      :value="timeType.typename">
+                    </el-option>
+                  </el-select>
+                </el-form-item>
+              </el-col>
+            </el-row>
             <el-form-item prop="appointId" label="指派人员" class="TextAlignL">
               <span class="MarginR_10" v-if="appointName">{{appointName}}</span>
             </el-form-item>
@@ -344,10 +385,10 @@ export default {
       sprovinceList: [],
       scityList: [],
       sareaList: [],
-      fProvincePid: 1,
+      fProvincePid: 100000,
       fcityPid: '',
       fareaPid: '',
-      sProvincePid: 1,
+      sProvincePid: 100000,
       scityPid: '',
       sareaPid: '',
       cityDistance: 0,
@@ -361,6 +402,7 @@ export default {
       // fareaName: '',
       // sareaName: '',
       hasOffered: false, // 是否报过价
+      timeTypeList: [],
       formAdd: {
         fprovince: '',
         fcity: '',
@@ -384,6 +426,9 @@ export default {
         shAddress: '',
         carType: '',
         zhTime: '',
+        zhperiod: '',
+        xhTime: '',
+        xhperiod: '',
         goodsName: '',
         orderGoodsList: [],
         payWay: 0, // 0_现结 1_月结
@@ -425,6 +470,15 @@ export default {
         ],
         zhTime: [
           { required: true, message: '请选择装货日期！', trigger: 'change' }
+        ],
+        zhperiod: [
+          { required: true, message: '请选择装货时间！', trigger: 'change' }
+        ],
+        xhTime: [
+          { required: true, message: '请选择卸货日期！', trigger: 'change' }
+        ],
+        xhperiod: [
+          { required: true, message: '请选择卸货时间！', trigger: 'change' }
         ],
         goodsName: [
           { required: true, message: '请输入货物名称！', trigger: 'change' }
@@ -543,13 +597,16 @@ export default {
           temp.ffee = Info.ffee
           temp.ifUseOilCard = (temp.foilCard === 0 ? 0 : 1) // 0_不使用 1_使用
           temp.oilCard = Info.foilCard
-          temp.fprovince = Info.origin_province_id
-          temp.fcity = Info.origin_city_id
-          temp.farea = Info.origin_area_id
-          temp.sprovince = Info.destination_province_id
-          temp.scity = Info.destination_city_id
-          temp.sarea = Info.destination_area_id
-          temp.zhTime = Info.zhTime // new Date(Info.zh_time.time)
+          temp.fprovince = Number(Info.origin_province_id)
+          temp.fcity = Number(Info.origin_city_id)
+          temp.farea = Number(Info.origin_area_id)
+          temp.sprovince = Number(Info.destination_province_id)
+          temp.scity = Number(Info.destination_city_id)
+          temp.sarea = Number(Info.destination_area_id)
+          temp.zhTime = Info.zhTime.slice(0, 10) // new Date(Info.zh_time.time)
+          temp.xhTime = Info.xhTime.slice(0, 10)
+          temp.zhperiod = Info.zhperiod
+          temp.xhperiod = Info.xhperiod
           temp.orderGoodsList = Info.orderGoodsList // Info.ordergoods
           temp.carType = Info.carType
           temp.fmainId = Info.fmainId
@@ -582,11 +639,11 @@ export default {
           this.changeFcity(temp.fcity, 1)
           this.changeScity(temp.scity, 1)
           // 价格
-          this.getDistanceDefault(temp.farea, temp.sarea)
+          // this.getDistanceDefault(temp.farea, temp.sarea)
           // 车型单价
           // this.getCartUnitPrice(Info.carType)
           // 查询最高限价
-          this.getMaxFee()
+          // this.getMaxFee()
         } else {
           this.$message({
             message: res.data.message + '！',
@@ -657,7 +714,7 @@ export default {
     // 获取省下拉
     getProvince () {
       this.send({
-        name: '/registerDriverController/regionSelect?pid=1',
+        name: '/registerDriverController/regionSelect?pid=' + this.fProvincePid,
         method: 'GET',
         data: {
         }
@@ -695,6 +752,26 @@ export default {
       }).then(res => {
         if (res.data.respCode === '0') {
           this[property] = res.data.data
+        }
+      }).catch((res) => {
+        console.log(res)
+      })
+    },
+    // 获取装货时间段
+    getTimeTypeList () {
+      this.send({
+        name: '/typeController/tstype/2c9f1a626c40745d016c4146de420003',
+        method: 'GET',
+        data: {
+        }
+      }).then(res => {
+        if (res.data.respCode === '0') {
+          this.timeTypeList = res.data.data
+        } else {
+          this.$message({
+            message: '获取省份信息失败！',
+            type: 'error'
+          })
         }
       }).catch((res) => {
         console.log(res)
@@ -768,15 +845,16 @@ export default {
     sureOperation (formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          if (this.maxFee < this.formBaoJia.offer) {
-            this.$message({
-              message: '报价超过了最高限价！',
-              type: 'error'
-            })
-            return false
-          } else {
-            this.sureOffer()
-          }
+          this.sureOffer()
+          // if (this.maxFee < this.formBaoJia.offer) {
+          //   this.$message({
+          //     message: '报价超过了最高限价！',
+          //     type: 'error'
+          //   })
+          //   return false
+          // } else {
+          //   this.sureOffer()
+          // }
         } else {
           this.$message({
             message: '请将信息填写完整！',

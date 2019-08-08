@@ -26,7 +26,7 @@
           <el-col :span="6">总金额： {{sumPrice}} ¥</el-col>
           <el-col :span="6">税额： {{sumTax}} ¥</el-col>
           <el-col :span="7">税后金额： {{sumPrice - sumTax}} ¥</el-col>
-          <el-col :span="5">结算税额： {{sumTax * userFrate / 100}} ¥</el-col>
+          <el-col :span="5">结算税额： {{sumPrice * userFrate / 100}} ¥</el-col>
         </el-row>
       </el-col>
       <el-col :span="24">
@@ -122,7 +122,7 @@ export default {
           fprice: item.ffee - item.ftax,
           frate: this.rateList[this.rateIdx].name,
           ftaxmoney: item.ftax,
-          ftax1: item.ftax * this.userFrate / 100, // 结算税额
+          ftax1: item.ffee * this.userFrate / 100, // 结算税额
           funit: '次',
           id: ''
         })
@@ -156,14 +156,14 @@ export default {
         ftax: this.sumTax,
         ftotal: this.sumPrice,
         fmoney: this.sumPrice - this.sumTax,
-        ftax1: this.sumTax * this.userFrate / 100, // 结算税额
+        ftax1: this.sumPrice * this.userFrate / 100, // 结算税额
         fujian: '',
         id: '',
         fsaleid: '',
         fstatus: '',
         invoiceentryList: this.invoiceentry
       }
-      console.log(DATA)
+      // console.log(DATA)
       // 提交开票申请
       this.send({
         name: '/invoiceController',

@@ -77,14 +77,36 @@ router.beforeEach((to, from, next) => {
     store.dispatch('changeSiderIdx', '1-1')
   }
   if (to.meta.requireAuth) {
-    if (getCookie('btwccy_cookie')) {
+    if (getCookie('btwccy_cookie') && to.name !== 'Home') {
+      // 登陆后不是主页都可以跳转
       next()
+    } else if (getCookie('btwccy_cookie') && to.name === 'Home') {
+      // 登陆后若是要访问主页，承运商可以直接访问，其它没有通过认证的先跳转认证页
+      if (store.state.userRole === '1' || store.state.userRole === '4') {
+        next()
+      } else {
+        if (store.state.checkStatus === '1') {
+          next()
+        } else {
+          next({
+            path: '/Information'
+          })
+        }
+      }
     } else {
       localStorage.clear()
       next({
         path: '/Login'
       })
     }
+    // if (getCookie('btwccy_cookie') && store.state.checkStatus === '1') {
+    //   next()
+    // } else {
+    //   localStorage.clear()
+    //   next({
+    //     path: '/Login'
+    //   })
+    // }
   } else {
     next()
   }

@@ -10,7 +10,7 @@
                   <el-option
                     v-for="(fprovince, idx) in fprovinceList"
                     :key="idx"
-                    :label="fprovince.name"
+                    :label="fprovince.fname"
                     :value="fprovince.id">
                   </el-option>
                 </el-select>
@@ -22,7 +22,7 @@
                   <el-option
                     v-for="(fcity, idx) in fcityList"
                     :key="idx"
-                    :label="fcity.name"
+                    :label="fcity.fname"
                     :value="fcity.id">
                   </el-option>
                 </el-select>
@@ -34,7 +34,7 @@
                   <el-option
                     v-for="(farea, idx) in fareaList"
                     :key="idx"
-                    :label="farea.name"
+                    :label="farea.fname"
                     :value="farea.id">
                   </el-option>
                 </el-select>
@@ -48,7 +48,7 @@
                   <el-option
                     v-for="(sprovince, idx) in sprovinceList"
                     :key="idx"
-                    :label="sprovince.name"
+                    :label="sprovince.fname"
                     :value="sprovince.id">
                   </el-option>
                 </el-select>
@@ -60,7 +60,7 @@
                   <el-option
                     v-for="(scity, idx) in scityList"
                     :key="idx"
-                    :label="scity.name"
+                    :label="scity.fname"
                     :value="scity.id">
                   </el-option>
                 </el-select>
@@ -72,7 +72,7 @@
                   <el-option
                     v-for="(sarea, idx) in sareaList"
                     :key="idx"
-                    :label="sarea.name"
+                    :label="sarea.fname"
                     :value="sarea.id">
                   </el-option>
                 </el-select>
@@ -284,10 +284,10 @@ export default {
       sprovinceList: [],
       scityList: [],
       sareaList: [],
-      fProvincePid: 1,
+      fProvincePid: 100000,
       fcityPid: '',
       fareaPid: '',
-      sProvincePid: 1,
+      sProvincePid: 100000,
       scityPid: '',
       sareaPid: '',
       orderList: [],
@@ -423,7 +423,7 @@ export default {
       }
     },
     handleCancel (idx, row) {
-      if (this.checkStatus === '1') {
+      if (this.checkStatus === '2') {
         this.$message({
           message: this.$store.state.prohibitTips,
           type: 'warning'
@@ -481,7 +481,8 @@ export default {
       let urlName = ''
       // 主账户
       if (this.userRole === '1' || this.userRole === '2' || this.userRole === '3') {
-        urlName = '/orderController/orderList?number=10&page_num=' + this.currentPage + '&main_usercode=' + this.userCode + (farea ? '&fh=' + farea : '') + (sarea ? '&sh=' + sarea : '')
+        urlName = '/orderController/orderList/' + this.userCode + '/' + this.currentPage + '/10?' + (farea ? 'fh=' + farea : '') + (sarea ? (farea ? '&sh=' : 'sh=') + sarea : '')
+        // urlName = '/orderController/orderList?number=10&page_num=' + this.currentPage + '&main_usercode=' + this.userCode + (farea ? '&fh=' + farea : '') + (sarea ? '&sh=' + sarea : '')
       }
       // 子账户
       if (this.userRole === '4' || this.userRole === '5') {

@@ -1,79 +1,20 @@
 <template>
   <div class="InfoBox">
-    <!-- <p class="ColorYellow">{{checkStatus == -1 ? '请填写您的信息！' : (checkStatus == 0 ? '您的信息正在等待审核！' : '您的信息未通过审核，请重新填写！')}}</p> -->
     <el-form class="FormBox" :model="formInfo" :rules="InfoRules" ref="formInfo" label-width="200px">
-      <!-- 货主和承运商 -->
-      <el-form-item v-if="userRole == 1 || userRole == 2" label="公司名称" prop="company">
+      <!-- 承运商 -->
+      <el-form-item v-if="userRole == 1" label="公司名称" prop="company">
         <el-input v-model="formInfo.company" placeholder="请输入公司名称" clearable></el-input>
       </el-form-item>
-      <el-form-item v-if="userRole == 1 || userRole == 2" label="统一社会信用代码" prop="organcode">
+      <el-form-item v-if="userRole == 1" label="法人姓名" prop="legalName">
+        <el-input v-model="formInfo.legalName" placeholder="请输入法人姓名" clearable></el-input>
+      </el-form-item>
+      <el-form-item v-if="userRole == 1" label="身份证号" prop="legalIdNo">
+        <el-input v-model="formInfo.legalIdNo" placeholder="请输入身份证号" clearable></el-input>
+      </el-form-item>
+      <el-form-item v-if="userRole == 1" label="统一社会信用代码" prop="organcode">
         <el-input v-model="formInfo.organcode" placeholder="请输入统一社会信用代码" clearable></el-input>
       </el-form-item>
-      <!-- <el-form-item v-if="userRole == 1 || userRole == 2" label="联系人" prop="contact">
-        <el-input v-model="formInfo.contact" placeholder="请输入联系人" clearable></el-input>
-      </el-form-item> -->
-      <!-- 个体 -->
-      <el-form-item v-if="userRole == 3" label="姓名" prop="name">
-        <el-input v-model="formInfo.name" placeholder="请输入姓名" clearable></el-input>
-      </el-form-item>
-      <el-form-item v-if="userRole == 3" label="身份证" prop="ID">
-        <el-input v-model="formInfo.ID" placeholder="请输入身份证号" clearable></el-input>
-      </el-form-item>
-      <!-- <el-form-item v-if="userRole == 1 || userRole == 2" label="联系电话" prop="tel">
-        <el-input v-model="formInfo.tel" placeholder="请输入联系人手机号" clearable></el-input>
-      </el-form-item> -->
-      <!-- 货主和承运商 -->
-      <!-- <el-form-item v-if="userRole == 1 || userRole == 2" label="抬头" prop="taitou">
-        <el-input v-model="formInfo.taitou" placeholder="请输入抬头" clearable></el-input>
-      </el-form-item>
-      <el-form-item v-if="userRole == 1 || userRole == 2" label="开户行" prop="bank">
-        <el-input v-model="formInfo.bank" placeholder="请输入开户行" clearable></el-input>
-      </el-form-item>
-      <el-form-item v-if="userRole == 1 || userRole == 2" label="银行账号" prop="bankNo">
-        <el-input v-model="formInfo.bankNo" placeholder="请输入银行账号" clearable></el-input>
-      </el-form-item>
-      <el-form-item v-if="userRole == 1 || userRole == 2" label="开户地址" prop="faddress">
-        <el-input v-model="formInfo.faddress" placeholder="请输入开户地址" clearable></el-input>
-      </el-form-item>
-      <el-form-item v-if="userRole == 1 || userRole == 2" label="税号" prop="tax">
-        <el-input v-model="formInfo.tax" placeholder="请输入税号" clearable></el-input>
-      </el-form-item> -->
-      <!-- 个体货主 -->
-      <el-form-item v-if="userRole == 3" label="头像" prop="avatar">
-        <el-upload
-          class="avatar-uploader"
-          action=""
-          :show-file-list="false"
-          :on-success="handleAvatarSuccess"
-          :before-upload="beforeAvatarUploadAvatar">
-          <img v-if="formInfo.avatar" :src="formInfo.avatar" class="avatar">
-          <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-        </el-upload>
-      </el-form-item>
-      <el-form-item v-if="userRole == 3" label="身份证正面" prop="license">
-        <el-upload
-          class="avatar-uploader"
-          action=""
-          :show-file-list="false"
-          :on-success="handleAvatarSuccess"
-          :before-upload="beforeAvatarUploadSF">
-          <img v-if="formInfo.license" :src="formInfo.license" class="avatar">
-          <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-        </el-upload>
-      </el-form-item>
-      <el-form-item v-if="userRole == 3" label="身份证背面" prop="contract">
-        <el-upload
-          class="avatar-uploader"
-          action=""
-          :show-file-list="false"
-          :on-success="handleAvatarSuccess"
-          :before-upload="beforeAvatarUploadSB">
-          <img v-if="formInfo.contract" :src="formInfo.contract" class="avatar">
-          <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-        </el-upload>
-      </el-form-item>
-      <!-- 货主和承运商 -->
-      <el-form-item v-if="userRole == 1 || userRole == 2" label="营业执照" prop="license">
+      <el-form-item v-if="userRole == 1" label="营业执照" prop="license">
         <el-upload
           class="avatar-uploader"
           action=""
@@ -84,27 +25,15 @@
           <i v-else class="el-icon-plus avatar-uploader-icon"></i>
         </el-upload>
       </el-form-item>
-      <!-- <el-form-item v-if="userRole == 1 || userRole == 2" label="合同(请下载文件后盖章)" prop="contract">
-        <el-upload
-          class="upload-demo"
-          action=""
-          accept=".pdf,.doc,.PDF"
-          :on-success="handleAvatarSuccess"
-          :before-upload="beforeAvatarUploadC">
-          <el-button size="small" type="primary">点击上传</el-button>
-          <span v-if="hetongName">{{hetongName}}</span>
-          <span class="CursorPointer" style="color:#409EFF;display: Block" target="_blank" @click="ToPdf">点击下载合同格式文件</span>
-        </el-upload>
-      </el-form-item> -->
-      <el-form-item >
+      <el-form-item v-if="userRole == 1">
         <el-checkbox v-model="agreed">我已阅读并同意</el-checkbox><span class="CursorPointer" style="color:#409EFF" @click="showAgreement">使用许可及服务协议</span>
       </el-form-item>
-      <el-form-item>
+      <el-form-item v-if="userRole == 1">
         <el-button type="primary" @click="onSubmitRZ('formInfo')" style="width: 100px;" :loading="ifLoading">提交认证</el-button>
-        <!-- <el-button type="primary" :disabled="checkStatus == 0" @click="onSubmit('formInfo')" style="width: 100px;" :loading="ifLoading">{{checkStatus == -1 ? '提交信息' :'保存修改'}}</el-button> -->
       </el-form-item>
-      <div class="BgBlock"></div>
     </el-form>
+    <!-- 其它类型手机端认证 -->
+    <h2 class="TextAlignC" v-if="userRole != 1">请去手机端进行信息认证</h2>
   </div>
 </template>
 
@@ -151,6 +80,8 @@ export default {
         tax: '',
         avatar: '',
         name: '',
+        legalName: '',
+        legalIdNo: '',
         ID: '',
         tel: '',
         license: '',
@@ -181,6 +112,12 @@ export default {
         ],
         name: [
           { required: true, message: '请输入姓名！', trigger: 'blur' }
+        ],
+        legalName: [
+          { required: true, message: '请输入法人姓名！', trigger: 'blur' }
+        ],
+        legalIdNo: [
+          { required: true, validator: validateID, trigger: 'blur' }
         ],
         avatar: [
           { required: true, message: '请选择要上传的头像！', trigger: 'blur' }
@@ -593,18 +530,19 @@ export default {
       let DATA = {
         id: this.userId,
         name: this.formInfo.company,
-        organtype: 0,
-        organcode: this.formInfo.organcode,
-        usertype: 0,
-        company_licence: this.licenseImgName
+        legalName: this.formInfo.legalName,
+        legalIdNo: this.formInfo.legalIdNo,
+        // organtype: 0,
+        organCode: this.formInfo.organcode,
+        // usertype: 0,
+        companyLicence: this.licenseImgName
       }
-      let stObg = JSON.stringify(DATA)
+      // let stObg = JSON.stringify(DATA)
       this.ifLoading = true
       this.send({
-        name: '/eSignController/organizeAuth?organizeAuth=' + stObg,
+        name: '/eSignController/organizeAuth',
         method: 'POST',
-        data: {
-        }
+        data: DATA
       }).then(res => {
         if (res.data.respCode === '0') {
           this.ifLoading = false

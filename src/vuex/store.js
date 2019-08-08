@@ -26,7 +26,6 @@ const state = {
   // userFsettle: '', // 0_现结，1_月结
   userFaccountid: null, // 是否支付认证过
   userFrate: 0, // 用户税额折扣
-  // ImgURL_PREFIX2: 'http://116.62.171.244:8082/yingsu/',
   ImgURL_PREFIX: 'http://120.27.3.205/',
   showDetail: false, // 是否显示订单详情页
   showMap: false, // 是否显示轨迹 货主

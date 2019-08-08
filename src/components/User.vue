@@ -198,13 +198,13 @@ export default {
       },
       Rules: {
         LogisticPhone: [
-          { required: true, validator: validateAccountPhone, trigger: 'change' }
+          { required: true, validator: validateAccountPhone, trigger: 'blur' }
         ],
         LogisticName: [
-          { required: true, message: '请输入司机姓名！', trigger: 'change' }
+          { required: true, message: '请输入司机姓名！', trigger: 'blur' }
         ],
         LogisticPsd: [
-          { required: true, message: '请输入密码！', trigger: 'change' }
+          { required: true, message: '请输入密码！', trigger: 'blur' }
         ]
       }
     }
