@@ -176,14 +176,21 @@
                   v-for="(carType, idx) in carTypeList"
                   :key="idx"
                   :label="carType.typeName"
-                  :value="carType.id">
+                  :value="carType.typename">
                 </el-option>
               </el-select>
             </el-form-item>
-            <!-- <el-form-item prop="zhTime" label="装货日期">
-              <el-date-picker type="date" :picker-options="pickerOptionsStart" placeholder="选择装货日期" v-model="formAdd.zhTime" style="width: 100%;" :disabled="formAdd.fstatus != 0"></el-date-picker>
-            </el-form-item> -->
-            <!-- time -->
+            <el-form-item prop="carLength" label="车长">
+            <el-select v-model="formAdd.carLength" placeholder="请选择" style="width: 100%">
+              <el-option
+                v-for="(carLength, idx) in carLengthList"
+                :key="idx"
+                :label="carLength.typename"
+                :value="carLength.typename">
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <!-- time -->
             <el-row>
               <el-col :span="12" :offset="0">
                 <el-form-item prop="zhTime" label="装货日期">
@@ -393,6 +400,7 @@ export default {
         shArea: '',
         shAddress: '',
         carType: '',
+        carLength: '',
         zhTime: '',
         zhperiod: '',
         xhTime: '',
@@ -439,6 +447,9 @@ export default {
         ],
         carType: [
           { required: true, message: '请选择车型！', trigger: 'change' }
+        ],
+        carLength: [
+          { required: true, message: '请选择车长！', trigger: 'change' }
         ],
         zhTime: [
           { required: true, message: '请选择装货日期！', trigger: 'change' }
@@ -508,6 +519,7 @@ export default {
       searchOrderId: state => state.searchOrderId,
       ImgURL_PREFIX: state => state.ImgURL_PREFIX,
       carTypeList: state => state.carTypeList,
+      carLengthList: state => state.carLengthList,
       goodsTypeList: state => state.goodsTypeList
     }),
     totalWeight: function () {
@@ -561,24 +573,24 @@ export default {
     },
     // 改变车型
     changeCarType (typeId) {
-      this.carTypeList.map(item => {
-        if (item.id === typeId) {
-          // this.unitPrice = item.fprice
-          if (this.formAdd.goodsName !== '') {
-            this.getMaxFee()
-          }
-        }
-      })
+      // this.carTypeList.map(item => {
+      //   if (item.id === typeId) {
+      //     this.unitPrice = item.fprice
+      //     if (this.formAdd.goodsName !== '') {
+      //       this.getMaxFee()
+      //     }
+      //   }
+      // })
     },
     // 改变货物类型
     changeGoodsType (typeId) {
-      this.goodsTypeList.map(item => {
-        if (item.id === typeId) {
-          if (this.formAdd.carType !== '') {
-            this.getMaxFee()
-          }
-        }
-      })
+      // this.goodsTypeList.map(item => {
+      //   if (item.id === typeId) {
+      //     if (this.formAdd.carType !== '') {
+      //       this.getMaxFee()
+      //     }
+      //   }
+      // })
     },
     // 获取最高限价
     getMaxFee () {
@@ -648,6 +660,7 @@ export default {
         shArea: '', // this.formAdd.shArea,
         shAddress: this.formAdd.shAddress,
         carType: this.formAdd.carType,
+        carLength: this.formAdd.carLength,
         zhTime: this.formAdd.zhTime,
         zhperiod: this.formAdd.zhperiod,
         xhTime: this.formAdd.xhTime,
@@ -768,6 +781,7 @@ export default {
         shArea: '',
         shAddress: '',
         carType: '',
+        carLength: '',
         zhTime: '',
         goodsName: '',
         orderGoodsList: [
@@ -817,6 +831,7 @@ export default {
           temp.xhperiod = Info.xhperiod
           temp.orderGoodsList = Info.ordergoods
           temp.carType = Info.car_type
+          temp.carLength = Info.car_length
           temp.fmainId = Info.fmain_id
           temp.fsubId = Info.fsub_id
           temp.goodsName = Info.goods_name
@@ -850,7 +865,7 @@ export default {
           // 车型单价
           // this.getCartUnitPrice(Info.car_type)
           // 查询最高限价
-          this.getMaxFee()
+          // this.getMaxFee()
         } else {
           this.$message({
             message: res.data.message + '！',

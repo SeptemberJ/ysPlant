@@ -136,13 +136,14 @@
         <el-form-item label="司机手机" prop="LogisticPhone">
           <el-input v-model="form.LogisticPhone" clearable></el-input>
         </el-form-item>
-        <!-- <el-form-item label="公司" prop="LogisticCompany">
+        <el-form-item label="公司" prop="LogisticCompany">
           <el-input v-model="form.LogisticCompany"></el-input>
-        </el-form-item> -->
+        </el-form-item>
         <el-form-item label="密码" prop="LogisticPsd">
           <el-input v-model="form.LogisticPsd" clearable></el-input>
         </el-form-item>
       </el-form>
+      <p class="TextAlignR">( 若该司机还未完成信息认证，请尽快通知该司机前往APP上进行信息认证! )</p>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormDriverVisible = false">取 消</el-button>
         <el-button type="primary" @click="addLogistic('form')" :loading="loading">确 定</el-button>
@@ -193,7 +194,7 @@ export default {
       form: {
         LogisticName: '',
         LogisticPhone: '',
-        // LogisticCompany: '',
+        LogisticCompany: '',
         LogisticPsd: ''
       },
       Rules: {
@@ -205,6 +206,9 @@ export default {
         ],
         LogisticPsd: [
           { required: true, message: '请输入密码！', trigger: 'blur' }
+        ],
+        LogisticCompany: [
+          { required: true, message: '请输入公司名称！', trigger: 'blur' }
         ]
       }
     }

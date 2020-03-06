@@ -22,17 +22,19 @@ export default {
   },
   created () {
     this.getCarType()
+    this.getCarLength()
     this.getGoodsType()
   },
   methods: {
     ...mapActions([
       'initCarType',
-      'initGoodsType'
+      'initGoodsType',
+      'initCarLength'
     ]),
-    // 获取车型下拉
+    // 车型
     getCarType () {
       this.send({
-        name: '/zCarTypeController/list',
+        name: '/typeController/tstype/2c90b4bf6c1ccde9016c1cdb2c4f000a',
         method: 'GET',
         data: {
         }
@@ -44,7 +46,22 @@ export default {
         console.log(res)
       })
     },
-    // 获取货物类型下拉
+    // 车长
+    getCarLength () {
+      this.send({
+        name: '/typeController/tstype/2c90b4bf6c1ccde9016c1cdb66db000c',
+        method: 'GET',
+        data: {
+        }
+      }).then(res => {
+        if (res.data.respCode === '0') {
+          this.initCarLength(res.data.data)
+        }
+      }).catch((res) => {
+        console.log(res)
+      })
+    },
+    // 货物类型
     getGoodsType () {
       this.send({
         name: '/typeController/list',

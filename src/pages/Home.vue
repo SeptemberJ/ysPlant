@@ -18,12 +18,13 @@
                 <el-menu-item-group>
                   <el-menu-item index="1-1" v-if="userRole == 2 || userRole == 5 || userRole == 3">订单列表</el-menu-item>
                   <!-- 货主订单新增 -->
-                  <el-submenu index="1-2" v-if="userRole == 2 || userRole == 5  || userRole == 3">
+                  <el-menu-item index="1-2" v-if="userRole == 2 || userRole == 5  || userRole == 3">订单新增</el-menu-item>
+                  <!-- <el-submenu index="1-2" v-if="userRole == 2 || userRole == 5  || userRole == 3">
                     <template slot="title">订单新增</template>
                     <el-menu-item index="1-2-1">普货</el-menu-item>
                     <el-menu-item index="1-2-2">危险品</el-menu-item>
                     <el-menu-item index="1-2-3">冷藏品</el-menu-item>
-                  </el-submenu>
+                  </el-submenu> -->
                   <el-menu-item index="1-7" v-if="userRole == 2 || userRole == 5 || userRole == 3">车辆查询</el-menu-item>
                   <!-- 承运商订单管理 -->
                   <el-menu-item index="1-3" v-if="userRole == 1 || userRole == 4">订单查询</el-menu-item>
@@ -86,7 +87,8 @@
             <!-- mainContent -->
             <section>
               <Order v-if="siderIdx == '1-1'"/>
-              <AddOrder v-if="siderIdx == '1-2-1' || siderIdx == '1-2-2' || siderIdx == '1-2-3'" :orderType="siderIdx"/>
+              <AddOrder v-if="siderIdx == '1-2'"/>
+              <!-- <AddOrder v-if="siderIdx == '1-2-1' || siderIdx == '1-2-2' || siderIdx == '1-2-3'" :orderType="siderIdx"/> -->
               <OrderC v-if="siderIdx == '1-3'"/>
               <Receipt v-if="siderIdx == '1-4'"/>
               <Receipt v-if="siderIdx == '1-6'"/>
@@ -168,6 +170,7 @@ export default {
       this.changeShowDetail(false)
       this.changeShowMap(false)
     },
+    // 侧边菜单
     changeSideMenu (index, keyPath) {
       let levelCount = keyPath.length
       if (levelCount > 1) {
@@ -190,7 +193,6 @@ export default {
 .HomePage{
   position: relative;
   width: 100%;
-  /*min-height: 500px;*/
   display: block;
   .siderMenu{
     overflow: hidden;
@@ -205,17 +207,6 @@ export default {
       height: 50px;
       background: #fff;
       border-bottom: 1px solid #e8e8e8;
-      /*span{
-        width: 100%;
-        height: 80px;
-        font-size: 20px;
-        line-height: 80px;
-        color: #000;
-        padding: 0 20px;
-        display: block;
-        text-align: left;
-      }
-      */
     }
     .CopyrightBar{
       width: 100%;

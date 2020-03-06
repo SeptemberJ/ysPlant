@@ -161,8 +161,8 @@
         <div>
           <!-- goods type -->
           <el-form-item prop="goodsName" label="货物类型">
-            <div class="TextAlignL">{{formAdd.goodsName == '4d2881f66850132a01685013f0100001' ? '普货' : (formAdd.goodsName == '4d2881f66850132a01685014c6e40007' ? '危险品' : (formAdd.goodsName == '2c90b4e368db5b460168db617b760000' ? '冷藏品' : '其他类型'))}}</div>
-            <!-- 原本下拉选择货物类型
+            <!-- <div class="TextAlignL">{{formAdd.goodsName == '4d2881f66850132a01685013f0100001' ? '普货' : (formAdd.goodsName == '4d2881f66850132a01685014c6e40007' ? '危险品' : (formAdd.goodsName == '2c90b4e368db5b460168db617b760000' ? '冷藏品' : '其他类型'))}}</div> -->
+            <!-- 原本下拉选择货物类型 -->
             <el-select v-model="formAdd.goodsName" placeholder="请选择" style="width: 100%" @change="changeGoodsType">
               <el-option
                 v-for="(goodsType, idx) in goodsTypeList"
@@ -170,7 +170,7 @@
                 :label="goodsType.name"
                 :value="goodsType.id">
               </el-option>
-            </el-select> -->
+            </el-select>
           </el-form-item>
           <!-- car -->
           <el-form-item prop="carType" label="车型">
@@ -178,8 +178,18 @@
               <el-option
                 v-for="(carType, idx) in carTypeList"
                 :key="idx"
-                :label="carType.typeName"
-                :value="carType.id">
+                :label="carType.typename"
+                :value="carType.typename">
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item prop="carLength" label="车长">
+            <el-select v-model="formAdd.carLength" placeholder="请选择" style="width: 100%">
+              <el-option
+                v-for="(carLength, idx) in carLengthList"
+                :key="idx"
+                :label="carLength.typename"
+                :value="carLength.typename">
               </el-option>
             </el-select>
           </el-form-item>
@@ -204,7 +214,6 @@
               </el-form-item>
             </el-col>
           </el-row>
-
           <el-row>
             <el-col :span="12" :offset="0">
               <el-form-item prop="xhTime" label="卸货日期">
@@ -428,7 +437,7 @@
 import { mapState, mapActions } from 'vuex'
 export default {
   name: 'AddOrder',
-  props: ['orderType'],
+  // props: ['orderType'],
   data () {
     var validatePhone = (rule, value, callback) => {
       if (value.trim() === '') {
@@ -501,6 +510,7 @@ export default {
         shArea: '',
         shAddress: '',
         carType: '',
+        carLength: '',
         zhTime: '',
         zhperiod: '',
         xhTime: '',
@@ -541,6 +551,9 @@ export default {
         ],
         carType: [
           { required: true, message: '请选择车型！', trigger: 'change' }
+        ],
+        carLength: [
+          { required: true, message: '请选择车长！', trigger: 'change' }
         ],
         zhTime: [
           { required: true, message: '请选择装货日期！', trigger: 'change' }
@@ -611,6 +624,7 @@ export default {
       userCode: state => state.userCode,
       userFdepsta: state => state.userFdepsta,
       carTypeList: state => state.carTypeList,
+      carLengthList: state => state.carLengthList,
       goodsTypeList: state => state.goodsTypeList
     }),
     totalWeight: function () {
@@ -631,9 +645,9 @@ export default {
     // unitPrice: function (value) {
     //   this.totalSum = (this.cityDistance * this.totalWeight / 1000 * value).toFixed(2)
     // },
-    orderType: function (value) {
-      this.diffOrderType(value)
-    },
+    // orderType: function (value) {
+    //   this.diffOrderType(value)
+    // },
     appointCompany: function (value) {
       this.appointSearchResultC = []
     },
@@ -663,7 +677,7 @@ export default {
     this.getProvince()
     this.getTimeTypeList()
     // 判断下单的类型
-    this.diffOrderType(this.orderType)
+    // this.diffOrderType(this.orderType)
   },
   components: {
   },
@@ -694,24 +708,26 @@ export default {
     },
     // 改变车型
     changeCarType (typeId) {
-      this.carTypeList.map(item => {
-        if (item.id === typeId) {
-          this.unitPrice = item.fprice
-          if (this.formAdd.goodsName !== '' && this.formAdd.farea !== '' && this.formAdd.sarea !== '') {
-            // this.getMaxFee()
-          }
-        }
-      })
+      // 页面计算价格
+      // this.carTypeList.map(item => {
+      //   if (item.typecode === typeId) {
+      //     this.unitPrice = item.fprice
+      //     if (this.formAdd.goodsName !== '' && this.formAdd.farea !== '' && this.formAdd.sarea !== '') {
+      //       this.getMaxFee()
+      //     }
+      //   }
+      // })
     },
     // 改变货物类型
     changeGoodsType (typeId) {
-      this.goodsTypeList.map(item => {
-        if (item.id === typeId) {
-          if (this.formAdd.carType !== '' && this.formAdd.farea !== '' && this.formAdd.sarea !== '') {
-            // this.getMaxFee()
-          }
-        }
-      })
+      // 页面计算价格
+      // this.goodsTypeList.map(item => {
+      //   if (item.id === typeId) {
+      //     if (this.formAdd.carType !== '' && this.formAdd.farea !== '' && this.formAdd.sarea !== '') {
+      //       // this.getMaxFee()
+      //     }
+      //   }
+      // })
     },
     // 获取最高限价
     getMaxFee () {
@@ -905,6 +921,7 @@ export default {
         shArea: '', // this.formAdd.shArea,
         shAddress: this.formAdd.shAddress,
         carType: this.formAdd.carType,
+        carLength: this.formAdd.carLength,
         zhTime: this.formAdd.zhTime,
         zhperiod: this.formAdd.zhperiod,
         xhTime: this.formAdd.xhTime,
@@ -959,6 +976,7 @@ export default {
         shArea: '',
         shAddress: '',
         carType: '',
+        carLength: '',
         zhTime: '',
         zhperiod: '',
         xhTime: '',

@@ -16,20 +16,28 @@
           </el-table-column>
           <el-table-column
             prop="fname"
-            label="司机姓名">
+            label="司机姓名"
+            width="150">
           </el-table-column>
           <el-table-column
             prop="fmobile"
-            label="手机号">
+            label="手机号"
+             width="150">
           </el-table-column>
-          <!-- <el-table-column
+          <el-table-column
             prop="company_name"
-            label="所属公司">
-          </el-table-column> -->
+            label="公司名称"
+            show-overflow-tooltip>
+          </el-table-column>
+          <el-table-column
+            prop="check_statusTxt"
+            label="状态"
+            width="120">
+          </el-table-column>
           <el-table-column
             align="right"
             label="操作"
-            width="200"
+            width="120"
             >
             <template slot-scope="scope">
               <el-button
@@ -273,7 +281,10 @@ export default {
         if (res.data.respCode === '0') {
           this.sum = res.data.size
           this.currentPage = oldPage
-          this.LogisticsList = res.data.data
+          this.LogisticsList = res.data.data.map(item => {
+            item.check_statusTxt = item.check_status === '3' ? '已认证' : '未认证'
+            return item
+          })
         } else {
           this.$message({
             message: res.data.message + '！',

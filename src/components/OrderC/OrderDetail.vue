@@ -175,14 +175,22 @@
                   v-for="(carType, idx) in carTypeList"
                   :key="idx"
                   :label="carType.typeName"
-                  :value="carType.id">
+                  :value="carType.typename">
                 </el-option>
               </el-select>
             </el-form-item>
-            <!-- <el-form-item prop="zhTime" label="装货日期">
-              <el-date-picker type="date" :picker-options="pickerOptionsStart" placeholder="选择装货日期" v-model="formAdd.zhTime" disabled style="width: 100%;"></el-date-picker>
-            </el-form-item> -->
-              <el-row>
+            <el-form-item prop="carLength" label="车长">
+              <el-select v-model="formAdd.carLength" placeholder="请选择" style="width: 100%" disabled>
+                <el-option
+                  v-for="(carLength, idx) in carLengthList"
+                  :key="idx"
+                  :label="carLength.typename"
+                  :value="carLength.typename">
+                </el-option>
+              </el-select>
+            </el-form-item>
+            <!-- time -->
+            <el-row>
               <el-col :span="12" :offset="0">
                 <el-form-item prop="zhTime" label="装货日期">
                   <el-date-picker  type="date" :picker-options="pickerOptionsStart" placeholder="选择装货日期" v-model="formAdd.zhTime" value-format="yyyy-MM-dd" style="width: 100%;" disabled>
@@ -299,20 +307,21 @@
       </el-form>
     </el-row>
     <!-- 指定人员 -->
-    <el-dialog title="派单" :visible.sync="dialogFormVisible" width="550px">
-      <el-form :model="formBaoJia" :rules="rulesBaoJia" ref="formBaoJia" label-width="100px" label-position="left">
+    <el-dialog title="派单" :visible.sync="dialogFormVisible" width="650px">
+      <el-form :model="formBaoJia" :rules="rulesBaoJia" ref="formBaoJia" label-width="150px" label-position="left">
         <el-form-item label="报价金额" prop="offer">
           <el-input v-model="formBaoJia.offer" placeholder='请输入您的报价金额' clearable></el-input>
         </el-form-item>
-        <el-form-item label="指派司机" prop="choosedLogistic">
+        <el-form-item label="指派司机 (需已认证)" prop="choosedLogistic">
           <el-select v-model="formBaoJia.choosedLogistic" placeholder="请选择" style="width:100%">
             <el-option
               v-for="item in LogisticsList"
               :key="item.id"
               :label="item.fname"
-              :value="item.id">
+              :value="item.id"
+              :disabled="item.check_status != 3">
               <span style="float: left">{{ item.fname }}</span>
-              <span style="float: right; color: #8492a6; font-size: 13px"><span class="PaddingL_10">{{item.fmobile}}</span></span>
+              <span style="float: right; color: #8492a6; font-size: 13px"><span>{{item.fmobile}}</span><span class="PaddingL_10">{{item.check_status == 3 ? '已认证' : '未认证'}}</span></span>
             </el-option>
           </el-select>
         </el-form-item>
@@ -425,6 +434,7 @@ export default {
         shArea: '',
         shAddress: '',
         carType: '',
+        carLength: '',
         zhTime: '',
         zhperiod: '',
         xhTime: '',
@@ -467,6 +477,9 @@ export default {
         ],
         carType: [
           { required: true, message: '请选择车型！', trigger: 'change' }
+        ],
+        carLength: [
+          { required: true, message: '请选择车长！', trigger: 'change' }
         ],
         zhTime: [
           { required: true, message: '请选择装货日期！', trigger: 'change' }
@@ -549,6 +562,7 @@ export default {
       searchOrderId: state => state.searchOrderId,
       ImgURL_PREFIX: state => state.ImgURL_PREFIX,
       carTypeList: state => state.carTypeList,
+      carLengthList: state => state.carLengthList,
       goodsTypeList: state => state.goodsTypeList
     }),
     totalWeight: function () {
@@ -609,6 +623,7 @@ export default {
           temp.xhperiod = Info.xhperiod
           temp.orderGoodsList = Info.orderGoodsList // Info.ordergoods
           temp.carType = Info.carType
+          temp.carLength = Info.carLength
           temp.fmainId = Info.fmainId
           temp.fsubId = Info.fsubId
           temp.goodsName = Info.goodsName

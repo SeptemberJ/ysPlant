@@ -35,6 +35,7 @@ const state = {
   accountKind: 0, // 用户管理切换新增用户类型tab索引 0_子账户1_司机
   PDFCompany: '',
   carTypeList: [],
+  carLengthList: [],
   goodsTypeList: [],
   html: ''
 }
@@ -42,6 +43,9 @@ const state = {
 const actions = {
   initCarType  ({commit, state}, CARTYPE) {
     commit('setCarTypeList', CARTYPE)
+  },
+  initCarLength  ({commit, state}, CARLENGTH) {
+    commit('setCarLengthList', CARLENGTH)
   },
   initGoodsType  ({commit, state}, GOODS) {
     commit('setGoodsTypeList', GOODS)
@@ -127,6 +131,9 @@ const actions = {
 const mutations = {
   setCarTypeList (state, CARTYPE) {
     state.carTypeList = CARTYPE
+  },
+  setCarLengthList (state, CARLENGTH) {
+    state.carLengthList = CARLENGTH
   },
   setGoodsTypeList (state, GOODS) {
     state.goodsTypeList = GOODS

@@ -23,8 +23,8 @@
                   <el-option
                     v-for="(carType, idx) in carTypeList"
                     :key="idx"
-                    :label="carType.typeName"
-                    :value="carType.id">
+                    :label="carType.typename"
+                    :value="carType.typename">
                   </el-option>
                 </el-select>
               </el-form-item>

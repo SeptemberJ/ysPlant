@@ -98,6 +98,7 @@ export default {
         data: {
         }
       }).then(res => {
+        console.log(res.data)
         switch (res.data.respCode) {
           case '0':
             let userInfo = res.data.data
@@ -251,7 +252,7 @@ export default {
 .Login{
   width: 100%;
   overflow: hidden;
-  text-algin: center;
+  text-align: center;
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
